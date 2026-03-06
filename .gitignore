@@ -1,0 +1,5 @@
+/.env
+/dist
+*.log
+*_output.txt
+node_modules/
