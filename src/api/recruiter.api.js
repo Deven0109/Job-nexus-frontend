@@ -90,3 +90,12 @@ export const deleteCategory = async (id) => {
     const response = await api.delete(`/categories/${id}`);
     return response.data;
 };
+
+// ==================== DASHBOARD ====================
+
+// Get Dashboard Stats
+export const getDashboardStats = async () => {
+    const response = await api.get('/recruiter/dashboard');
+    return response.data;
+};
+

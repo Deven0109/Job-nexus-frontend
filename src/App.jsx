@@ -30,6 +30,7 @@ import JobDetailPage from './pages/public/JobDetailPage';
 // Dashboard Pages
 import CandidateProfileSettings from './pages/candidate/CandidateProfileSettings';
 import AppliedJobsPage from './pages/candidate/AppliedJobsPage';
+import RecruiterDashboardMain from './pages/recruiter/RecruiterDashboardMain';
 import RecruiterDashboard from './pages/recruiter/RecruiterDashboard';
 import RecruiterProfileSettings from './pages/recruiter/RecruiterProfileSettings';
 import RecruiterJobRequests from './pages/recruiter/RecruiterJobRequests';
@@ -116,7 +117,7 @@ function App() {
                                     </ProtectedRoute>
                                 }
                             >
-                                <Route path="recruiter/dashboard" element={<Navigate to="/recruiter/manage-jobs" replace />} />
+                                <Route path="recruiter/dashboard" element={<RecruiterDashboardMain />} />
                                 <Route path="recruiter/manage-jobs" element={<RecruiterDashboard />} />
                                 <Route path="recruiter/categories" element={<ManageCategories />} />
                                 <Route path="recruiter/add-job" element={<RecruiterJobRequests />} />

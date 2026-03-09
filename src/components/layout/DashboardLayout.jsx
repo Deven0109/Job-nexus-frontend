@@ -26,6 +26,7 @@ import {
 const getSidebarItems = (role) => {
     const items = {
         recruiter: [
+            { label: 'Dashboard', to: '/recruiter/dashboard', icon: HiOutlineHome },
             { label: 'Manage Jobs', to: '/recruiter/manage-jobs', icon: HiOutlineBriefcase },
             { label: 'Manage Categories', to: '/recruiter/categories', icon: HiOutlineBars3 },
             { label: 'Add Job', to: '/recruiter/add-job', icon: HiOutlinePlusCircle },
@@ -236,7 +237,7 @@ const DashboardLayout = () => {
                 </header>
 
                 {/* Content Area */}
-                <main className="flex-1 p-2 sm:p-4 bg-slate-50/50">
+                <main className="flex-1 p-1.5 sm:p-3 bg-slate-50/50">
                     <Outlet />
                 </main>
             </div>

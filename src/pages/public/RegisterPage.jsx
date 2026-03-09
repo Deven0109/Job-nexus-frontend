@@ -55,7 +55,7 @@ const RegisterPage = () => {
     // Redirect if already logged in
     if (isAuthenticated && user) {
         let dashboardPath = `/${user.role}/dashboard`;
-        if (user.role === 'recruiter') dashboardPath = '/recruiter/manage-jobs';
+        if (user.role === 'recruiter') dashboardPath = '/recruiter/dashboard';
         if (user.role === 'candidate') dashboardPath = '/';
         navigate(dashboardPath, { replace: true });
         return null;

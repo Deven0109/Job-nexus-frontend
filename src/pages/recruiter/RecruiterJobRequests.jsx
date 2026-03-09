@@ -400,9 +400,12 @@ const RecruiterJobRequests = () => {
 
                             {/* Details & Urgency */}
                             <Box sx={{ textAlign: 'right', minWidth: 150 }}>
-                                <Typography variant="body2" fontWeight={800} color="primary.main">{formatSalary(req.salaryMin, req.salaryMax, req.currency)}</Typography>
+                                <Typography variant="body2" fontWeight={800} color="primary.main">
+                                    <Box component="span" sx={{ color: 'text.secondary', fontWeight: 900, fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em', mr: 0.5 }}>CTC :-</Box>
+                                    {formatSalary(req.salaryMin, req.salaryMax, req.currency)}
+                                </Typography>
                                 <Typography variant="caption" color="text.secondary" fontWeight={700} display="block" sx={{ mt: 0.5 }}>
-                                    {req.experienceRequired} • {req.urgency}
+                                    Exp :- {req.experienceRequired || 'Not Required'} • Priority :- <Box component="span" sx={{ color: (req.urgency || 'Medium') === 'High' ? 'error.main' : (req.urgency || 'Medium') === 'Medium' ? 'warning.main' : 'text.disabled' }}>{req.urgency || 'Medium'}</Box>
                                 </Typography>
                             </Box>
 

@@ -32,7 +32,7 @@ const HomePage = () => {
         if (isAuthenticated && user) {
             // For recruiters and employers, we keep the auto-redirect to their professional dashboards
             if (user.role === 'recruiter') {
-                navigate('/recruiter/manage-jobs', { replace: true });
+                navigate('/recruiter/dashboard', { replace: true });
             } else if (user.role === 'employer') {
                 navigate('/employer/dashboard', { replace: true });
             }

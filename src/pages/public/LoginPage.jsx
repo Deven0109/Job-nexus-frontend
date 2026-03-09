@@ -37,7 +37,7 @@ const LoginPage = () => {
 
     if (isAuthenticated && user) {
         let dashboardPath = `/${user.role}/dashboard`;
-        if (user.role === 'recruiter') dashboardPath = '/recruiter/manage-jobs';
+        if (user.role === 'recruiter') dashboardPath = '/recruiter/dashboard';
         if (user.role === 'candidate') dashboardPath = '/';
         return <Navigate to={dashboardPath} replace />;
     }
@@ -97,7 +97,7 @@ const LoginPage = () => {
             let dashboardPath = `/${userData.role}/dashboard`;
 
             if (userData.role === 'recruiter') {
-                dashboardPath = '/recruiter/manage-jobs';
+                dashboardPath = '/recruiter/dashboard';
             } else if (userData.role === 'candidate') {
                 dashboardPath = '/';
             }

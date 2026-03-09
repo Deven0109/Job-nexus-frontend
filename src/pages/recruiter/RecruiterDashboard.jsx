@@ -26,7 +26,7 @@ import {
     Search as SearchIcon,
     Work as WorkIcon,
     LocationOn as LocationIcon,
-    CurrencyRupee as RupeeIcon,
+    AttachMoney as MoneyIcon,
     People as PeopleIcon,
     Delete as DeleteIcon,
     Bolt as BoltIcon,
@@ -37,6 +37,23 @@ import { getMyJobs, deleteJob, toggleJobStatus } from '../../api/recruiter.api';
 import toast from 'react-hot-toast';
 import { Pagination } from '@mui/material';
 import { FilterList as FilterIcon, Sort as SortIcon } from '@mui/icons-material';
+
+// Helper: Get currency symbol from currency code stored in job
+const getCurrencySymbol = (currencyCode) => {
+    const symbols = {
+        'INR': '₹',
+        'USD': '$',
+        'EUR': '€',
+        'GBP': '£',
+        'AED': 'AED ',
+        'CAD': 'C$',
+        'AUD': 'A$',
+        'SGD': 'S$',
+        'SAR': 'SAR ',
+        'QAR': 'QAR ',
+    };
+    return symbols[currencyCode] || '₹'; // Default to ₹ for old jobs without currency field
+};
 
 const RecruiterDashboard = () => {
     const navigate = useNavigate();
@@ -259,6 +276,7 @@ const RecruiterDashboard = () => {
                                     border: '1px solid',
                                     borderColor: 'divider',
                                     height: 180, // Fixed exact height for "same to same" size
+                                    width: '100%', // Fixed the width shrinking issue
                                     display: 'flex',
                                     alignItems: 'center',
                                     overflow: 'hidden', // Prevent any growth
@@ -299,21 +317,32 @@ const RecruiterDashboard = () => {
                                             }}>
                                                 {job.title}
                                             </Typography>
-                                            <Stack direction="row" spacing={4} sx={{ color: 'text.secondary' }}>
-                                                <Stack direction="row" spacing={1} alignItems="center">
+                                            <Stack
+                                                direction={{ xs: 'column', md: 'row' }}
+                                                spacing={{ xs: 1, md: 3 }}
+                                                sx={{ color: 'text.secondary', flexWrap: 'wrap', rowGap: 1 }}
+                                            >
+                                                <Stack direction="row" spacing={1} alignItems="center" sx={{ flexShrink: 0 }}>
                                                     <LocationIcon sx={{ fontSize: 16, color: 'primary.main', opacity: 0.7 }} />
-                                                    <Typography variant="caption" fontWeight={700} sx={{ textTransform: 'uppercase' }}>{job.location || job.city || 'N/A'}</Typography>
-                                                </Stack>
-                                                <Stack direction="row" spacing={1} alignItems="center">
-                                                    <RupeeIcon sx={{ fontSize: 16, color: 'primary.main', opacity: 0.7 }} />
-                                                    <Typography variant="caption" fontWeight={800}>
-                                                        {job.salaryMin ? job.salaryMin.toLocaleString() : '0'}-{job.salaryMax ? job.salaryMax.toLocaleString() : '0'}
+                                                    <Typography variant="caption" fontWeight={700} sx={{ textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+                                                        {job.location || job.city || 'N/A'}
                                                     </Typography>
                                                 </Stack>
-                                                <Stack direction="row" spacing={1} alignItems="center">
-                                                    <PeopleIcon sx={{ fontSize: 16, color: 'primary.main', opacity: 0.7 }} />
-                                                    <Typography variant="caption" fontWeight={800}>{job.vacancies || 0} Open</Typography>
+                                                <Stack direction="row" spacing={0.8} alignItems="center" sx={{ flexShrink: 0 }}>
+                                                    <Typography variant="caption" fontWeight={900} sx={{ color: 'text.secondary', whiteSpace: 'nowrap', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                                        CTC :-
+                                                    </Typography>
+                                                    <Typography variant="caption" fontWeight={800} sx={{ whiteSpace: 'nowrap', color: 'text.primary' }}>
+                                                        {getCurrencySymbol(job.currency)}{job.salaryMin ? job.salaryMin.toLocaleString() : '0'} – {job.salaryMax ? job.salaryMax.toLocaleString() : '0'}
+                                                    </Typography>
                                                 </Stack>
+                                                <Stack direction="row" spacing={1} alignItems="center" sx={{ flexShrink: 0 }}>
+                                                    <PeopleIcon sx={{ fontSize: 16, color: 'primary.main', opacity: 0.7 }} />
+                                                    <Typography variant="caption" fontWeight={800} sx={{ whiteSpace: 'nowrap' }}>
+                                                        {job.vacancies || 0} Open
+                                                    </Typography>
+                                                </Stack>
+
                                             </Stack>
                                         </Box>
 
