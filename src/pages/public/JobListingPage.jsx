@@ -6,8 +6,17 @@ import {
     HiOutlineMapPin,
     HiOutlineClock,
     HiOutlineCurrencyRupee,
-    HiOutlineUser
+    HiOutlineUser,
+    HiOutlineBanknotes
 } from 'react-icons/hi2';
+
+const CURRENCY_SYMBOLS = {
+    USD: '$',
+    INR: '₹',
+    EUR: '€',
+    GBP: '£',
+    AED: 'AED '
+};
 import { getPublicJobs } from '../../api/jobs.api';
 import { applyToJob } from '../../api/applications.api';
 import { useAuth } from '../../context/AuthContext';
@@ -143,9 +152,11 @@ const JobListingPage = () => {
         setPagination(prev => ({ ...prev, page: 1 }));
     };
 
-    const formatSalary = (min, max) => {
+    const formatSalary = (min, max, currency = 'INR') => {
         if (!min && !max) return 'Not disclosed';
-        return `₹${min?.toLocaleString('en-IN') || 0} - ₹${max?.toLocaleString('en-IN') || 'Not disclosed'}`;
+        const symbol = CURRENCY_SYMBOLS[currency] || CURRENCY_SYMBOLS.INR;
+        const fmt = (n) => n?.toLocaleString('en-IN') || 0;
+        return `${symbol}${fmt(min)} - ${symbol}${fmt(max)}`;
     };
 
     const handleApply = async (jobId) => {
@@ -350,7 +361,7 @@ const JobListingPage = () => {
 
                                 {/* Salary Range */}
                                 <div>
-                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 block">Salary Range (₹)</label>
+                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 block">Salary Range</label>
                                     <div className="space-y-3">
                                         <div className="grid grid-cols-2 gap-2">
                                             <div className="space-y-1">
@@ -563,8 +574,8 @@ const JobListingPage = () => {
 
                                                         {/* Line 3: CTC */}
                                                         <div className="flex items-center gap-1.5 text-[#4b5563] text-sm font-medium mb-4">
-                                                            <HiOutlineCurrencyRupee className="w-5 h-5 text-[#6b7280]" />
-                                                            CTC: {formatSalary(job.salaryMin, job.salaryMax)}
+                                                            <HiOutlineBanknotes className="w-5 h-5 text-[#6b7280]" />
+                                                            CTC: {formatSalary(job.salaryMin, job.salaryMax, job.currency)}
                                                         </div>
 
                                                         {/* Line 4: Skills */}

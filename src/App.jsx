@@ -4,6 +4,9 @@ import { Toaster } from 'react-hot-toast';
 
 // Context
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import theme from './theme';
 
 // Layouts
 import PublicLayout from './components/layout/PublicLayout';
@@ -25,7 +28,6 @@ import JobDetailPage from './pages/public/JobDetailPage';
 
 
 // Dashboard Pages
-import CandidateDashboard from './pages/candidate/CandidateDashboard';
 import CandidateProfileSettings from './pages/candidate/CandidateProfileSettings';
 import AppliedJobsPage from './pages/candidate/AppliedJobsPage';
 import RecruiterDashboard from './pages/recruiter/RecruiterDashboard';
@@ -67,126 +69,116 @@ const queryClient = new QueryClient({
 function App() {
     return (
         <QueryClientProvider client={queryClient}>
-            <AuthProvider>
-                <Router>
-                    <Routes>
-                        {/* ==================== PUBLIC ROUTES ==================== */}
-                        <Route element={<PublicLayout />}>
-                            <Route index element={<HomePage />} />
-                            <Route path="jobs" element={<JobListingPage />} />
-                            <Route path="jobs/:id" element={<JobDetailPage />} />
+            <ThemeProvider theme={theme}>
+                <CssBaseline />
+                <AuthProvider>
+                    <Router>
+                        <Routes>
+                            {/* ==================== PUBLIC & CANDIDATE ROUTES ==================== */}
+                            <Route element={<PublicLayout />}>
+                                <Route index element={<HomePage />} />
+                                <Route path="jobs" element={<JobListingPage />} />
+                                <Route path="jobs/:id" element={<JobDetailPage />} />
 
-                            <Route path="login" element={<Navigate to="/login-candidate" replace />} />
-                            <Route path="login-candidate" element={<LoginPage />} />
-                            <Route path="login-recruiter" element={<LoginPage />} />
-                            <Route path="login-employer" element={<LoginPage />} />
-                            <Route path="register" element={<Navigate to="/register-candidate" replace />} />
-                            <Route path="register-candidate" element={<RegisterPage />} />
-                            <Route path="register-recruiter" element={<RegisterPage />} />
-                            <Route path="register-employer" element={<RegisterPage />} />
-                            <Route path="forgot-password" element={<ForgotPasswordPage />} />
-                            <Route path="verify-login-otp" element={<LoginOtpVerificationPage />} />
-                            <Route path="reset-password/:token" element={<LoginPage />} />
-                            <Route path="unauthorized" element={<UnauthorizedPage />} />
-                            <Route path="terms" element={<TermsPage />} />
-                            <Route path="about" element={<AboutPage />} />
-                            {/* Candidate Specific (Public Layout) */}
+                                <Route path="login" element={<Navigate to="/login-candidate" replace />} />
+                                <Route path="login-candidate" element={<LoginPage />} />
+                                <Route path="login-recruiter" element={<LoginPage />} />
+                                <Route path="login-employer" element={<LoginPage />} />
+                                <Route path="register" element={<Navigate to="/register-candidate" replace />} />
+                                <Route path="register-candidate" element={<RegisterPage />} />
+                                <Route path="register-recruiter" element={<RegisterPage />} />
+                                <Route path="register-employer" element={<RegisterPage />} />
+                                <Route path="forgot-password" element={<ForgotPasswordPage />} />
+                                <Route path="verify-login-otp" element={<LoginOtpVerificationPage />} />
+                                <Route path="reset-password/:token" element={<LoginPage />} />
+                                <Route path="unauthorized" element={<UnauthorizedPage />} />
+                                <Route path="terms" element={<TermsPage />} />
+                                <Route path="about" element={<AboutPage />} />
+
+                                {/* Moved Candidate Routes to PublicLayout (Top Nav) */}
+                                <Route
+                                    element={
+                                        <ProtectedRoute roles={['candidate']}>
+                                            <OutletWrapper />
+                                        </ProtectedRoute>
+                                    }
+                                >
+                                    <Route path="candidate/applications" element={<AppliedJobsPage />} />
+                                    <Route path="candidate/profile-settings" element={<CandidateProfileSettings />} />
+                                </Route>
+                            </Route>
+
+                            {/* ==================== RECRUITER ROUTES ==================== */}
                             <Route
-                                path="candidate-profile-settings"
                                 element={
-                                    <ProtectedRoute roles={['candidate']}>
-                                        <CandidateProfileSettings />
+                                    <ProtectedRoute roles={['recruiter']}>
+                                        <DashboardLayout />
                                     </ProtectedRoute>
                                 }
-                            />
+                            >
+                                <Route path="recruiter/dashboard" element={<Navigate to="/recruiter/manage-jobs" replace />} />
+                                <Route path="recruiter/manage-jobs" element={<RecruiterDashboard />} />
+                                <Route path="recruiter/categories" element={<ManageCategories />} />
+                                <Route path="recruiter/add-job" element={<RecruiterJobRequests />} />
+                                <Route path="recruiter/job-requests/:id" element={<RecruiterEditJobRequest />} />
+                                <Route path="recruiter/job/:jobId/applications" element={<RecruiterApplicationsPage />} />
+                                <Route path="recruiter/job/:jobId/pipeline" element={<RecruiterPipelinePage />} />
+
+                                <Route path="recruiter/profile-settings" element={<RecruiterProfileSettings />} />
+                            </Route>
+
+                            {/* ==================== EMPLOYER ROUTES ==================== */}
                             <Route
-                                path="candidate-applications"
                                 element={
-                                    <ProtectedRoute roles={['candidate']}>
-                                        <AppliedJobsPage />
+                                    <ProtectedRoute roles={['employer']}>
+                                        <DashboardLayout />
                                     </ProtectedRoute>
                                 }
-                            />
-                        </Route>
+                            >
+                                <Route path="employer/dashboard" element={<EmployerDashboard />} />
+                                <Route path="employer/pipelines" element={<EmployerAllJobsApplications />} />
+                                <Route path="employer/job-requests" element={<EmployerJobRequests />} />
 
-                        {/* ==================== CANDIDATE DASHBOARD ==================== */}
-                        <Route
-                            element={
-                                <ProtectedRoute roles={['candidate']}>
-                                    <DashboardLayout />
-                                </ProtectedRoute>
-                            }
-                        >
-                            <Route path="candidate/dashboard" element={<Navigate to="/" replace />} />
-                            <Route path="candidate/interviews" element={<PlaceholderPage title="My Interviews" />} />
-                        </Route>
-
-                        {/* ==================== RECRUITER ROUTES ==================== */}
-                        <Route
-                            element={
-                                <ProtectedRoute roles={['recruiter']}>
-                                    <DashboardLayout />
-                                </ProtectedRoute>
-                            }
-                        >
-                            <Route path="recruiter/dashboard" element={<Navigate to="/recruiter/manage-jobs" replace />} />
-                            <Route path="recruiter/manage-jobs" element={<RecruiterDashboard />} />
-                            <Route path="recruiter/categories" element={<ManageCategories />} />
-                            <Route path="recruiter/add-job" element={<RecruiterJobRequests />} />
-                            <Route path="recruiter/job-requests/:id" element={<RecruiterEditJobRequest />} />
-                            <Route path="recruiter/job/:jobId/applications" element={<RecruiterApplicationsPage />} />
-                            <Route path="recruiter/job/:jobId/pipeline" element={<RecruiterPipelinePage />} />
-
-                            <Route path="recruiter/profile-settings" element={<RecruiterProfileSettings />} />
-                        </Route>
-
-                        {/* ==================== EMPLOYER ROUTES ==================== */}
-                        <Route
-                            element={
-                                <ProtectedRoute roles={['employer']}>
-                                    <DashboardLayout />
-                                </ProtectedRoute>
-                            }
-                        >
-                            <Route path="employer/dashboard" element={<EmployerDashboard />} />
-                            <Route path="employer/pipelines" element={<EmployerAllJobsApplications />} />
-                            <Route path="employer/job-requests" element={<EmployerJobRequests />} />
-
-                            <Route path="employer/job-requests/new" element={<CreateJobRequest />} />
-                            <Route path="employer/job-requests/:id" element={<ViewJobRequest />} />
-                            <Route path="employer/jobs/:jobId/review" element={<EmployerReviewPage />} />
-                            <Route path="employer/jobs/:jobId/pipeline" element={<EmployerPipelinePage />} />
+                                <Route path="employer/job-requests/new" element={<CreateJobRequest />} />
+                                <Route path="employer/job-requests/:id" element={<ViewJobRequest />} />
+                                <Route path="employer/jobs/:jobId/review" element={<EmployerReviewPage />} />
+                                <Route path="employer/jobs/:jobId/pipeline" element={<EmployerPipelinePage />} />
 
 
-                            <Route path="employer/profile" element={<CompanyProfile />} />
-                            <Route path="employer/reports" element={<PlaceholderPage title="Activity Reports" />} />
-                            <Route path="employer/profile-settings" element={<EmployerProfileSettings />} />
-                        </Route>
+                                <Route path="employer/profile" element={<CompanyProfile />} />
+                                <Route path="employer/reports" element={<PlaceholderPage title="Activity Reports" />} />
+                                <Route path="employer/profile-settings" element={<EmployerProfileSettings />} />
+                            </Route>
 
-                        {/* Catch All */}
-                        <Route path="*" element={<PublicLayout />}>
-                            <Route path="*" element={<NotFoundPage />} />
-                        </Route>
-                    </Routes>
-                </Router>
+                            {/* Catch All */}
+                            <Route path="*" element={<PublicLayout />}>
+                                <Route path="*" element={<NotFoundPage />} />
+                            </Route>
+                        </Routes>
+                    </Router>
 
-                <Toaster
-                    position="top-right"
-                    toastOptions={{
-                        duration: 4000,
-                        style: {
-                            borderRadius: '10px',
-                            background: '#1E293B',
-                            color: '#F1F5F9',
-                            fontSize: '14px',
-                            fontWeight: '500',
-                            padding: '12px 16px',
-                        },
-                    }}
-                />
-            </AuthProvider>
+                    <Toaster
+                        position="top-right"
+                        toastOptions={{
+                            duration: 4000,
+                            style: {
+                                borderRadius: '10px',
+                                background: '#1E293B',
+                                color: '#F1F5F9',
+                                fontSize: '14px',
+                                fontWeight: '500',
+                                padding: '12px 16px',
+                            },
+                        }}
+                    />
+                </AuthProvider>
+            </ThemeProvider>
         </QueryClientProvider>
     );
 }
+
+// Add Outlet import since I'm using it as a wrapper for protected routes inside a layout
+import { Outlet } from 'react-router-dom';
+const OutletWrapper = () => <Outlet />;
 
 export default App;

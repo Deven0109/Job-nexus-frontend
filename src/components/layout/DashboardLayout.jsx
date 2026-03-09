@@ -25,16 +25,10 @@ import {
 
 const getSidebarItems = (role) => {
     const items = {
-        candidate: [
-            { label: 'Browse Jobs', to: '/jobs', icon: HiOutlineMagnifyingGlass },
-            { label: 'My Applications', to: '/candidate-applications', icon: HiOutlineDocumentText },
-            { label: 'Interviews', to: '/candidate/interviews', icon: HiOutlineCalendarDays },
-            { label: 'Profile Settings', to: '/candidate-profile-settings', icon: HiOutlineCog6Tooth },
-        ],
         recruiter: [
             { label: 'Manage Jobs', to: '/recruiter/manage-jobs', icon: HiOutlineBriefcase },
             { label: 'Manage Categories', to: '/recruiter/categories', icon: HiOutlineBars3 },
-            { label: 'Post Live Job', to: '/recruiter/add-job', icon: HiOutlinePlusCircle },
+            { label: 'Add Job', to: '/recruiter/add-job', icon: HiOutlinePlusCircle },
             { label: 'Profile Settings', to: '/recruiter/profile-settings', icon: HiOutlineCog6Tooth },
         ],
         employer: [
@@ -45,9 +39,8 @@ const getSidebarItems = (role) => {
             { label: 'Company Profile', to: '/employer/profile', icon: HiOutlineBuildingOffice2 },
             { label: 'Profile Settings', to: '/employer/profile-settings', icon: HiOutlineCog6Tooth },
         ],
-
     };
-    return items[role] || items.candidate;
+    return items[role] || [];
 };
 
 
@@ -90,18 +83,18 @@ const DashboardLayout = () => {
             )}
 
             <aside
-                className={`fixed top-0 left-0 h-full w-72 bg-white border-r border-slate-200 z-50 transform transition-transform duration-300 ease-in-out
-                    lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen lg:z-auto
+                className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-slate-200 z-[100] transform transition-transform duration-300 ease-in-out
+                    lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen
                     ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
             >
                 <div className="flex flex-col h-full">
                     {/* Brand */}
-                    <div className="flex items-center justify-between px-6 py-6">
-                        <Link to="/" className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200">
+                    <div className="flex items-center justify-between px-4 py-5">
+                        <Link to="/" className="flex items-center gap-2.5">
+                            <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200">
                                 <HiOutlineBriefcase className="w-5 h-5 text-white" />
                             </div>
-                            <span className="text-xl font-extrabold text-[#0F172A] tracking-tight whitespace-nowrap">
+                            <span className="text-lg font-extrabold text-[#0F172A] tracking-tight whitespace-nowrap">
                                 Job <span className="text-blue-600">Consultancy</span>
                             </span>
                         </Link>
@@ -143,12 +136,12 @@ const DashboardLayout = () => {
                     </nav>
 
                     {/* Bottom - Logout */}
-                    <div className="p-4 mt-auto">
+                    <div className="p-3 mt-auto">
                         <button
                             onClick={handleLogout}
-                            className="flex items-center gap-3.5 w-full px-4 py-3.5 text-[15px] font-bold text-slate-600 hover:text-red-600 bg-slate-50/50 hover:bg-red-50 rounded-2xl transition-all duration-200 group border border-slate-100"
+                            className="flex items-center gap-3 w-full px-3 py-2.5 text-sm font-bold text-slate-600 hover:text-red-600 bg-slate-50/50 hover:bg-red-50 rounded-xl transition-all duration-200 group border border-slate-100"
                         >
-                            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-white shadow-sm text-slate-400 group-hover:text-red-500 border border-slate-100">
+                            <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-white shadow-sm text-slate-400 group-hover:text-red-500 border border-slate-100">
                                 <HiOutlineArrowRightOnRectangle className="w-5 h-5" />
                             </div>
                             Logout
@@ -158,9 +151,9 @@ const DashboardLayout = () => {
             </aside>
 
             {/* ======= MAIN AREA ======= */}
-            <div className="flex-1 flex flex-col min-h-screen">
+            <div className="flex-1 flex flex-col min-h-screen min-w-0 overflow-x-hidden">
                 {/* Topbar */}
-                <header className="sticky top-0 z-30 bg-white border-b border-slate-200 flex items-center justify-between px-6 h-[88px]">
+                <header className="sticky top-0 z-[90] bg-white/95 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 h-16">
                     <div className="flex items-center gap-3">
                         <button
                             onClick={() => setSidebarOpen(true)}
@@ -243,7 +236,7 @@ const DashboardLayout = () => {
                 </header>
 
                 {/* Content Area */}
-                <main className="flex-1 p-6 sm:p-8 bg-slate-50/50">
+                <main className="flex-1 p-2 sm:p-4 bg-slate-50/50">
                     <Outlet />
                 </main>
             </div>

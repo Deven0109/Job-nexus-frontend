@@ -14,6 +14,7 @@ import {
 
 const WORK_TYPES = ['Remote', 'Hybrid', 'Onsite'];
 const URGENCY_LEVELS = ['Low', 'Medium', 'High'];
+const CURRENCIES = ['USD', 'INR', 'EUR', 'GBP', 'AED'];
 
 const CreateJobRequest = () => {
     const navigate = useNavigate();
@@ -30,6 +31,7 @@ const CreateJobRequest = () => {
         experience: '',
         salaryMin: '',
         salaryMax: '',
+        currency: 'INR', // Default to INR
         workType: 'Onsite',
         countryCode: 'IN', // Default to India internally
         country: 'India',
@@ -108,6 +110,7 @@ const CreateJobRequest = () => {
         if (!formData.experience.trim()) return toast.error('Experience is required');
         if (!formData.salaryMin) return toast.error('Minimum salary is required');
         if (!formData.salaryMax) return toast.error('Maximum salary is required');
+        if (!formData.currency) return toast.error('Currency is required');
         if (Number(formData.salaryMax) < Number(formData.salaryMin)) return toast.error('Max salary must be ≥ min salary');
         if (!formData.country) return toast.error('Country is required');
         if (!formData.state) return toast.error('State is required');
@@ -124,6 +127,7 @@ const CreateJobRequest = () => {
                 experienceRequired: formData.experience,
                 salaryMin: Number(formData.salaryMin),
                 salaryMax: Number(formData.salaryMax),
+                currency: formData.currency,
                 workType: formData.workType,
                 country: formData.country,
                 state: formData.state,
@@ -316,30 +320,41 @@ const CreateJobRequest = () => {
                     <h3 className="text-base font-bold text-dark-800 mb-6">Compensation & Work Type</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                        {/* Salary Min */}
+                        {/* Currency */}
                         <div>
-                            <label className={labelCls}>Minimum Salary (Annual ₹) <span className="text-red-500">*</span></label>
-                            <input
-                                type="number"
-                                value={formData.salaryMin}
-                                onChange={(e) => handleChange('salaryMin', e.target.value)}
-                                className={inputCls}
-                                min="0"
-                                placeholder="e.g. 400000"
-                            />
+                            <label className={labelCls}>Currency <span className="text-red-500">*</span></label>
+                            <select
+                                value={formData.currency}
+                                onChange={(e) => handleChange('currency', e.target.value)}
+                                className={`${inputCls} appearance-none cursor-pointer`}
+                            >
+                                {CURRENCIES.map(curr => (
+                                    <option key={curr} value={curr}>{curr}</option>
+                                ))}
+                            </select>
                         </div>
 
-                        {/* Salary Max */}
-                        <div>
-                            <label className={labelCls}>Maximum Salary (Annual ₹) <span className="text-red-500">*</span></label>
-                            <input
-                                type="number"
-                                value={formData.salaryMax}
-                                onChange={(e) => handleChange('salaryMax', e.target.value)}
-                                className={inputCls}
-                                min="0"
-                                placeholder="e.g. 700000"
-                            />
+                        {/* Salary Min & Max */}
+                        <div className="md:col-span-1">
+                            <label className={labelCls}>Salary Range <span className="text-red-500">*</span></label>
+                            <div className="grid grid-cols-2 gap-4">
+                                <input
+                                    type="number"
+                                    value={formData.salaryMin}
+                                    onChange={(e) => handleChange('salaryMin', e.target.value)}
+                                    className={inputCls}
+                                    min="0"
+                                    placeholder="Min (e.g. 40000)"
+                                />
+                                <input
+                                    type="number"
+                                    value={formData.salaryMax}
+                                    onChange={(e) => handleChange('salaryMax', e.target.value)}
+                                    className={inputCls}
+                                    min="0"
+                                    placeholder="Max (e.g. 70000)"
+                                />
+                            </div>
                         </div>
 
                         {/* Work Type */}

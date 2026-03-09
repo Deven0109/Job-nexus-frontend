@@ -262,7 +262,7 @@ const CandidateProfileSettings = () => {
     ];
 
     return (
-        <Container maxWidth="lg" sx={{ py: 6 }}>
+        <Container maxWidth="lg" sx={{ py: 4 }}>
             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: 'flex-start', gap: 4 }}>
                 {/* ======= SIDEBAR ======= */}
                 <Box sx={{ width: { xs: '100%', md: '280px', lg: '300px' }, flexShrink: 0 }}>

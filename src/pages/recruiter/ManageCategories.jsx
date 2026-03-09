@@ -1,17 +1,47 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-    HiOutlinePlus,
-    HiOutlinePencil,
-    HiOutlineTrash,
-    HiOutlineEye,
-    HiOutlineEyeSlash,
-    HiOutlineMagnifyingGlass,
-    HiOutlineTag
-} from 'react-icons/hi2';
+    Container,
+    Typography,
+    Box,
+    Paper,
+    Stack,
+    TextField,
+    Button,
+    IconButton,
+    InputAdornment,
+    Chip,
+    alpha,
+    useTheme,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Switch,
+    FormControlLabel,
+    CircularProgress,
+    Divider,
+    Pagination
+} from '@mui/material';
+import {
+    Search as SearchIcon,
+    Add as PlusIcon,
+    Edit as EditIcon,
+    Delete as DeleteIcon,
+    Visibility as EyeIcon,
+    VisibilityOff as EyeOffIcon,
+    Tag as TagIcon
+} from '@mui/icons-material';
 import { listCategories, createCategory, updateCategory, deleteCategory } from '../../api/recruiter.api';
 import toast from 'react-hot-toast';
 
 const ManageCategories = () => {
+    const theme = useTheme();
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -22,6 +52,10 @@ const ManageCategories = () => {
         isVisible: true
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Pagination states
+    const [page, setPage] = useState(1);
+    const limit = 6;
 
     useEffect(() => {
         fetchCategories();
@@ -84,7 +118,6 @@ const ManageCategories = () => {
 
     const handleDelete = async (id) => {
         if (!window.confirm('Are you sure you want to delete this category?')) return;
-
         try {
             await deleteCategory(id);
             toast.success('Category deleted successfully');
@@ -111,181 +144,189 @@ const ManageCategories = () => {
         cat.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    // Reset pagination when search changes
+    useEffect(() => {
+        setPage(1);
+    }, [searchTerm]);
+
+    const paginatedCategories = filteredCategories.slice((page - 1) * limit, page * limit);
+
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h2 className="text-2xl font-bold text-dark-900 flex items-center gap-2">
-                        <HiOutlineTag className="text-primary-600" />
+        <Container maxWidth="xl" sx={{ p: { xs: 1, sm: 2 }, pt: 0 }}>
+            {/* Simple Header */}
+            <Box sx={{ py: 3, mb: 1, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box sx={{ flex: 1 }}>
+                    <Typography variant="h5" fontWeight={800} sx={{ color: 'text.primary', display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        <TagIcon sx={{ color: 'primary.main' }} />
                         Manage Categories
-                    </h2>
-                    <p className="text-dark-500 text-sm mt-1">View and manage your job categories</p>
-                </div>
-                <button
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                        Control the list of industries and job categories available for postings
+                    </Typography>
+                </Box>
+                <Button
+                    variant="contained"
+                    startIcon={<PlusIcon />}
                     onClick={() => handleOpenModal()}
-                    className="flex items-center justify-center gap-2 px-5 py-2.5 bg-primary-600 text-white rounded-xl font-bold hover:bg-primary-700 transition-all shadow-lg shadow-primary-100"
+                    sx={{ borderRadius: 2, fontWeight: 900, textTransform: 'none', px: 3 }}
                 >
-                    <HiOutlinePlus className="w-5 h-5" />
                     Add Category
-                </button>
-            </div>
+                </Button>
+            </Box>
 
-            <div className="card overflow-hidden">
-                <div className="p-4 border-b border-dark-100 bg-white">
-                    <div className="relative max-w-sm">
-                        <HiOutlineMagnifyingGlass className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-dark-400" />
-                        <input
-                            type="text"
-                            placeholder="Search by category type..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-11 pr-4 py-2 rounded-xl border border-dark-200 text-sm focus:ring-2 focus:ring-primary-100 focus:border-primary-500 transition-all"
-                        />
-                    </div>
-                </div>
+            {/* Simple Filter Bar */}
+            <Box sx={{ my: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
+                <TextField
+                    placeholder="Search by category name..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    size="small"
+                    sx={{ maxWidth: 400, flex: 1 }}
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <SearchIcon fontSize="small" color="disabled" />
+                            </InputAdornment>
+                        ),
+                        sx: { borderRadius: 2 }
+                    }}
+                />
+            </Box>
 
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                        <thead>
-                            <tr className="bg-dark-50 border-b border-dark-100 text-dark-500 font-bold">
-                                <th className="text-left px-6 py-4 uppercase tracking-wider w-16">#</th>
-                                <th className="text-left px-6 py-4 uppercase tracking-wider">Category Type</th>
-                                <th className="text-left px-6 py-4 uppercase tracking-wider">Visibility</th>
-                                <th className="text-center px-6 py-4 uppercase tracking-wider">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-dark-50">
-                            {loading ? (
-                                Array(5).fill().map((_, i) => (
-                                    <tr key={i} className="animate-pulse">
-                                        <td className="px-6 py-4"><div className="h-4 w-4 bg-dark-200 rounded"></div></td>
-                                        <td className="px-6 py-4"><div className="h-4 w-32 bg-dark-200 rounded"></div></td>
-                                        <td className="px-6 py-4"><div className="h-4 w-16 bg-dark-200 rounded"></div></td>
-                                        <td className="px-6 py-4"><div className="h-8 w-20 bg-dark-200 rounded mx-auto"></div></td>
-                                    </tr>
-                                ))
-                            ) : filteredCategories.length > 0 ? (
-                                filteredCategories.map((cat, idx) => (
-                                    <tr key={cat._id} className="hover:bg-dark-25 transition-colors">
-                                        <td className="px-6 py-4 text-dark-500 font-medium">{idx + 1}</td>
-                                        <td className="px-6 py-4 font-bold text-dark-800">{cat.name}</td>
-                                        <td className="px-6 py-4">
-                                            <button
-                                                onClick={() => toggleVisibility(cat)}
-                                                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition-all ${cat.isVisible
-                                                        ? 'bg-success-50 text-success-700 hover:bg-success-100'
-                                                        : 'bg-dark-100 text-dark-500 hover:bg-dark-200'
-                                                    }`}
-                                            >
-                                                {cat.isVisible ? <HiOutlineEye className="w-4 h-4" /> : <HiOutlineEyeSlash className="w-4 h-4" />}
-                                                {cat.isVisible ? 'Visible' : 'Hidden'}
-                                            </button>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center justify-center gap-2">
-                                                <button
-                                                    onClick={() => handleOpenModal(cat)}
-                                                    className="p-2 text-dark-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all"
-                                                    title="Edit"
-                                                >
-                                                    <HiOutlinePencil className="w-4.5 h-4.5" />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(cat._id)}
-                                                    className="p-2 text-dark-400 hover:text-danger-600 hover:bg-danger-50 rounded-lg transition-all"
-                                                    title="Delete"
-                                                >
-                                                    <HiOutlineTrash className="w-4.5 h-4.5" />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan="4" className="px-6 py-12 text-center text-dark-400">
-                                        No categories found. Start by adding one!
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            {/* Simple List Layout */}
+            <Stack spacing={1.5}>
+                {loading ? (
+                    Array(5).fill(0).map((_, i) => (
+                        <Paper key={i} sx={{ p: 2, borderRadius: 2, border: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'center' }}>
+                            <CircularProgress size={20} />
+                        </Paper>
+                    ))
+                ) : paginatedCategories.length === 0 ? (
+                    <Paper sx={{ py: 8, textAlign: 'center', borderRadius: 2, border: '1px dashed', borderColor: 'divider', bgcolor: alpha(theme.palette.background.default, 0.5) }}>
+                        <Typography color="text.disabled" fontWeight={700}>No categories found</Typography>
+                    </Paper>
+                ) : (
+                    paginatedCategories.map((cat, idx) => (
+                        <Paper key={cat._id} elevation={0} sx={{
+                            px: 3,
+                            py: 1.5,
+                            borderRadius: 2,
+                            border: '1px solid',
+                            borderColor: 'divider',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 3,
+                            transition: 'all 0.2s',
+                            '&:hover': {
+                                bgcolor: alpha(theme.palette.primary.main, 0.01),
+                                borderColor: 'primary.main'
+                            }
+                        }}>
+                            <Typography variant="body2" fontWeight={800} color="text.secondary" sx={{ width: 30 }}>
+                                #{(page - 1) * limit + idx + 1}
+                            </Typography>
 
-            {/* Modal */}
-            {showModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-dark-900/60 backdrop-blur-sm" onClick={() => !isSubmitting && setShowModal(false)}></div>
-                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 animate-in fade-in zoom-in duration-200">
-                        <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-xl font-bold text-dark-900">
-                                {editingCategory ? 'Update Category' : 'Create Category'}
-                            </h3>
-                            <button
-                                onClick={() => setShowModal(false)}
-                                className="text-dark-400 hover:text-dark-600 p-1"
-                            >
-                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
+                            <Typography variant="body1" fontWeight={800} sx={{ flex: 1 }}>
+                                {cat.name}
+                            </Typography>
 
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            <div>
-                                <label className="block text-sm font-bold text-dark-700 mb-2">Category Type <span className="text-danger-500">*</span></label>
-                                <input
-                                    type="text"
+                            <Chip
+                                label={cat.isVisible ? 'Visible' : 'Hidden'}
+                                size="small"
+                                onClick={() => toggleVisibility(cat)}
+                                icon={cat.isVisible ? <EyeIcon style={{ fontSize: 14 }} /> : <EyeOffIcon style={{ fontSize: 14 }} />}
+                                color={cat.isVisible ? 'success' : 'default'}
+                                sx={{ fontWeight: 900, textTransform: 'uppercase', fontSize: '10px', height: 24 }}
+                            />
+
+                            <Divider orientation="vertical" flexItem sx={{ height: 20, my: 'auto' }} />
+
+                            <Stack direction="row" spacing={1}>
+                                <IconButton size="small" onClick={() => handleOpenModal(cat)} sx={{ color: 'primary.main', border: '1px solid', borderColor: alpha(theme.palette.primary.main, 0.1) }}>
+                                    <EditIcon fontSize="small" />
+                                </IconButton>
+                                <IconButton size="small" onClick={() => handleDelete(cat._id)} sx={{ color: 'error.main', border: '1px solid', borderColor: alpha(theme.palette.error.main, 0.1) }}>
+                                    <DeleteIcon fontSize="small" />
+                                </IconButton>
+                            </Stack>
+                        </Paper>
+                    ))
+                )}
+            </Stack>
+
+            {filteredCategories.length > limit && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+                    <Pagination
+                        count={Math.ceil(filteredCategories.length / limit)}
+                        page={page}
+                        onChange={(e, value) => {
+                            setPage(value);
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        color="primary"
+                        sx={{
+                            '& .MuiPaginationItem-root': {
+                                fontWeight: 800
+                            }
+                        }}
+                    />
+                </Box>
+            )}
+
+            {/* Create/Edit Dialog */}
+            <Dialog
+                open={showModal}
+                onClose={() => !isSubmitting && setShowModal(false)}
+                PaperProps={{ sx: { borderRadius: 4, width: '100%', maxWidth: 450 } }}
+            >
+                <DialogTitle sx={{ fontWeight: 900, pt: 3 }}>
+                    {editingCategory ? 'Update Category' : 'Create New Category'}
+                </DialogTitle>
+                <form onSubmit={handleSubmit}>
+                    <DialogContent sx={{ pt: 1 }}>
+                        <Stack spacing={3}>
+                            <Box>
+                                <Typography variant="caption" fontWeight={900} color="text.disabled" sx={{ textTransform: 'uppercase', mb: 1, display: 'block' }}>
+                                    Category Name
+                                </Typography>
+                                <TextField
+                                    fullWidth
+                                    placeholder="e.g. Health Care"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full px-4 py-2.5 rounded-xl border border-dark-200 text-sm focus:ring-2 focus:ring-primary-100 focus:border-primary-500 transition-all"
-                                    placeholder="e.g., Programming"
+                                    size="small"
                                     autoFocus
+                                    InputProps={{ sx: { borderRadius: 2, fontWeight: 700 } }}
                                 />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-bold text-dark-700 mb-3">Visible <span className="text-danger-500">*</span></label>
-                                <label className="flex items-center gap-3 cursor-pointer group">
-                                    <div className="relative">
-                                        <input
-                                            type="checkbox"
-                                            checked={formData.isVisible}
-                                            onChange={(e) => setFormData({ ...formData, isVisible: e.target.checked })}
-                                            className="sr-only peer"
-                                        />
-                                        <div className="w-11 h-6 bg-dark-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-primary-100 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
-                                    </div>
-                                    <span className="text-sm font-medium text-dark-600 group-hover:text-dark-800 transition-colors">Visible in job postings</span>
-                                </label>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-3 pt-4">
-                                <button
-                                    type="button"
-                                    onClick={() => setShowModal(false)}
-                                    disabled={isSubmitting}
-                                    className="px-6 py-2.5 border border-dark-200 text-dark-600 font-bold rounded-xl hover:bg-dark-50 transition-all text-sm disabled:opacity-50"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    className="px-6 py-2.5 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 transition-all text-sm disabled:opacity-70 flex items-center justify-center gap-2"
-                                >
-                                    {isSubmitting ? (
-                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                    ) : null}
-                                    {editingCategory ? 'Update Category' : 'Create Category'}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-        </div>
+                            </Box>
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={formData.isVisible}
+                                        onChange={(e) => setFormData({ ...formData, isVisible: e.target.checked })}
+                                        color="primary"
+                                    />
+                                }
+                                label={<Typography variant="body2" fontWeight={700}>Visible to employers and candidates</Typography>}
+                            />
+                        </Stack>
+                    </DialogContent>
+                    <DialogActions sx={{ p: 3, pt: 1 }}>
+                        <Button onClick={() => setShowModal(false)} disabled={isSubmitting} sx={{ fontWeight: 900, color: 'text.secondary' }}>
+                            Cancel
+                        </Button>
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            disabled={isSubmitting}
+                            sx={{ borderRadius: 2, fontWeight: 900, px: 4, minWidth: 120 }}
+                        >
+                            {isSubmitting ? <CircularProgress size={20} color="inherit" /> : editingCategory ? 'Update' : 'Create'}
+                        </Button>
+                    </DialogActions>
+                </form>
+            </Dialog>
+        </Container>
     );
 };
 

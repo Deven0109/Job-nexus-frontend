@@ -17,6 +17,7 @@ const CATEGORIES = [
 
 const WORK_TYPES = ['Remote', 'Hybrid', 'Onsite'];
 const EXPERIENCE_LEVELS = ['Entry Level', 'Mid Level', 'Senior Level', 'Executive Level', 'Not Required'];
+const CURRENCIES = ['USD', 'INR', 'EUR', 'GBP', 'AED'];
 
 const AddJob = () => {
     const navigate = useNavigate();
@@ -37,6 +38,7 @@ const AddJob = () => {
         experienceLevel: 'Entry Level',
         salaryMin: '',
         salaryMax: '',
+        currency: 'INR',
         description: '',
         skills: [],
         requirements: [],
@@ -61,6 +63,7 @@ const AddJob = () => {
                         experienceLevel: req.experienceRequired || 'Entry Level',
                         salaryMin: req.salaryMin || '',
                         salaryMax: req.salaryMax || '',
+                        currency: req.currency || 'INR',
                         description: req.jobDescription || '',
                         skills: req.requiredSkills || [],
                         requirements: [],
@@ -192,12 +195,18 @@ const AddJob = () => {
                             </select>
                         </div>
                         <div>
-                            <label className={labelCls}>Min Salary (₹)</label>
-                            <input type="number" value={formData.salaryMin} onChange={e => handleChange('salaryMin', e.target.value)} className={inputCls} placeholder="e.g. 500000" />
+                            <label className={labelCls}>Currency</label>
+                            <select value={formData.currency} onChange={e => handleChange('currency', e.target.value)} className={`${inputCls} appearance-none`}>
+                                {CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
+                            </select>
                         </div>
                         <div>
-                            <label className={labelCls}>Max Salary (₹)</label>
-                            <input type="number" value={formData.salaryMax} onChange={e => handleChange('salaryMax', e.target.value)} className={inputCls} placeholder="e.g. 900000" />
+                            <label className={labelCls}>Min Salary</label>
+                            <input type="number" value={formData.salaryMin} onChange={e => handleChange('salaryMin', e.target.value)} className={inputCls} placeholder="e.g. 50000" />
+                        </div>
+                        <div>
+                            <label className={labelCls}>Max Salary</label>
+                            <input type="number" value={formData.salaryMax} onChange={e => handleChange('salaryMax', e.target.value)} className={inputCls} placeholder="e.g. 90000" />
                         </div>
                     </div>
                 </div>

@@ -2,18 +2,43 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { authAPI } from '../../api/auth.api';
 import {
-    HiOutlineUser,
-    HiOutlineLockClosed,
-    HiOutlineEye,
-    HiOutlineEyeSlash,
-    HiOutlineEnvelope,
-    HiOutlinePhone,
-    HiOutlinePhoto,
-} from 'react-icons/hi2';
+    Container,
+    Typography,
+    Box,
+    Paper,
+    Grid,
+    Stack,
+    TextField,
+    Button,
+    IconButton,
+    Avatar,
+    InputAdornment,
+    alpha,
+    useTheme,
+    Card,
+    CardContent,
+    Divider,
+    Tooltip,
+    CircularProgress
+} from '@mui/material';
+import {
+    Person as PersonIcon,
+    Lock as LockIcon,
+    Visibility as VisibilityIcon,
+    VisibilityOff as VisibilityOffIcon,
+    Email as EmailIcon,
+    Phone as PhoneIcon,
+    PhotoCamera as PhotoCameraIcon,
+    CloudUpload as UploadIcon,
+    Delete as DeleteIcon,
+    Save as SaveIcon
+} from '@mui/icons-material';
 import toast from 'react-hot-toast';
 
 const RecruiterProfileSettings = () => {
     const { user, updateUser } = useAuth();
+    const theme = useTheme();
+
     const [showPasswords, setShowPasswords] = useState({
         current: false,
         new: false,
@@ -21,7 +46,8 @@ const RecruiterProfileSettings = () => {
     });
 
     const [profileData, setProfileData] = useState({
-        companyName: '',
+        firstName: '',
+        lastName: '',
         email: '',
         mobileNumber: '',
     });
@@ -39,7 +65,8 @@ const RecruiterProfileSettings = () => {
     useEffect(() => {
         if (user) {
             setProfileData({
-                companyName: user.firstName || '',
+                firstName: user.firstName || '',
+                lastName: user.lastName || '',
                 email: user.email || '',
                 mobileNumber: user.phone || '',
             });
@@ -50,15 +77,11 @@ const RecruiterProfileSettings = () => {
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            // Immediate preview for UI responsiveness
             const objectUrl = URL.createObjectURL(file);
             setPreviewImage(objectUrl);
 
-            // Read as base64 for backend submission
             const reader = new FileReader();
             reader.onloadend = () => {
-                // We'll store the base64 in a separate hidden state or just update previewImage again
-                // For simplicity, let's just use the base64 for previewImage as well
                 setPreviewImage(reader.result);
             };
             reader.readAsDataURL(file);
@@ -70,8 +93,8 @@ const RecruiterProfileSettings = () => {
         setIsUpdatingProfile(true);
         try {
             const { data } = await authAPI.updateProfile({
-                firstName: profileData.companyName,
-                lastName: user?.lastName, // Preserve existing last name
+                firstName: profileData.firstName,
+                lastName: profileData.lastName,
                 email: profileData.email,
                 phone: profileData.mobileNumber,
                 avatar: previewImage
@@ -112,200 +135,370 @@ const RecruiterProfileSettings = () => {
     };
 
     return (
-        <div className="space-y-8 animate-fade-in">
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                {/* ======= UPDATE PROFILE CARD ======= */}
-                <div className="bg-white rounded-[32px] border border-slate-200 p-8 shadow-sm">
-                    <div className="flex items-center gap-4 mb-8">
-                        <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shadow-sm">
-                            <HiOutlineUser className="w-6 h-6" />
-                        </div>
-                        <div>
-                            <h2 className="text-xl font-bold text-slate-900 leading-tight">Update Profile</h2>
-                            <p className="text-xs text-slate-400 font-medium">Update your company profile details</p>
-                        </div>
-                    </div>
+        <Box sx={{
+            bgcolor: '#f4f7fe',
+            minHeight: '100vh',
+            width: '100%',
+            py: 6
+        }}>
+            <Container maxWidth={false} sx={{ maxWidth: '1600px' }}>
+                <Box sx={{ mb: 6 }}>
+                    <Typography variant="h3" fontWeight={900} color="#1e293b" sx={{ letterSpacing: '-0.04em' }}>
+                        Company Profile
+                    </Typography>
+                </Box>
 
-                    <form onSubmit={handleProfileUpdate} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="md:col-span-1">
-                            <label className="block text-sm font-bold text-slate-700 mb-2">
-                                Company Name <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                value={profileData.companyName}
-                                onChange={(e) => setProfileData({ ...profileData, companyName: e.target.value })}
-                                className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all outline-none"
-                                placeholder="Company Name"
-                            />
-                        </div>
+                <Grid container spacing={4} alignItems="stretch">
+                    {/* Profile Card */}
+                    <Grid item xs={12} md={6} sx={{ display: 'flex' }}>
+                        <Paper elevation={0} sx={{
+                            p: 6,
+                            borderRadius: '60px',
+                            bgcolor: 'white',
+                            flex: 1,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            boxShadow: '0 10px 40px rgba(0,0,0,0.02)',
+                            transition: 'all 0.3s ease',
+                            '&:hover': { boxShadow: '0 15px 50px rgba(0,0,0,0.04)' }
+                        }}>
+                            <Stack direction="row" spacing={2.5} alignItems="center" sx={{ mb: 6 }}>
+                                <Box sx={{
+                                    width: 60,
+                                    height: 60,
+                                    borderRadius: '20px',
+                                    bgcolor: '#f1f5f9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    color: '#64748b'
+                                }}>
+                                    <PersonIcon sx={{ fontSize: 32 }} />
+                                </Box>
+                                <Box>
+                                    <Typography variant="h4" fontWeight={900} sx={{ color: '#1e293b', letterSpacing: '-0.02em' }}>Update Profile</Typography>
+                                    <Typography variant="body2" color="#64748b" fontWeight={600}>
+                                        Update your company profile details
+                                    </Typography>
+                                </Box>
+                            </Stack>
 
-                        <div className="md:col-span-1">
-                            <label className="block text-sm font-bold text-slate-700 mb-2">
-                                Email <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="email"
-                                value={profileData.email}
-                                onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
-                                className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all outline-none"
-                                placeholder="Email"
-                            />
-                        </div>
+                            <form onSubmit={handleProfileUpdate} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                                <Grid container spacing={3}>
+                                    <Grid item xs={12} sm={6}>
+                                        <Typography variant="subtitle2" fontWeight={900} sx={{ mb: 1, color: '#334155', ml: 1 }}>First Name *</Typography>
+                                        <TextField
+                                            fullWidth
+                                            value={profileData.firstName}
+                                            onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
+                                            placeholder="Enter first name"
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                    borderRadius: '16px',
+                                                    bgcolor: '#f8fafc',
+                                                    '& fieldset': { border: 'none' },
+                                                    fontWeight: 700,
+                                                    color: '#1e293b'
+                                                }
+                                            }}
+                                            required
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} sm={6}>
+                                        <Typography variant="subtitle2" fontWeight={900} sx={{ mb: 1, color: '#334155', ml: 1 }}>Last Name *</Typography>
+                                        <TextField
+                                            fullWidth
+                                            value={profileData.lastName}
+                                            onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
+                                            placeholder="Enter last name"
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                    borderRadius: '16px',
+                                                    bgcolor: '#f8fafc',
+                                                    '& fieldset': { border: 'none' },
+                                                    fontWeight: 700,
+                                                    color: '#1e293b'
+                                                }
+                                            }}
+                                            required
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} sm={6}>
+                                        <Typography variant="subtitle2" fontWeight={900} sx={{ mb: 1, color: '#334155', ml: 1 }}>Email *</Typography>
+                                        <TextField
+                                            fullWidth
+                                            type="email"
+                                            value={profileData.email}
+                                            onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                                            placeholder="Enter business email"
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                    borderRadius: '16px',
+                                                    bgcolor: '#f8fafc',
+                                                    '& fieldset': { border: 'none' },
+                                                    fontWeight: 700,
+                                                    color: '#1e293b'
+                                                }
+                                            }}
+                                            required
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} sm={6}>
+                                        <Typography variant="subtitle2" fontWeight={900} sx={{ mb: 1, color: '#334155', ml: 1 }}>Mobile Number</Typography>
+                                        <TextField
+                                            fullWidth
+                                            value={profileData.mobileNumber}
+                                            onChange={(e) => setProfileData({ ...profileData, mobileNumber: e.target.value })}
+                                            placeholder="Enter mobile number"
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                    borderRadius: '16px',
+                                                    bgcolor: '#f8fafc',
+                                                    '& fieldset': { border: 'none' },
+                                                    fontWeight: 700,
+                                                    color: '#1e293b'
+                                                }
+                                            }}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <Typography variant="subtitle2" fontWeight={900} sx={{ mb: 1, color: '#334155', ml: 1 }}>Profile Image</Typography>
+                                        <Box sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 2,
+                                            bgcolor: '#f8fafc',
+                                            p: 1,
+                                            borderRadius: '16px',
+                                        }}>
+                                            <Button
+                                                variant="contained"
+                                                component="label"
+                                                size="small"
+                                                sx={{
+                                                    borderRadius: '12px',
+                                                    fontWeight: 900,
+                                                    textTransform: 'none',
+                                                    px: 3,
+                                                    py: 1,
+                                                    boxShadow: 'none',
+                                                    bgcolor: '#2563eb',
+                                                    '&:hover': { bgcolor: '#1d4ed8', boxShadow: 'none' }
+                                                }}
+                                            >
+                                                Choose file
+                                                <input type="file" hidden accept="image/*" onChange={handleImageChange} />
+                                            </Button>
+                                            <Typography variant="caption" color="#94a3b8" fontWeight={700}>
+                                                {previewImage ? 'Image selected' : 'No file chosen'}
+                                            </Typography>
+                                        </Box>
+                                    </Grid>
 
-                        <div className="md:col-span-1">
-                            <label className="block text-sm font-bold text-slate-700 mb-2">
-                                Mobile Number
-                            </label>
-                            <input
-                                type="text"
-                                value={profileData.mobileNumber}
-                                onChange={(e) => setProfileData({ ...profileData, mobileNumber: e.target.value })}
-                                className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all outline-none"
-                                placeholder="Enter your mobile number"
-                            />
-                        </div>
+                                    <Grid item xs={12}>
+                                        <Stack direction="row" spacing={3} alignItems="center" sx={{ mt: 1 }}>
+                                            <Box sx={{
+                                                p: 2,
+                                                borderRadius: '24px',
+                                                bgcolor: '#f8fafc',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                border: '2px solid white',
+                                                boxShadow: '0 4px 15px rgba(0,0,0,0.03)'
+                                            }}>
+                                                <Avatar
+                                                    src={previewImage}
+                                                    variant="rounded"
+                                                    sx={{
+                                                        width: 56,
+                                                        height: 56,
+                                                        borderRadius: '14px',
+                                                        bgcolor: 'white'
+                                                    }}
+                                                >
+                                                    <PhotoCameraIcon sx={{ fontSize: 28, opacity: 0.2, color: '#1e293b' }} />
+                                                </Avatar>
+                                            </Box>
+                                            <Box>
+                                                <Typography variant="subtitle1" fontWeight={900} sx={{ color: '#1e293b', mb: 0.5 }}>Profile Preview</Typography>
+                                                <Typography variant="caption" color="#64748b" fontWeight={700} display="block">This is how your logo will look</Typography>
+                                            </Box>
+                                        </Stack>
+                                    </Grid>
+                                </Grid>
 
-                        <div className="md:col-span-1">
-                            <label className="block text-sm font-bold text-slate-700 mb-2">
-                                Profile Image
-                            </label>
-                            <input
-                                type="file"
-                                onChange={handleImageChange}
-                                className="w-full px-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"
-                            />
-                        </div>
+                                <Box sx={{ mt: 'auto', pt: 6, display: 'flex', justifyContent: 'flex-end' }}>
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
+                                        disabled={isUpdatingProfile}
+                                        sx={{
+                                            borderRadius: '18px',
+                                            py: 2,
+                                            px: 5,
+                                            fontWeight: 900,
+                                            textTransform: 'none',
+                                            fontSize: '1rem',
+                                            bgcolor: '#2563eb',
+                                            boxShadow: '0 10px 25px rgba(37, 99, 235, 0.3)',
+                                            '&:hover': { bgcolor: '#1d4ed8', boxShadow: '0 12px 30px rgba(37, 99, 235, 0.4)' }
+                                        }}
+                                    >
+                                        {isUpdatingProfile ? 'Updating...' : 'Update Profile'}
+                                    </Button>
+                                </Box>
+                            </form>
+                        </Paper>
+                    </Grid>
 
-                        <div className="md:col-span-2 flex items-center gap-6 pt-2">
-                            <div className="w-24 h-24 bg-slate-100 rounded-[2rem] overflow-hidden border-4 border-white shadow-xl flex-shrink-0 relative group">
-                                {previewImage ? (
-                                    <>
-                                        <img src={previewImage} alt="Preview" className="w-full h-full object-cover" />
-                                        <button
-                                            type="button"
-                                            onClick={() => setPreviewImage(null)}
-                                            className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white text-[10px] font-bold uppercase tracking-wider"
-                                        >
-                                            Remove
-                                        </button>
-                                    </>
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-slate-300">
-                                        <HiOutlinePhoto className="w-10 h-10" />
-                                    </div>
-                                )}
-                            </div>
-                            <div className="flex flex-col gap-1">
-                                <span className="text-sm font-bold text-slate-900">Profile Preview</span>
-                                <span className="text-xs text-slate-400 font-medium">This is how your logo will look</span>
-                            </div>
-                        </div>
+                    {/* Password Card */}
+                    <Grid item xs={12} md={6} sx={{ display: 'flex' }}>
+                        <Paper elevation={0} sx={{
+                            p: 6,
+                            borderRadius: '60px',
+                            bgcolor: 'white',
+                            flex: 1,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            boxShadow: '0 10px 40px rgba(0,0,0,0.02)',
+                            transition: 'all 0.3s ease',
+                            '&:hover': { boxShadow: '0 15px 50px rgba(0,0,0,0.04)' }
+                        }}>
+                            <Stack direction="row" spacing={2.5} alignItems="center" sx={{ mb: 6 }}>
+                                <Box sx={{
+                                    width: 60,
+                                    height: 60,
+                                    borderRadius: '20px',
+                                    bgcolor: '#f1f5f9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    color: '#64748b'
+                                }}>
+                                    <LockIcon sx={{ fontSize: 32 }} />
+                                </Box>
+                                <Box>
+                                    <Typography variant="h4" fontWeight={900} sx={{ color: '#1e293b', letterSpacing: '-0.02em' }}>Security</Typography>
+                                    <Typography variant="body2" color="#64748b" fontWeight={600}>
+                                        Update your account password
+                                    </Typography>
+                                </Box>
+                            </Stack>
 
-                        <div className="md:col-span-2 flex justify-end mt-4">
-                            <button
-                                type="submit"
-                                disabled={isUpdatingProfile}
-                                className="px-10 py-4 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-2xl transition-all shadow-lg shadow-blue-200 active:scale-95 disabled:opacity-70"
-                            >
-                                {isUpdatingProfile ? 'Updating...' : 'Update Profile'}
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                            <form onSubmit={handlePasswordUpdate} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                                <Stack spacing={4} sx={{ mb: 4 }}>
+                                    <Box>
+                                        <Typography variant="subtitle2" fontWeight={900} sx={{ mb: 1, color: '#334155', ml: 1 }}>Current Password</Typography>
+                                        <TextField
+                                            fullWidth
+                                            type={showPasswords.current ? 'text' : 'password'}
+                                            value={passwordData.currentPassword}
+                                            onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                                            placeholder="••••••••"
+                                            InputProps={{
+                                                sx: {
+                                                    borderRadius: '16px',
+                                                    fontWeight: 700,
+                                                    bgcolor: '#f8fafc',
+                                                    '& fieldset': { border: 'none' },
+                                                    color: '#1e293b'
+                                                },
+                                                endAdornment: (
+                                                    <InputAdornment position="end" sx={{ mr: 1 }}>
+                                                        <IconButton onClick={() => togglePasswordVisibility('current')} edge="end">
+                                                            {showPasswords.current ? <VisibilityOffIcon sx={{ fontSize: 20 }} /> : <VisibilityIcon sx={{ fontSize: 20 }} />}
+                                                        </IconButton>
+                                                    </InputAdornment>
+                                                )
+                                            }}
+                                            required
+                                        />
+                                    </Box>
 
-                {/* ======= CHANGE PASSWORD CARD ======= */}
-                <div className="bg-white rounded-[32px] border border-slate-200 p-8 shadow-sm">
-                    <div className="flex items-center gap-4 mb-8">
-                        <div className="w-12 h-12 bg-slate-50 text-slate-600 rounded-2xl flex items-center justify-center shadow-sm">
-                            <HiOutlineLockClosed className="w-6 h-6" />
-                        </div>
-                        <div>
-                            <h2 className="text-xl font-bold text-slate-900 leading-tight">Change Password</h2>
-                            <p className="text-xs text-slate-400 font-medium">Update your account password</p>
-                        </div>
-                    </div>
+                                    <Box>
+                                        <Typography variant="subtitle2" fontWeight={900} sx={{ mb: 1, color: '#334155', ml: 1 }}>New Password</Typography>
+                                        <TextField
+                                            fullWidth
+                                            type={showPasswords.new ? 'text' : 'password'}
+                                            value={passwordData.newPassword}
+                                            onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                                            placeholder="••••••••"
+                                            InputProps={{
+                                                sx: {
+                                                    borderRadius: '16px',
+                                                    fontWeight: 700,
+                                                    bgcolor: '#f8fafc',
+                                                    '& fieldset': { border: 'none' },
+                                                    color: '#1e293b'
+                                                },
+                                                endAdornment: (
+                                                    <InputAdornment position="end" sx={{ mr: 1 }}>
+                                                        <IconButton onClick={() => togglePasswordVisibility('new')} edge="end">
+                                                            {showPasswords.new ? <VisibilityOffIcon sx={{ fontSize: 20 }} /> : <VisibilityIcon sx={{ fontSize: 20 }} />}
+                                                        </IconButton>
+                                                    </InputAdornment>
+                                                )
+                                            }}
+                                            required
+                                        />
+                                    </Box>
 
-                    <form onSubmit={handlePasswordUpdate} className="space-y-6">
-                        <div>
-                            <label className="block text-sm font-bold text-slate-700 mb-2">
-                                Current Password
-                            </label>
-                            <div className="relative">
-                                <input
-                                    type={showPasswords.current ? 'text' : 'password'}
-                                    value={passwordData.currentPassword}
-                                    onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                                    className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all outline-none"
-                                    placeholder="••••••••"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => togglePasswordVisibility('current')}
-                                    className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                                >
-                                    {showPasswords.current ? <HiOutlineEyeSlash className="w-5 h-5" /> : <HiOutlineEye className="w-5 h-5" />}
-                                </button>
-                            </div>
-                        </div>
+                                    <Box>
+                                        <Typography variant="subtitle2" fontWeight={900} sx={{ mb: 1, color: '#334155', ml: 1 }}>Confirm New Password</Typography>
+                                        <TextField
+                                            fullWidth
+                                            type={showPasswords.confirm ? 'text' : 'password'}
+                                            value={passwordData.confirmNewPassword}
+                                            onChange={(e) => setPasswordData({ ...passwordData, confirmNewPassword: e.target.value })}
+                                            placeholder="••••••••"
+                                            InputProps={{
+                                                sx: {
+                                                    borderRadius: '16px',
+                                                    fontWeight: 700,
+                                                    bgcolor: '#f8fafc',
+                                                    '& fieldset': { border: 'none' },
+                                                    color: '#1e293b'
+                                                },
+                                                endAdornment: (
+                                                    <InputAdornment position="end" sx={{ mr: 1 }}>
+                                                        <IconButton onClick={() => togglePasswordVisibility('confirm')} edge="end">
+                                                            {showPasswords.confirm ? <VisibilityOffIcon sx={{ fontSize: 20 }} /> : <VisibilityIcon sx={{ fontSize: 20 }} />}
+                                                        </IconButton>
+                                                    </InputAdornment>
+                                                )
+                                            }}
+                                            required
+                                        />
+                                    </Box>
+                                </Stack>
 
-                        <div>
-                            <label className="block text-sm font-bold text-slate-700 mb-2">
-                                New Password
-                            </label>
-                            <div className="relative">
-                                <input
-                                    type={showPasswords.new ? 'text' : 'password'}
-                                    value={passwordData.newPassword}
-                                    onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                                    className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all outline-none"
-                                    placeholder="••••••••"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => togglePasswordVisibility('new')}
-                                    className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                                >
-                                    {showPasswords.new ? <HiOutlineEyeSlash className="w-5 h-5" /> : <HiOutlineEye className="w-5 h-5" />}
-                                </button>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-bold text-slate-700 mb-2">
-                                Confirm New Password
-                            </label>
-                            <div className="relative">
-                                <input
-                                    type={showPasswords.confirm ? 'text' : 'password'}
-                                    value={passwordData.confirmNewPassword}
-                                    onChange={(e) => setPasswordData({ ...passwordData, confirmNewPassword: e.target.value })}
-                                    className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all outline-none"
-                                    placeholder="••••••••"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => togglePasswordVisibility('confirm')}
-                                    className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                                >
-                                    {showPasswords.confirm ? <HiOutlineEyeSlash className="w-5 h-5" /> : <HiOutlineEye className="w-5 h-5" />}
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="flex justify-end mt-4">
-                            <button
-                                type="submit"
-                                disabled={isUpdatingPassword}
-                                className="px-10 py-4 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-2xl transition-all shadow-lg shadow-blue-200 active:scale-95 disabled:opacity-70"
-                            >
-                                {isUpdatingPassword ? 'Changing...' : 'Change Password'}
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+                                <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'flex-end' }}>
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
+                                        disabled={isUpdatingPassword}
+                                        sx={{
+                                            borderRadius: '18px',
+                                            py: 2,
+                                            px: 5,
+                                            fontWeight: 900,
+                                            textTransform: 'none',
+                                            fontSize: '1rem',
+                                            bgcolor: '#2563eb',
+                                            boxShadow: '0 10px 25px rgba(37, 99, 235, 0.3)',
+                                            '&:hover': { bgcolor: '#1d4ed8', boxShadow: '0 12px 30px rgba(37, 99, 235, 0.4)' }
+                                        }}
+                                    >
+                                        {isUpdatingPassword ? 'Updating...' : 'Change Password'}
+                                    </Button>
+                                </Box>
+                            </form>
+                        </Paper>
+                    </Grid>
+                </Grid>
+            </Container>
+        </Box>
     );
 };
 

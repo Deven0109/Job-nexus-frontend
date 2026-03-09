@@ -17,7 +17,7 @@ import {
     HiOutlineTrash,
     HiOutlineMapPin,
     HiOutlineBriefcase,
-    HiOutlineCurrencyRupee,
+    HiOutlineBanknotes,
     HiOutlineBoltSlash,
     HiOutlineBolt,
     HiOutlineXMark,
@@ -25,6 +25,14 @@ import {
     HiOutlineBuildingOffice2,
     HiOutlineArrowTrendingUp,
 } from 'react-icons/hi2';
+
+const CURRENCY_SYMBOLS = {
+    USD: '$',
+    INR: '₹',
+    EUR: '€',
+    GBP: '£',
+    AED: 'AED '
+};
 
 const STATUS_COLORS = {
     pending: 'bg-warning-50 text-warning-700',
@@ -103,13 +111,19 @@ const EmployerJobRequests = () => {
         }
     };
 
-    const formatSalary = (min, max) => {
+    const formatSalary = (min, max, currency = 'INR') => {
+        const symbol = CURRENCY_SYMBOLS[currency] || CURRENCY_SYMBOLS.INR;
         const fmt = (n) => {
             if (n === null || n === undefined || isNaN(Number(n))) return '—';
             const num = Number(n);
-            if (num >= 100000) return `₹${(num / 100000).toFixed(1)}L`;
-            if (num >= 1000) return `₹${(num / 1000).toFixed(0)}K`;
-            return `₹${num}`;
+            if (currency === 'INR') {
+                if (num >= 100000) return `${symbol}${(num / 100000).toFixed(1)}L`;
+                if (num >= 1000) return `${symbol}${(num / 1000).toFixed(0)}K`;
+            } else {
+                if (num >= 1000000) return `${symbol}${(num / 1000000).toFixed(1)}M`;
+                if (num >= 1000) return `${symbol}${(num / 1000).toFixed(1)}K`;
+            }
+            return `${symbol}${num}`;
         };
         if (!min && !max) return 'Not specified';
         return `${fmt(min)} – ${fmt(max)}`;
@@ -291,7 +305,7 @@ const EmployerJobRequests = () => {
                                             </div>
                                         </td>
                                         <td className="px-5 py-4 text-xs font-bold text-dark-600">{req.experienceRequired}</td>
-                                        <td className="px-5 py-4 text-xs font-bold text-dark-600 whitespace-nowrap">{formatSalary(req.salaryMin, req.salaryMax)}</td>
+                                        <td className="px-5 py-4 text-xs font-bold text-dark-600 truncate max-w-[120px]">{formatSalary(req.salaryMin, req.salaryMax, req.currency)}</td>
                                         <td className="px-5 py-4 text-xs font-bold text-dark-600 whitespace-nowrap capitalize">{req.workType}</td>
                                         <td className="px-5 py-4">
                                             <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold tracking-tight ${URGENCY_COLORS[req.urgency]}`}>
@@ -342,21 +356,23 @@ const EmployerJobRequests = () => {
 
             {/* ==================== VIEW MODAL ==================== */}
             {showViewModal && selectedRequest && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowViewModal(false)} />
-                    <div className="relative bg-white rounded-[32px] shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+                <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 sm:p-6">
+                    <div className="absolute inset-0 bg-dark-900/40 backdrop-blur-sm" onClick={() => setShowViewModal(false)} />
+                    <div className="relative bg-white rounded-[24px] shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
 
                         {/* Banner / Header */}
-                        <div className="relative shrink-0 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-10 py-8 overflow-hidden">
+                        <div className="relative shrink-0 bg-gradient-to-r from-blue-600 via-indigo-600 to-primary-600 px-6 py-6 md:px-8 md:py-8 overflow-hidden">
                             <button
                                 onClick={() => setShowViewModal(false)}
-                                className="absolute top-6 right-6 p-2 rounded-full bg-white/20 hover:bg-white/30 text-white backdrop-blur-md transition-all border border-white/10 z-10"
+                                className="absolute top-4 right-4 md:top-6 md:right-6 p-2 rounded-full bg-white/20 hover:bg-white/30 text-white backdrop-blur-md transition-all border border-white/10 z-10"
                             >
                                 <HiOutlineXMark className="w-5 h-5" />
                             </button>
 
-                            <div className="space-y-2">
-                                <h3 className="text-2xl font-black text-white tracking-tight leading-tight uppercase">{selectedRequest.jobTitle}</h3>
+                            <div className="space-y-2 pr-12">
+                                <h3 className="text-xl md:text-3xl font-black text-white tracking-tight leading-tight uppercase truncate">
+                                    {selectedRequest.jobTitle}
+                                </h3>
                                 <div className="flex flex-wrap items-center gap-2 mt-2">
                                     <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black lowercase tracking-wider bg-white/20 text-white ring-1 ring-white/30 backdrop-blur-sm`}>
                                         {selectedRequest.status}
@@ -371,11 +387,11 @@ const EmployerJobRequests = () => {
                         </div>
 
                         {/* Modal Body */}
-                        <div className="flex-1 overflow-y-auto p-10 custom-scrollbar">
+                        <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar">
 
                             {/* Status Alerts */}
                             {selectedRequest.status === 'rejected' && (
-                                <div className="mb-8 p-5 bg-red-50 border border-red-100 rounded-3xl flex items-start gap-4">
+                                <div className="mb-6 md:mb-8 p-4 md:p-5 bg-red-50 border border-red-100 rounded-2xl flex items-start gap-4">
                                     <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center shadow-sm shrink-0">
                                         <HiOutlineXMark className="w-5 h-5 text-red-600" />
                                     </div>
@@ -392,7 +408,7 @@ const EmployerJobRequests = () => {
                             )}
 
                             {selectedRequest.status === 'active' && (
-                                <div className="mb-8 p-5 bg-emerald-50 border border-emerald-100 rounded-3xl flex items-start gap-4">
+                                <div className="mb-6 md:mb-8 p-4 md:p-5 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-start gap-4">
                                     <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center shadow-sm shrink-0">
                                         <HiOutlineBolt className="w-5 h-5 text-emerald-600" />
                                     </div>
@@ -403,67 +419,68 @@ const EmployerJobRequests = () => {
                                 </div>
                             )}
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
 
                                 {/* Category Box */}
-                                <div className="p-6 bg-slate-50/50 rounded-2xl border border-slate-100/50">
-                                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Category</label>
-                                    <p className="text-sm font-black text-slate-800">{selectedRequest.jobCategory}</p>
+                                <div className="p-6 md:p-8 bg-white border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[24px] transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+                                    <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Category</label>
+                                    <p className="text-lg md:text-xl font-black text-slate-900">{selectedRequest.jobCategory}</p>
                                 </div>
 
                                 {/* Vacancies Box */}
-                                <div className="p-6 bg-slate-50/50 rounded-2xl border border-slate-100/50">
-                                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Vacancies</label>
-                                    <p className="text-sm font-black text-slate-800">{selectedRequest.numberOfVacancies} positions</p>
+                                <div className="p-6 md:p-8 bg-white border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[24px] transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+                                    <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Vacancies</label>
+                                    <p className="text-lg md:text-xl font-black text-slate-900">{selectedRequest.numberOfVacancies} positions</p>
                                 </div>
 
                                 {/* Experience Box */}
-                                <div className="p-6 bg-slate-50/50 rounded-2xl border border-slate-100/50">
-                                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Experience</label>
-                                    <p className="text-sm font-black text-slate-900">{selectedRequest.experienceRequired}</p>
+                                <div className="p-6 md:p-8 bg-white border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[24px] transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+                                    <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Experience</label>
+                                    <p className="text-lg md:text-xl font-black text-slate-900">{selectedRequest.experienceRequired}</p>
                                 </div>
 
                                 {/* Salary Box */}
-                                <div className="p-6 bg-slate-50/50 rounded-2xl border border-slate-100/50">
-                                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Salary Range</label>
-                                    <p className="text-sm font-black text-slate-900">{formatSalary(selectedRequest.salaryMin, selectedRequest.salaryMax)}</p>
+                                <div className="p-6 md:p-8 bg-white border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[24px] transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+                                    <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Salary Range</label>
+                                    <p className="text-lg md:text-xl font-black text-slate-900">
+                                        {formatSalary(selectedRequest.salaryMin, selectedRequest.salaryMax, selectedRequest.currency)}
+                                    </p>
                                 </div>
-
                                 {/* Work Type Box */}
-                                <div className="p-6 bg-slate-50/50 rounded-2xl border border-slate-100/50">
-                                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Work Type</label>
-                                    <p className="text-sm font-black text-slate-900">{selectedRequest.workType}</p>
+                                <div className="p-6 md:p-8 bg-white border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[24px] transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+                                    <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Work Type</label>
+                                    <p className="text-lg md:text-xl font-black text-slate-900 capitalize">{selectedRequest.workType}</p>
                                 </div>
 
                                 {/* Location Box */}
-                                <div className="p-6 bg-slate-50/50 rounded-2xl border border-slate-100/50">
-                                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Location</label>
-                                    <p className="text-sm font-black text-slate-900 uppercase tracking-tight">
+                                <div className="p-6 md:p-8 bg-white border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[24px] transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+                                    <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Location</label>
+                                    <p className="text-lg md:text-xl font-black text-slate-900 uppercase tracking-tight">
                                         {[selectedRequest.city, selectedRequest.state, selectedRequest.country].filter(Boolean).join(', ')}
                                         {selectedRequest.pincode ? ` - ${selectedRequest.pincode}` : ''}
                                     </p>
                                 </div>
 
                                 {/* Urgency Box */}
-                                <div className="p-6 bg-slate-50/50 rounded-2xl border border-slate-100/50">
-                                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Urgency</label>
-                                    <span className={`inline-flex px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${URGENCY_COLORS[selectedRequest.urgency]}`}>
+                                <div className="p-6 md:p-8 bg-white border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[24px] transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] flex flex-col justify-center items-start">
+                                    <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Urgency</label>
+                                    <span className={`inline-flex px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider ${URGENCY_COLORS[selectedRequest.urgency]}`}>
                                         {selectedRequest.urgency}
                                     </span>
                                 </div>
 
                                 {/* Submitted Box */}
-                                <div className="p-6 bg-slate-50/50 rounded-2xl border border-slate-100/50">
-                                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Submitted</label>
-                                    <p className="text-sm font-black text-slate-800">{formatDate(selectedRequest.createdAt)}</p>
+                                <div className="p-6 md:p-8 bg-white border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[24px] transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+                                    <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Submitted</label>
+                                    <p className="text-lg md:text-xl font-black text-slate-900">{formatDate(selectedRequest.createdAt)}</p>
                                 </div>
 
                                 {/* Skills */}
-                                <div className="md:col-span-2 pt-4">
-                                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Required Skills</label>
-                                    <div className="flex flex-wrap gap-2.5">
+                                <div className="col-span-1 sm:col-span-2 pt-4">
+                                    <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3">Required Skills</label>
+                                    <div className="flex flex-wrap gap-2">
                                         {selectedRequest.requiredSkills?.map((skill, i) => (
-                                            <span key={i} className="px-4 py-2 bg-indigo-50 border border-indigo-100 text-indigo-700 font-bold text-xs rounded-xl shadow-sm tracking-tight transition-all hover:bg-indigo-100">
+                                            <span key={i} className="px-3 py-1.5 bg-indigo-50 border border-indigo-100 text-indigo-700 font-semibold text-xs rounded-xl shadow-sm transition-all hover:bg-indigo-100">
                                                 {skill}
                                             </span>
                                         ))}
@@ -471,20 +488,21 @@ const EmployerJobRequests = () => {
                                 </div>
 
                                 {/* Description */}
-                                <div className="md:col-span-2 pt-4">
-                                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Job Description</label>
-                                    <div className="p-8 bg-slate-50/30 rounded-3xl border border-slate-100/50">
-                                        <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap font-medium">{selectedRequest.jobDescription}</p>
+                                <div className="col-span-1 sm:col-span-2 pt-2">
+                                    <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3">Job Description</label>
+                                    <div className="p-6 md:p-8 bg-slate-50/50 rounded-[24px] border border-slate-100">
+                                        <p className="text-sm md:text-base text-slate-700 leading-relaxed whitespace-pre-wrap font-medium">{selectedRequest.jobDescription}</p>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
 
                         {/* Footer */}
-                        <div className="p-10 bg-white border-t border-slate-50 flex items-center justify-center">
+                        <div className="p-4 md:p-6 bg-slate-50 border-t border-slate-200 flex items-center justify-end">
                             <button
                                 onClick={() => setShowViewModal(false)}
-                                className="w-full max-w-md px-10 py-4 border-2 border-slate-100 text-slate-900 text-sm font-black rounded-2xl hover:bg-slate-50 hover:border-slate-200 transition-all active:scale-95 shadow-sm"
+                                className="px-8 py-2.5 bg-white border border-slate-200 text-slate-700 text-sm font-bold rounded-xl hover:bg-slate-100 hover:text-slate-900 transition-all shadow-sm active:scale-95"
                             >
                                 Close
                             </button>

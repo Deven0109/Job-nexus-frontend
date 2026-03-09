@@ -17,7 +17,17 @@ import {
     HiOutlineXMark,
     HiOutlineDocumentText,
     HiOutlineArrowPath,
+    HiOutlineBanknotes
 } from 'react-icons/hi2';
+
+const CURRENCIES = ['USD', 'INR', 'EUR', 'GBP', 'AED'];
+const CURRENCY_SYMBOLS = {
+    USD: '$',
+    INR: '₹',
+    EUR: '€',
+    GBP: '£',
+    AED: 'AED '
+};
 
 const STATUS_COLORS = {
     pending: 'bg-warning-100 text-warning-800',
@@ -191,6 +201,7 @@ const RecruiterEditJobRequest = () => {
                 experienceRequired: editData.experienceRequired,
                 salaryMin: Number(editData.salaryMin),
                 salaryMax: Number(editData.salaryMax),
+                currency: editData.currency,
                 workType: editData.workType,
                 country: editData.country,
                 state: editData.state,
@@ -212,12 +223,19 @@ const RecruiterEditJobRequest = () => {
         }
     };
 
-    const formatSalary = (n) => {
+    const formatSalary = (n, currency = 'INR') => {
         if (n === null || n === undefined || isNaN(Number(n))) return '—';
         const num = Number(n);
-        if (num >= 100000) return `₹${(num / 100000).toFixed(1)}L`;
-        if (num >= 1000) return `₹${(num / 1000).toFixed(0)}K`;
-        return `₹${num}`;
+        const symbol = CURRENCY_SYMBOLS[currency] || CURRENCY_SYMBOLS.INR;
+
+        if (currency === 'INR') {
+            if (num >= 100000) return `${symbol}${(num / 100000).toFixed(1)}L`;
+            if (num >= 1000) return `${symbol}${(num / 1000).toFixed(0)}K`;
+        } else {
+            if (num >= 1000000) return `${symbol}${(num / 1000000).toFixed(1)}M`;
+            if (num >= 1000) return `${symbol}${(num / 1000).toFixed(1)}K`;
+        }
+        return `${symbol}${num}`;
     };
 
     const formatDate = (dateStr) => {
@@ -390,14 +408,19 @@ const RecruiterEditJobRequest = () => {
 
                     {/* Salary Box */}
                     <div className="p-6 bg-slate-50/50 rounded-2xl border border-slate-100/50">
-                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Salary Range</label>
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Salary Range & Currency</label>
                         {isEditing ? (
-                            <div className="flex gap-3">
-                                <input type="number" value={data.salaryMin} onChange={e => handleChange('salaryMin', e.target.value)} className={`${inputCls} border-none bg-white`} placeholder="Min" />
-                                <input type="number" value={data.salaryMax} onChange={e => handleChange('salaryMax', e.target.value)} className={`${inputCls} border-none bg-white`} placeholder="Max" />
+                            <div className="flex flex-col gap-3">
+                                <select value={data.currency} onChange={e => handleChange('currency', e.target.value)} className={`${inputCls} border-none bg-white appearance-none cursor-pointer`}>
+                                    {CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
+                                </select>
+                                <div className="flex gap-3">
+                                    <input type="number" value={data.salaryMin} onChange={e => handleChange('salaryMin', e.target.value)} className={`${inputCls} border-none bg-white flex-1`} placeholder="Min" />
+                                    <input type="number" value={data.salaryMax} onChange={e => handleChange('salaryMax', e.target.value)} className={`${inputCls} border-none bg-white flex-1`} placeholder="Max" />
+                                </div>
                             </div>
                         ) : (
-                            <p className="text-sm font-black text-slate-900">{formatSalary(data.salaryMin)} – {formatSalary(data.salaryMax)}</p>
+                            <p className="text-sm font-black text-slate-900">{formatSalary(data.salaryMin, data.currency)} – {formatSalary(data.salaryMax, data.currency)}</p>
                         )}
                     </div>
 

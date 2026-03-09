@@ -7,8 +7,17 @@ import {
     HiOutlineCurrencyRupee,
     HiOutlineUser,
     HiOutlineArrowLeft,
-    HiOutlineCheckCircle
+    HiOutlineCheckCircle,
+    HiOutlineBanknotes
 } from 'react-icons/hi2';
+
+const CURRENCY_SYMBOLS = {
+    USD: '$',
+    INR: '₹',
+    EUR: '€',
+    GBP: '£',
+    AED: 'AED '
+};
 import { getPublicJobs } from '../../api/jobs.api';
 import { applyToJob } from '../../api/applications.api';
 import { useAuth } from '../../context/AuthContext';
@@ -186,12 +195,12 @@ const JobDetailPage = () => {
 
                                 <div className="flex gap-4">
                                     <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
-                                        <HiOutlineCurrencyRupee className="w-6 h-6" />
+                                        <HiOutlineBanknotes className="w-6 h-6" />
                                     </div>
                                     <div>
                                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Offered Salary</p>
                                         <p className="text-sm font-bold text-slate-700">
-                                            ₹{job.salaryMin?.toLocaleString()} - ₹{job.salaryMax?.toLocaleString()}
+                                            {CURRENCY_SYMBOLS[job.currency] || CURRENCY_SYMBOLS.INR}{job.salaryMin?.toLocaleString()} - {CURRENCY_SYMBOLS[job.currency] || CURRENCY_SYMBOLS.INR}{job.salaryMax?.toLocaleString()}
                                         </p>
                                     </div>
                                 </div>

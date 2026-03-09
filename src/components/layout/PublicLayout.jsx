@@ -78,7 +78,7 @@ const PublicLayout = () => {
                                         Terms
                                     </NavLink>
                                     {isAuthenticated && user?.role === 'candidate' && (
-                                        <NavLink to="/candidate-applications" active={location.pathname.startsWith('/candidate-applications')}>
+                                        <NavLink to="/candidate/applications" active={location.pathname.startsWith('/candidate/applications')}>
                                             Applied Jobs
                                         </NavLink>
                                     )}
@@ -111,7 +111,7 @@ const PublicLayout = () => {
                                             <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-dark-100 overflow-hidden py-1 z-50 animate-fade-in">
                                                 {!['recruiter', 'employer'].includes(user?.role) && (
                                                     <Link
-                                                        to="/candidate-profile-settings"
+                                                        to="/candidate/profile-settings"
                                                         onClick={() => setIsProfileOpen(false)}
                                                         className="flex items-center gap-3 px-4 py-2.5 text-sm text-dark-600 hover:bg-dark-50 hover:text-primary-600 transition-colors"
                                                     >
