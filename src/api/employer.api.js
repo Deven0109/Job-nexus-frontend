@@ -65,3 +65,9 @@ export const listActiveCategories = async () => {
     const response = await api.get('/categories', { params: { isVisible: true } });
     return response.data;
 };
+
+// Fetch master categories and job titles
+export const getMasterCategories = async () => {
+    const response = await api.get('/categories/master');
+    return response.data;
+};

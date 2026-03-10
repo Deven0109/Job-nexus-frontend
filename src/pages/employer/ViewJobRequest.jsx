@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { getMyJobRequestById, updateJobRequest } from '../../api/employer.api';
+import { getMyJobRequestById, updateJobRequest, getMasterCategories } from '../../api/employer.api';
 import toast from 'react-hot-toast';
 import {
     HiOutlineArrowLeft,
@@ -41,11 +41,7 @@ const URGENCY_COLORS = {
     High: 'bg-red-100 text-red-700',
 };
 
-const CATEGORIES = [
-    'Information Technology', 'Healthcare', 'Finance & Banking', 'Education',
-    'Manufacturing', 'Marketing', 'Sales', 'Human Resources', 'Engineering',
-    'Design', 'Customer Service', 'Legal', 'Accounting', 'Operations', 'Other',
-];
+
 const WORK_TYPES = ['Remote', 'Hybrid', 'Onsite'];
 const URGENCY_LEVELS = ['Low', 'Medium', 'High'];
 
@@ -61,6 +57,21 @@ const ViewJobRequest = () => {
     const [isSaving, setIsSaving] = useState(false);
     const [editData, setEditData] = useState({});
     const [skillInput, setSkillInput] = useState('');
+    const [categoriesMap, setCategoriesMap] = useState({});
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const res = await getMasterCategories();
+                if (res.success) {
+                    setCategoriesMap(res.data);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        fetchCategories();
+    }, []);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -95,7 +106,11 @@ const ViewJobRequest = () => {
     };
 
     const handleChange = (field, value) => {
-        setEditData(prev => ({ ...prev, [field]: value }));
+        if (field === 'jobCategory') {
+            setEditData(prev => ({ ...prev, jobCategory: value, jobTitle: '' }));
+        } else {
+            setEditData(prev => ({ ...prev, [field]: value }));
+        }
     };
 
     const handleAddSkill = (e) => {
@@ -309,10 +324,26 @@ const ViewJobRequest = () => {
                         <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Category</label>
                         {isEditing ? (
                             <select value={data.jobCategory} onChange={e => handleChange('jobCategory', e.target.value)} className={`${inputCls} appearance-none cursor-pointer border-none bg-white`}>
-                                {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                                <option value="">Select Category</option>
+                                {Object.keys(categoriesMap).map(cat => <option key={cat} value={cat}>{cat}</option>)}
                             </select>
                         ) : (
                             <p className="text-sm font-black text-slate-900">{data.jobCategory}</p>
+                        )}
+                    </div>
+
+                    {/* Job Title Box */}
+                    <div className="p-6 bg-slate-50/50 rounded-2xl border border-slate-100/50">
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Job Title</label>
+                        {isEditing ? (
+                            <select value={data.jobTitle} onChange={e => handleChange('jobTitle', e.target.value)} className={`${inputCls} appearance-none cursor-pointer border-none bg-white`} disabled={!data.jobCategory}>
+                                <option value="">Select Job Title</option>
+                                {data.jobCategory && categoriesMap[data.jobCategory] && categoriesMap[data.jobCategory].map(title => (
+                                    <option key={title} value={title}>{title}</option>
+                                ))}
+                            </select>
+                        ) : (
+                            <p className="text-sm font-black text-slate-900">{data.jobTitle}</p>
                         )}
                     </div>
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Country, State, City } from 'country-state-city';
-import { getJobRequestById, updateJobRequest, listCategories } from '../../api/recruiter.api';
+import { getJobRequestById, updateJobRequest, getMasterCategories } from '../../api/recruiter.api';
 import toast from 'react-hot-toast';
 import {
     HiOutlineArrowLeft,
@@ -59,7 +59,7 @@ const RecruiterEditJobRequest = () => {
     const [editData, setEditData] = useState({});
     const [skillInput, setSkillInput] = useState('');
 
-    const [categories, setCategories] = useState([]);
+    const [categories, setCategories] = useState({});
     const [loadingCategories, setLoadingCategories] = useState(true);
 
     const [statesList, setStatesList] = useState([]);
@@ -136,9 +136,9 @@ const RecruiterEditJobRequest = () => {
 
     const fetchCategories = async () => {
         try {
-            const res = await listCategories();
+            const res = await getMasterCategories();
             if (res.success) {
-                setCategories(res.data);
+                setCategories(res.data || {});
             }
         } catch (error) {
             console.error('Failed to fetch categories:', error);
@@ -377,12 +377,42 @@ const RecruiterEditJobRequest = () => {
                     <div className="p-6 bg-slate-50/50 rounded-2xl border border-slate-100/50">
                         <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Category</label>
                         {isEditing ? (
-                            <select value={data.jobCategory?.trim()} onChange={e => handleChange('jobCategory', e.target.value)} className={`${inputCls} appearance-none cursor-pointer border-none bg-white`} disabled={loadingCategories}>
+                            <select
+                                value={data.jobCategory}
+                                onChange={e => {
+                                    handleChange('jobCategory', e.target.value);
+                                    handleChange('jobTitle', '');
+                                }}
+                                className={`${inputCls} appearance-none cursor-pointer border-none bg-white`}
+                                disabled={loadingCategories}
+                            >
                                 <option value="">{loadingCategories ? 'Loading...' : 'Select Category'}</option>
-                                {categories.map(cat => <option key={cat._id} value={cat.name?.trim()}>{cat.name}</option>)}
+                                {Object.keys(categories).map(cat => (
+                                    <option key={cat} value={cat}>{cat}</option>
+                                ))}
                             </select>
                         ) : (
                             <p className="text-sm font-black text-slate-900">{data.jobCategory}</p>
+                        )}
+                    </div>
+
+                    {/* Job Title Box */}
+                    <div className="p-6 bg-slate-50/50 rounded-2xl border border-slate-100/50">
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Job Title</label>
+                        {isEditing ? (
+                            <select
+                                value={data.jobTitle}
+                                onChange={e => handleChange('jobTitle', e.target.value)}
+                                className={`${inputCls} appearance-none cursor-pointer border-none bg-white`}
+                                disabled={!data.jobCategory}
+                            >
+                                <option value="">Select Job Title</option>
+                                {data.jobCategory && categories[data.jobCategory] && categories[data.jobCategory].map(title => (
+                                    <option key={title} value={title}>{title}</option>
+                                ))}
+                            </select>
+                        ) : (
+                            <p className="text-sm font-black text-slate-900">{data.jobTitle}</p>
                         )}
                     </div>
 

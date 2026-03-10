@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { getJobRequestById, createJob } from '../../api/recruiter.api';
+import { getJobRequestById, createJob, listCategories } from '../../api/recruiter.api';
 import toast from 'react-hot-toast';
 import {
     HiOutlineBriefcase,
@@ -32,6 +32,7 @@ const AddJob = () => {
 
     const [formData, setFormData] = useState({
         title: '',
+        category: '',
         company: '',
         location: '',
         workType: 'Onsite',
@@ -47,6 +48,20 @@ const AddJob = () => {
         jobRequestId: '',
     });
 
+    const [recruiterCategories, setRecruiterCategories] = useState([]);
+
+    useEffect(() => {
+        const fetchMyCategories = async () => {
+            try {
+                const res = await listCategories();
+                if (res.success) setRecruiterCategories(res.data);
+            } catch (error) {
+                console.error('Failed to load restricted categories');
+            }
+        };
+        fetchMyCategories();
+    }, []);
+
     useEffect(() => {
         if (!requestId) return;
 
@@ -57,6 +72,7 @@ const AddJob = () => {
                     const req = res.data.jobRequest;
                     setFormData({
                         title: req.jobTitle || '',
+                        category: req.jobCategory || '',
                         company: req.companyId ? req.companyId.companyName : '',
                         location: req.jobLocation || '',
                         workType: req.workType || 'Onsite',
@@ -83,7 +99,11 @@ const AddJob = () => {
     }, [requestId]);
 
     const handleChange = (field, value) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
+        if (field === 'category') {
+            setFormData(prev => ({ ...prev, [field]: value, title: '' }));
+        } else {
+            setFormData(prev => ({ ...prev, [field]: value }));
+        }
     };
 
     const handleAddArrayItem = (e, inputState, setInputState, field) => {
@@ -108,6 +128,7 @@ const AddJob = () => {
         e.preventDefault();
 
         // Validation
+        if (!formData.category.trim()) return toast.error('Category is required');
         if (!formData.title.trim()) return toast.error('Job title is required');
         if (!formData.company.trim()) return toast.error('Company name is required');
         if (!formData.location.trim()) return toast.error('Location is required');
@@ -170,9 +191,37 @@ const AddJob = () => {
                 <div className="card p-6 md:p-8">
                     <h3 className="text-base font-bold text-dark-800 mb-6">Basic Information</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="md:col-span-2">
+                        <div>
+                            <label className={labelCls}>Category *</label>
+                            <select
+                                value={formData.category}
+                                onChange={e => handleChange('category', e.target.value)}
+                                className={`${inputCls} appearance-none cursor-pointer`}
+                                disabled={!!requestId}
+                            >
+                                <option value="">Select Category</option>
+                                {recruiterCategories.map(cat => (
+                                    <option key={cat._id} value={cat.categoryName}>{cat.categoryName}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
                             <label className={labelCls}>Job Title *</label>
-                            <input type="text" value={formData.title} onChange={e => handleChange('title', e.target.value)} className={inputCls} placeholder="e.g. Senior Frontend Developer" />
+                            {requestId ? (
+                                <input type="text" value={formData.title} readOnly className={`${inputCls} bg-slate-50 opacity-70`} />
+                            ) : (
+                                <select
+                                    value={formData.title}
+                                    onChange={e => handleChange('title', e.target.value)}
+                                    className={`${inputCls} appearance-none cursor-pointer`}
+                                    disabled={!formData.category}
+                                >
+                                    <option value="">Select Job Title</option>
+                                    {formData.category && recruiterCategories.find(c => c.categoryName === formData.category)?.selectedJobTitles.map(t => (
+                                        <option key={t} value={t}>{t}</option>
+                                    ))}
+                                </select>
+                            )}
                         </div>
                         <div>
                             <label className={labelCls}>Company Name *</label>

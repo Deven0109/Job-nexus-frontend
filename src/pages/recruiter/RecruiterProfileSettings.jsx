@@ -19,7 +19,12 @@ import {
     CardContent,
     Divider,
     Tooltip,
-    CircularProgress
+    CircularProgress,
+    FormControl,
+    Select,
+    MenuItem,
+    Chip,
+    OutlinedInput
 } from '@mui/material';
 import {
     Person as PersonIcon,
@@ -34,6 +39,7 @@ import {
     Save as SaveIcon
 } from '@mui/icons-material';
 import toast from 'react-hot-toast';
+import api from '../../api/axios';
 
 const RecruiterProfileSettings = () => {
     const { user, updateUser } = useAuth();
@@ -50,7 +56,10 @@ const RecruiterProfileSettings = () => {
         lastName: '',
         email: '',
         mobileNumber: '',
+        categories: [],
     });
+
+    const [availableCategories, setAvailableCategories] = useState([]);
 
     const [previewImage, setPreviewImage] = useState(null);
     const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
@@ -69,9 +78,21 @@ const RecruiterProfileSettings = () => {
                 lastName: user.lastName || '',
                 email: user.email || '',
                 mobileNumber: user.phone || '',
+                categories: user.categories || [],
             });
             setPreviewImage(user.avatar || null);
         }
+        const fetchCategories = async () => {
+            try {
+                const { data } = await api.get('/categories');
+                if (data.success) {
+                    setAvailableCategories(data.data.map(c => c.name));
+                }
+            } catch (error) {
+                console.error('Failed to fetch categories:', error);
+            }
+        };
+        fetchCategories();
     }, [user]);
 
     const handleImageChange = (e) => {
@@ -97,9 +118,10 @@ const RecruiterProfileSettings = () => {
                 lastName: profileData.lastName,
                 email: profileData.email,
                 phone: profileData.mobileNumber,
+                categories: profileData.categories,
                 avatar: previewImage
             });
-            updateUser(data.data.user);
+            updateUser(data.data.profile || data.data.user);
             toast.success('Profile updated successfully!');
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to update profile');
@@ -150,7 +172,7 @@ const RecruiterProfileSettings = () => {
 
                 <Grid container spacing={4} alignItems="stretch">
                     {/* Profile Card */}
-                    <Grid item xs={12} md={6} sx={{ display: 'flex' }}>
+                    <Grid size={{ xs: 12, md: 6 }} sx={{ display: 'flex' }}>
                         <Paper elevation={0} sx={{
                             p: 6,
                             borderRadius: '60px',
@@ -185,7 +207,7 @@ const RecruiterProfileSettings = () => {
 
                             <form onSubmit={handleProfileUpdate} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                                 <Grid container spacing={3}>
-                                    <Grid item xs={12} sm={6}>
+                                    <Grid size={{ xs: 12, sm: 6 }}>
                                         <Typography variant="subtitle2" fontWeight={900} sx={{ mb: 1, color: '#334155', ml: 1 }}>First Name *</Typography>
                                         <TextField
                                             fullWidth
@@ -204,7 +226,7 @@ const RecruiterProfileSettings = () => {
                                             required
                                         />
                                     </Grid>
-                                    <Grid item xs={12} sm={6}>
+                                    <Grid size={{ xs: 12, sm: 6 }}>
                                         <Typography variant="subtitle2" fontWeight={900} sx={{ mb: 1, color: '#334155', ml: 1 }}>Last Name *</Typography>
                                         <TextField
                                             fullWidth
@@ -223,7 +245,7 @@ const RecruiterProfileSettings = () => {
                                             required
                                         />
                                     </Grid>
-                                    <Grid item xs={12} sm={6}>
+                                    <Grid size={{ xs: 12, sm: 6 }}>
                                         <Typography variant="subtitle2" fontWeight={900} sx={{ mb: 1, color: '#334155', ml: 1 }}>Email *</Typography>
                                         <TextField
                                             fullWidth
@@ -243,7 +265,7 @@ const RecruiterProfileSettings = () => {
                                             required
                                         />
                                     </Grid>
-                                    <Grid item xs={12} sm={6}>
+                                    <Grid size={{ xs: 12, sm: 6 }}>
                                         <Typography variant="subtitle2" fontWeight={900} sx={{ mb: 1, color: '#334155', ml: 1 }}>Mobile Number</Typography>
                                         <TextField
                                             fullWidth
@@ -261,7 +283,53 @@ const RecruiterProfileSettings = () => {
                                             }}
                                         />
                                     </Grid>
-                                    <Grid item xs={12}>
+                                    <Grid size={{ xs: 12, sm: 6 }}>
+                                        <Typography variant="subtitle2" fontWeight={900} sx={{ mb: 1, color: '#334155', ml: 1 }}>Job Categories</Typography>
+                                        <FormControl fullWidth>
+                                            <Select
+                                                multiple
+                                                displayEmpty
+                                                value={profileData.categories}
+                                                onChange={(e) => setProfileData({ ...profileData, categories: e.target.value })}
+                                                input={
+                                                    <OutlinedInput
+                                                        sx={{
+                                                            borderRadius: '16px',
+                                                            bgcolor: '#f8fafc',
+                                                            '& fieldset': { border: 'none' },
+                                                        }}
+                                                    />
+                                                }
+                                                renderValue={(selected) => {
+                                                    if (selected.length === 0) {
+                                                        return <Typography color="#94a3b8" fontWeight={700}>Select Categories</Typography>;
+                                                    }
+                                                    return (
+                                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                                            {selected.map((value) => (
+                                                                <Chip key={value} label={value} size="small" sx={{ fontWeight: 700, bgcolor: '#2563eb', color: 'white' }} />
+                                                            ))}
+                                                        </Box>
+                                                    );
+                                                }}
+                                                MenuProps={{
+                                                    PaperProps: {
+                                                        style: {
+                                                            maxHeight: 224,
+                                                            width: 250,
+                                                        },
+                                                    },
+                                                }}
+                                            >
+                                                {availableCategories.map((name) => (
+                                                    <MenuItem key={name} value={name} sx={{ fontWeight: 600 }}>
+                                                        {name}
+                                                    </MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid size={{ xs: 12 }}>
                                         <Typography variant="subtitle2" fontWeight={900} sx={{ mb: 1, color: '#334155', ml: 1 }}>Profile Image</Typography>
                                         <Box sx={{
                                             display: 'flex',
@@ -295,7 +363,7 @@ const RecruiterProfileSettings = () => {
                                         </Box>
                                     </Grid>
 
-                                    <Grid item xs={12}>
+                                    <Grid size={{ xs: 12 }}>
                                         <Stack direction="row" spacing={3} alignItems="center" sx={{ mt: 1 }}>
                                             <Box sx={{
                                                 p: 2,
@@ -353,7 +421,7 @@ const RecruiterProfileSettings = () => {
                     </Grid>
 
                     {/* Password Card */}
-                    <Grid item xs={12} md={6} sx={{ display: 'flex' }}>
+                    <Grid size={{ xs: 12, md: 6 }} sx={{ display: 'flex' }}>
                         <Paper elevation={0} sx={{
                             p: 6,
                             borderRadius: '60px',

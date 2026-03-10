@@ -210,7 +210,7 @@ const RecruiterDashboardMain = () => {
                 {summaryCards.map((card, idx) => {
                     const Icon = card.icon;
                     return (
-                        <Grid item xs={6} sm={6} md={3} key={idx}>
+                        <Grid size={{ xs: 6, sm: 6, md: 3 }} key={idx}>
                             {loading ? (
                                 <Paper elevation={0} sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider', p: 2.5, height: 90 }}>
                                     <Stack direction="row" alignItems="center" spacing={2}>

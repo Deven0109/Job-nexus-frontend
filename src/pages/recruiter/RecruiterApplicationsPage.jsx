@@ -211,7 +211,7 @@ const RecruiterApplicationsPage = () => {
             {/* Filters Section */}
             <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, mb: 2, borderRadius: 4, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
                 <Grid container spacing={2} alignItems="center">
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <TextField
                             fullWidth
                             size="small"
@@ -228,7 +228,7 @@ const RecruiterApplicationsPage = () => {
                             }}
                         />
                     </Grid>
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <TextField
                             select
                             fullWidth
@@ -487,7 +487,7 @@ const RecruiterApplicationsPage = () => {
                                                     <Box>
                                                         <Typography variant="subtitle2" fontWeight={900} sx={{ textTransform: 'uppercase', mb: 2, color: 'text.secondary', letterSpacing: '0.05em' }}>Post-Interview Decision</Typography>
                                                         <Grid container spacing={2}>
-                                                            <Grid item xs={12} sm={6}>
+                                                            <Grid size={{ xs: 12, sm: 6 }}>
                                                                 <Button
                                                                     variant="outlined"
                                                                     color="success"
@@ -499,7 +499,7 @@ const RecruiterApplicationsPage = () => {
                                                                     Next Round
                                                                 </Button>
                                                             </Grid>
-                                                            <Grid item xs={12} sm={6}>
+                                                            <Grid size={{ xs: 12, sm: 6 }}>
                                                                 <Button
                                                                     variant="contained"
                                                                     color="success"
@@ -510,7 +510,7 @@ const RecruiterApplicationsPage = () => {
                                                                     Final Select (Hire)
                                                                 </Button>
                                                             </Grid>
-                                                            <Grid item xs={12} sm={6}>
+                                                            <Grid size={{ xs: 12, sm: 6 }}>
                                                                 <Button
                                                                     variant="outlined"
                                                                     color="error"
@@ -522,7 +522,7 @@ const RecruiterApplicationsPage = () => {
                                                                     Reject
                                                                 </Button>
                                                             </Grid>
-                                                            <Grid item xs={12} sm={6}>
+                                                            <Grid size={{ xs: 12, sm: 6 }}>
                                                                 <Button
                                                                     variant="contained"
                                                                     color="inherit"

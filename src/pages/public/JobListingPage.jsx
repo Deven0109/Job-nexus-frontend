@@ -17,14 +17,11 @@ const CURRENCY_SYMBOLS = {
     GBP: '£',
     AED: 'AED '
 };
-import { getPublicJobs } from '../../api/jobs.api';
+import { getPublicJobs, getAvailableCategories } from '../../api/jobs.api';
 import { applyToJob } from '../../api/applications.api';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-
-
-const CATEGORIES_LIST = ['Programming', 'Data Science', 'Designing', 'Networking', 'Management', 'Marketing', 'Cybersecurity'];
 const SKILLS_LIST = ['Node.js', 'React.js', 'Python', 'Java', 'SQL', 'C++', 'AWS'];
 const STATES_LIST = ['Alberta', 'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'California', 'Gujarat', 'Maharashtra', 'New York', 'Texas'];
 const EXPERIENCES_LIST = ['Fresher', '0-2 Years', '2-4 Years', '5+ Years'];
@@ -37,6 +34,7 @@ const JobListingPage = () => {
     const navigate = useNavigate();
     const { user, isAuthenticated } = useAuth();
     const [applyingId, setApplyingId] = useState(null);
+    const [categoriesList, setCategoriesList] = useState([]);
 
 
     const [filters, setFilters] = useState({
@@ -63,6 +61,20 @@ const JobListingPage = () => {
             setStatesList([]);
         }
     }, [filters.country]);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const res = await getAvailableCategories();
+                if (res.success && res.data) {
+                    setCategoriesList(res.data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch available categories", error);
+            }
+        };
+        fetchCategories();
+    }, []);
 
     const [skillSearch, setSkillSearch] = useState('');
 
@@ -293,7 +305,7 @@ const JobListingPage = () => {
                                 <div>
                                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 block">Category</label>
                                     <div className="space-y-2.5">
-                                        {CATEGORIES_LIST.map(c => (
+                                        {categoriesList.map(c => (
                                             <label key={c} className="flex items-center gap-3 group cursor-pointer">
                                                 <div className="relative flex items-center justify-center">
                                                     <input

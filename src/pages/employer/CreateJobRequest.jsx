@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Country, State, City } from 'country-state-city';
 import { useNavigate } from 'react-router-dom';
-import { createJobRequest, listActiveCategories } from '../../api/employer.api';
+import { createJobRequest, getMasterCategories } from '../../api/employer.api';
 import toast from 'react-hot-toast';
 import {
     HiOutlineClipboardDocumentList,
@@ -21,7 +21,7 @@ const CreateJobRequest = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [skillInput, setSkillInput] = useState('');
 
-    const [categories, setCategories] = useState([]);
+    const [categoriesMap, setCategoriesMap] = useState({});
     const [loadingCategories, setLoadingCategories] = useState(true);
 
     const [formData, setFormData] = useState({
@@ -55,19 +55,24 @@ const CreateJobRequest = () => {
 
     const fetchCategories = async () => {
         try {
-            const res = await listActiveCategories();
+            const res = await getMasterCategories();
             if (res.success) {
-                setCategories(res.data);
+                setCategoriesMap(res.data);
             }
         } catch (error) {
             console.error('Failed to fetch categories:', error);
+            toast.error('Failed to load job categories');
         } finally {
             setLoadingCategories(false);
         }
     };
 
     const handleChange = (field, value) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
+        if (field === 'category') {
+            setFormData(prev => ({ ...prev, category: value, title: '' })); // reset title when category changes
+        } else {
+            setFormData(prev => ({ ...prev, [field]: value }));
+        }
     };
 
     const addSkills = (input) => {
@@ -186,19 +191,6 @@ const CreateJobRequest = () => {
                     <h3 className="text-base font-bold text-dark-800 mb-6">Basic Information</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                        {/* Title */}
-                        <div className="md:col-span-2">
-                            <label className={labelCls}>Job Title <span className="text-red-500">*</span></label>
-                            <input
-                                type="text"
-                                value={formData.title}
-                                onChange={(e) => handleChange('title', e.target.value)}
-                                className={inputCls}
-                                placeholder="e.g. Senior Backend Developer"
-                                maxLength={200}
-                            />
-                        </div>
-
                         {/* Category */}
                         <div>
                             <label className={labelCls}>Category <span className="text-red-500">*</span></label>
@@ -209,14 +201,32 @@ const CreateJobRequest = () => {
                                 disabled={loadingCategories}
                             >
                                 <option value="">{loadingCategories ? 'Loading categories...' : 'Select category'}</option>
-                                {categories.map(cat => (
-                                    <option key={cat._id} value={cat.name}>{cat.name}</option>
+                                {Object.keys(categoriesMap).map(catName => (
+                                    <option key={catName} value={catName}>{catName}</option>
                                 ))}
-                                {!loadingCategories && categories.length === 0 && (
+                                {!loadingCategories && Object.keys(categoriesMap).length === 0 && (
                                     <option value="" disabled>No categories available</option>
                                 )}
                             </select>
                         </div>
+
+                        {/* Title (Job Title dependent on Category) */}
+                        <div className="md:col-span-1">
+                            <label className={labelCls}>Job Title <span className="text-red-500">*</span></label>
+                            <select
+                                value={formData.title}
+                                onChange={(e) => handleChange('title', e.target.value)}
+                                className={`${inputCls} appearance-none cursor-pointer`}
+                                disabled={!formData.category}
+                            >
+                                <option value="">Select Job Title</option>
+                                {formData.category && categoriesMap[formData.category] && categoriesMap[formData.category].map(title => (
+                                    <option key={title} value={title}>{title}</option>
+                                ))}
+                            </select>
+                        </div>
+
+
 
                         {/* Vacancies */}
                         <div>

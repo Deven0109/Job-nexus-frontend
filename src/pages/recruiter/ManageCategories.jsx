@@ -26,7 +26,12 @@ import {
     FormControlLabel,
     CircularProgress,
     Divider,
-    Pagination
+    Pagination,
+    Select,
+    MenuItem,
+    OutlinedInput,
+    Checkbox,
+    ListItemText
 } from '@mui/material';
 import {
     Search as SearchIcon,
@@ -35,21 +40,23 @@ import {
     Delete as DeleteIcon,
     Visibility as EyeIcon,
     VisibilityOff as EyeOffIcon,
-    Tag as TagIcon
+    Tag as TagIcon,
+    WorkOutline as WorkIcon
 } from '@mui/icons-material';
-import { listCategories, createCategory, updateCategory, deleteCategory } from '../../api/recruiter.api';
+import { listCategories, createCategory, updateCategory, deleteCategory, getMasterCategories } from '../../api/recruiter.api';
 import toast from 'react-hot-toast';
 
 const ManageCategories = () => {
     const theme = useTheme();
     const [categories, setCategories] = useState([]);
+    const [masterCategories, setMasterCategories] = useState({});
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [editingCategory, setEditingCategory] = useState(null);
     const [formData, setFormData] = useState({
-        name: '',
-        isVisible: true
+        categoryName: '',
+        selectedJobTitles: [],
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -58,15 +65,29 @@ const ManageCategories = () => {
     const limit = 6;
 
     useEffect(() => {
+        fetchMasterCategories();
         fetchCategories();
     }, []);
+
+    const fetchMasterCategories = async () => {
+        try {
+            const res = await getMasterCategories();
+            if (res.success) {
+                setMasterCategories(res.data);
+            }
+        } catch (error) {
+            toast.error('Failed to load master categories');
+        }
+    };
 
     const fetchCategories = async () => {
         setLoading(true);
         try {
             const res = await listCategories();
             if (res.success) {
-                setCategories(res.data);
+                // Backend returns { categories: [...] } inside res.data
+                const data = res.data?.categories || res.data;
+                setCategories(Array.isArray(data) ? data : []);
             }
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to fetch categories');
@@ -79,14 +100,14 @@ const ManageCategories = () => {
         if (category) {
             setEditingCategory(category);
             setFormData({
-                name: category.name,
-                isVisible: category.isVisible
+                categoryName: category.categoryName,
+                selectedJobTitles: category.selectedJobTitles || []
             });
         } else {
             setEditingCategory(null);
             setFormData({
-                name: '',
-                isVisible: true
+                categoryName: '',
+                selectedJobTitles: []
             });
         }
         setShowModal(true);
@@ -94,8 +115,11 @@ const ManageCategories = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!formData.name.trim()) {
-            return toast.error('Category name is required');
+        if (!formData.categoryName) {
+            return toast.error('Category is required');
+        }
+        if (formData.selectedJobTitles.length === 0) {
+            return toast.error('Please select at least one job title');
         }
 
         setIsSubmitting(true);
@@ -128,20 +152,13 @@ const ManageCategories = () => {
     };
 
     const toggleVisibility = async (category) => {
-        try {
-            await updateCategory(category._id, {
-                ...category,
-                isVisible: !category.isVisible
-            });
-            toast.success(`Category is now ${!category.isVisible ? 'visible' : 'hidden'}`);
-            fetchCategories();
-        } catch (error) {
-            toast.error('Failed to update visibility');
-        }
+        // Now categories are not globally "visible" per individual flag, but we keep this stub or handle
+        toast.error('Visibility flag removed. Categories map directly to jobs.');
     };
 
     const filteredCategories = categories.filter(cat =>
-        cat.name.toLowerCase().includes(searchTerm.toLowerCase())
+        cat.categoryName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cat.selectedJobTitles?.some(t => t.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
     // Reset pagination when search changes
@@ -226,18 +243,14 @@ const ManageCategories = () => {
                                 #{(page - 1) * limit + idx + 1}
                             </Typography>
 
-                            <Typography variant="body1" fontWeight={800} sx={{ flex: 1 }}>
-                                {cat.name}
-                            </Typography>
-
-                            <Chip
-                                label={cat.isVisible ? 'Visible' : 'Hidden'}
-                                size="small"
-                                onClick={() => toggleVisibility(cat)}
-                                icon={cat.isVisible ? <EyeIcon style={{ fontSize: 14 }} /> : <EyeOffIcon style={{ fontSize: 14 }} />}
-                                color={cat.isVisible ? 'success' : 'default'}
-                                sx={{ fontWeight: 900, textTransform: 'uppercase', fontSize: '10px', height: 24 }}
-                            />
+                            <Box sx={{ flex: 1, minWidth: 0 }}>
+                                <Typography variant="body1" fontWeight={800} noWrap>
+                                    {cat.categoryName}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary" noWrap sx={{ mt: 0.5 }}>
+                                    {cat.selectedJobTitles?.length} Job Title(s): {cat.selectedJobTitles?.join(', ')}
+                                </Typography>
+                            </Box>
 
                             <Divider orientation="vertical" flexItem sx={{ height: 20, my: 'auto' }} />
 
@@ -287,28 +300,55 @@ const ManageCategories = () => {
                         <Stack spacing={3}>
                             <Box>
                                 <Typography variant="caption" fontWeight={900} color="text.disabled" sx={{ textTransform: 'uppercase', mb: 1, display: 'block' }}>
-                                    Category Name
+                                    Category
                                 </Typography>
-                                <TextField
+                                <Select
                                     fullWidth
-                                    placeholder="e.g. Health Care"
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                    value={formData.categoryName}
+                                    onChange={(e) => setFormData({ ...formData, categoryName: e.target.value, selectedJobTitles: [] })}
                                     size="small"
-                                    autoFocus
-                                    InputProps={{ sx: { borderRadius: 2, fontWeight: 700 } }}
-                                />
+                                    disabled={!!editingCategory} // Cannot edit category name once created
+                                    sx={{ borderRadius: 2, fontWeight: 700 }}
+                                    displayEmpty
+                                >
+                                    <MenuItem value="" disabled>Select a mapped category</MenuItem>
+                                    {Object.keys(masterCategories).map((masterCat) => (
+                                        <MenuItem key={masterCat} value={masterCat}>{masterCat}</MenuItem>
+                                    ))}
+                                </Select>
                             </Box>
-                            <FormControlLabel
-                                control={
-                                    <Switch
-                                        checked={formData.isVisible}
-                                        onChange={(e) => setFormData({ ...formData, isVisible: e.target.checked })}
-                                        color="primary"
-                                    />
-                                }
-                                label={<Typography variant="body2" fontWeight={700}>Visible to employers and candidates</Typography>}
-                            />
+
+                            {formData.categoryName && masterCategories[formData.categoryName] && (
+                                <Box>
+                                    <Typography variant="caption" fontWeight={900} color="text.disabled" sx={{ textTransform: 'uppercase', mb: 1, display: 'block' }}>
+                                        Selected Job Titles
+                                    </Typography>
+                                    <Select
+                                        fullWidth
+                                        multiple
+                                        value={formData.selectedJobTitles}
+                                        onChange={(e) => {
+                                            const { value } = e.target;
+                                            setFormData({ ...formData, selectedJobTitles: typeof value === 'string' ? value.split(',') : value });
+                                        }}
+                                        input={<OutlinedInput size="small" sx={{ borderRadius: 2, fontWeight: 700 }} />}
+                                        renderValue={(selected) => (
+                                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                                {selected.map((value) => (
+                                                    <Chip key={value} label={value} size="small" />
+                                                ))}
+                                            </Box>
+                                        )}
+                                    >
+                                        {masterCategories[formData.categoryName].map((title) => (
+                                            <MenuItem key={title} value={title}>
+                                                <Checkbox checked={formData.selectedJobTitles.indexOf(title) > -1} />
+                                                <ListItemText primary={title} />
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </Box>
+                            )}
                         </Stack>
                     </DialogContent>
                     <DialogActions sx={{ p: 3, pt: 1 }}>

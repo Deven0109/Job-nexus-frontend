@@ -276,7 +276,7 @@ const RecruiterJobRequests = () => {
                     { label: 'Recently Approved', value: approvedCount, color: 'success' },
                     { label: 'Active Live Jobs', value: convertedCount, color: 'info' }
                 ].map((stat, i) => (
-                    <Grid item xs={6} sm={3} key={i}>
+                    <Grid size={{ xs: 6, sm: 3 }} key={i}>
                         <Paper elevation={0} sx={{
                             p: 2,
                             borderRadius: 2,

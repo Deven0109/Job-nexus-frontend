@@ -67,27 +67,33 @@ export const toggleJobStatus = async (id) => {
 
 // ==================== CATEGORIES ====================
 
-// List all categories
-export const listCategories = async (params) => {
-    const response = await api.get('/categories', { params });
+// List all mapped categories for the recruiter
+export const listCategories = async () => {
+    const response = await api.get('/recruiter/categories');
     return response.data;
 };
 
-// Create a new category
+// Create a new mapped category
 export const createCategory = async (data) => {
-    const response = await api.post('/categories', data);
+    const response = await api.post('/recruiter/categories', data);
     return response.data;
 };
 
-// Update a category
+// Update a mapped category
 export const updateCategory = async (id, data) => {
-    const response = await api.put(`/categories/${id}`, data);
+    const response = await api.put(`/recruiter/categories/${id}`, data);
     return response.data;
 };
 
-// Delete a category
+// Delete a mapped category
 export const deleteCategory = async (id) => {
-    const response = await api.delete(`/categories/${id}`);
+    const response = await api.delete(`/recruiter/categories/${id}`);
+    return response.data;
+};
+
+// Get master list of categories and jobs
+export const getMasterCategories = async () => {
+    const response = await api.get('/categories/master');
     return response.data;
 };
 

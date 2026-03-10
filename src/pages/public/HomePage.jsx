@@ -8,11 +8,14 @@ import {
     HiOutlineArrowRight,
 } from 'react-icons/hi2';
 
+import { getPopularCategories } from '../../api/jobs.api';
+
 const HomePage = () => {
     const { isAuthenticated, user } = useAuth();
     const navigate = useNavigate();
     const [searchTitle, setSearchTitle] = useState('');
     const [searchLocation, setSearchLocation] = useState('');
+    const [popularCategories, setPopularCategories] = useState([]);
 
     const handleSearch = () => {
         if (!searchTitle.trim() && !searchLocation.trim()) {
@@ -38,6 +41,20 @@ const HomePage = () => {
             }
         }
     }, [isAuthenticated, user, navigate]);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const res = await getPopularCategories();
+                if (res.success && res.data) {
+                    setPopularCategories(res.data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch popular categories", error);
+            }
+        };
+        fetchCategories();
+    }, []);
 
     return (
         <div className="flex flex-col min-h-screen">
@@ -111,25 +128,31 @@ const HomePage = () => {
                     </div>
 
                     <div className="flex flex-wrap justify-center gap-6">
-                        {[
-                            { name: 'Programming', jobs: '1.2k+', icon: '💻' },
-                            { name: 'Data Science', jobs: '850+', icon: '🤖' },
-                            { name: 'Designing', jobs: '640+', icon: '🎨' },
-                            { name: 'Networking', jobs: '420+', icon: '🌐' },
-                            { name: 'Management', jobs: '310+', icon: '📊' },
-                            { name: 'Marketing', jobs: '950+', icon: '📈' },
-                            { name: 'Cybersecurity', jobs: '1.1k+', icon: '🔒' },
-                        ].map((cat) => (
-                            <div
-                                key={cat.name}
-                                onClick={() => navigate(`/jobs?category=${cat.name}`)}
-                                className="group p-8 w-56 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col items-center hover:bg-white hover:shadow-2xl hover:border-blue-200 transition-all duration-300 cursor-pointer"
-                            >
-                                <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">{cat.icon}</div>
-                                <h4 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors text-center mb-1">{cat.name}</h4>
-                                <p className="text-sm font-semibold text-slate-500">{cat.jobs} Open Vacancies</p>
-                            </div>
-                        ))}
+                        {popularCategories.map((cat) => {
+                            const icons = {
+                                "Programming": "💻",
+                                "Data Science": "🤖",
+                                "Designing": "🎨",
+                                "Networking": "🌐",
+                                "Management": "📊",
+                                "Marketing": "📈",
+                                "Cybersecurity": "🔒",
+                                "UI/UX Design": "✨",
+                                "DevOps": "⚙️",
+                                "Mobile Development": "📱"
+                            };
+                            return (
+                                <div
+                                    key={cat.category}
+                                    onClick={() => navigate(`/jobs?category=${cat.category}`)}
+                                    className="group p-8 w-56 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col items-center hover:bg-white hover:shadow-2xl hover:border-blue-200 transition-all duration-300 cursor-pointer"
+                                >
+                                    <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">{icons[cat.category] || "💼"}</div>
+                                    <h4 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors text-center mb-1">{cat.category}</h4>
+                                    <p className="text-sm font-semibold text-slate-500">{cat.applications} Jobs Applied</p>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
             </section>
