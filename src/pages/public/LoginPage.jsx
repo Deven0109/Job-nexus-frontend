@@ -37,8 +37,7 @@ const LoginPage = () => {
 
     if (isAuthenticated && user) {
         let dashboardPath = `/${user.role}/dashboard`;
-        if (user.role === 'recruiter') dashboardPath = '/recruiter/dashboard';
-        if (user.role === 'candidate') dashboardPath = '/';
+        if (user.role === 'candidate') dashboardPath = '/'; // Candidate dashboard is root
         return <Navigate to={dashboardPath} replace />;
     }
 
@@ -96,13 +95,11 @@ const LoginPage = () => {
             const from = location.state?.from?.pathname;
             let dashboardPath = `/${userData.role}/dashboard`;
 
-            if (userData.role === 'recruiter') {
-                dashboardPath = '/recruiter/dashboard';
-            } else if (userData.role === 'candidate') {
+            if (userData.role === 'candidate') {
                 dashboardPath = '/';
             }
 
-            navigate(from || dashboardPath, { replace: true });
+            navigate(dashboardPath, { replace: true });
         } catch (error) {
             const message =
                 error.response?.data?.message || error.message || 'Login failed. Please try again.';

@@ -1,107 +1,86 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
-    Typography,
-    Box,
-    Paper,
-    Stack,
-    IconButton,
-    Avatar,
-    Chip,
-    alpha,
-    useTheme,
-    Skeleton,
-    Button
-} from '@mui/material';
-import {
-    ArrowBack as ArrowLeftIcon,
-    VideoCameraFront as VideoCameraIcon,
-    Phone as PhoneIcon,
-    Email as EmailIcon,
-    Group as GroupIcon
-} from '@mui/icons-material';
+    HiOutlineArrowLeft,
+    HiOutlineChevronRight,
+    HiOutlineXMark,
+    HiOutlineUserGroup,
+    HiOutlineArrowPath,
+    HiOutlineBriefcase,
+    HiOutlineChevronDoubleRight
+} from 'react-icons/hi2';
 import { getJobPipeline, updateApplicationStatus } from '../../api/applications.api';
 import { BASE_URL } from '../../api/axios';
 import toast from 'react-hot-toast';
-import {
-    Stars as SkillsIcon,
-    History as ExperienceIcon,
-    ChevronRight as MoveIcon,
-    Block as RejectIcon,
-    MoreVert as MoreIcon
-} from '@mui/icons-material';
+
+const COLUMN_CONFIG = [
+    { key: 'Applied', title: 'Applied', color: 'bg-blue-500 shadow-blue-100', text: 'text-blue-600', bg: 'bg-blue-50', action: 'review' },
+    {
+        key: 'Under Review',
+        title: 'Review',
+        color: 'bg-amber-500 shadow-amber-100',
+        text: 'text-amber-600',
+        bg: 'bg-amber-50',
+        action: 'shortlist',
+        include: ['Under Review', 'Recruiter Shortlisted']
+    },
+    { key: 'Employer Shortlisted', title: 'Shortlisted', color: 'bg-indigo-500 shadow-indigo-100', text: 'text-indigo-600', bg: 'bg-indigo-50', action: 'interview' },
+    {
+        key: 'Interview Scheduled',
+        title: 'Interview',
+        color: 'bg-purple-500 shadow-purple-100',
+        text: 'text-purple-600',
+        bg: 'bg-purple-50',
+        action: 'next-round',
+        include: ['Interview Scheduled', 'Selected Next Round']
+    },
+    { key: 'Final Selected', title: 'Hired', color: 'bg-emerald-500 shadow-emerald-100', text: 'text-emerald-600', bg: 'bg-emerald-50', action: 'hire' },
+    {
+        key: 'Final Rejected',
+        title: 'Rejected',
+        color: 'bg-red-500 shadow-red-100',
+        text: 'text-red-600',
+        bg: 'bg-red-50',
+        action: null,
+        include: ['Final Rejected', 'Recruiter Rejected', 'Employer Rejected']
+    }
+];
 
 const RecruiterPipelinePage = () => {
     const { jobId } = useParams();
-    const theme = useTheme();
+    const navigate = useNavigate();
     const [pipeline, setPipeline] = useState({});
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchPipeline = async () => {
-            try {
-                const res = await getJobPipeline(jobId);
-                if (res && (res.success || res.data)) {
-                    setPipeline(res.data || res || {});
-                }
-            } catch (error) {
-                console.error('Pipeline error:', error);
-                toast.error('Failed to load hiring pipeline');
-            } finally {
-                setLoading(false);
+    const fetchPipeline = async () => {
+        try {
+            const res = await getJobPipeline(jobId);
+            if (res && (res.success || res.data)) {
+                setPipeline(res.data || res || {});
             }
-        };
+        } catch (error) {
+            console.error('Pipeline error:', error);
+            toast.error('Failed to load hiring pipeline');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
         fetchPipeline();
     }, [jobId]);
 
-    const columns = [
-        { key: 'Applied', title: 'Applied', color: '#3b82f6', action: 'review' },
-        {
-            key: 'Under Review',
-            title: 'Review',
-            color: '#f59e0b',
-            action: 'shortlist',
-            include: ['Under Review', 'Recruiter Shortlisted'] // Group these
-        },
-        { key: 'Employer Shortlisted', title: 'Shortlisted', color: '#10b981', action: 'interview' },
-        {
-            key: 'Interview Scheduled',
-            title: 'Interview',
-            color: '#8b5cf6',
-            action: 'next-round',
-            include: ['Interview Scheduled', 'Selected Next Round'] // Group these
-        },
-        { key: 'Final Selected', title: 'Selected', color: '#059669', action: 'hire' },
-        {
-            key: 'Final Rejected',
-            title: 'Rejected',
-            color: '#ef4444',
-            action: null,
-            include: ['Final Rejected', 'Recruiter Rejected', 'Employer Rejected'] // Group all rejections
-        }
-    ];
-
     const handleAction = async (id, action) => {
         try {
+            const loadToast = toast.loading('Moving candidate...');
             await updateApplicationStatus(id, action);
-            toast.success('Candidate moved successfully');
-            const res = await getJobPipeline(jobId);
-            if (res.success) setPipeline(res.data);
+            toast.dismiss(loadToast);
+            toast.success('Candidate moved forward');
+            fetchPipeline();
         } catch (error) {
             toast.error('Failed to move candidate');
         }
     };
-
-    if (loading) return (
-        <Box sx={{ p: 4, height: '100vh', display: 'flex', flexDirection: 'column', bgcolor: '#f8f9fb' }}>
-            <Skeleton variant="text" width={250} height={40} sx={{ mb: 2 }} />
-            <Stack direction="row" spacing={3} sx={{ flex: 1, overflow: 'hidden' }}>
-                {[1, 2, 3, 4].map((i) => (
-                    <Skeleton key={i} variant="rectangular" width={280} height="100%" sx={{ borderRadius: 4, flexShrink: 0 }} />
-                ))}
-            </Stack>
-        </Box>
-    );
 
     const getCandidatesForColumn = (col) => {
         if (col.include) {
@@ -114,220 +93,165 @@ const RecruiterPipelinePage = () => {
         return Array.isArray(list) ? list : [];
     };
 
-    const totalCandidates = columns.reduce((sum, col) => {
+    const totalCandidates = COLUMN_CONFIG.reduce((sum, col) => {
         return sum + getCandidatesForColumn(col).length;
     }, 0);
 
-    return (
-        <Box sx={{
-            height: 'calc(100vh - 64px - 32px)', // Adjust for header (64) + main padding (32)
-            display: 'flex',
-            flexDirection: 'column',
-            bgcolor: '#f8f9fb',
-            overflow: 'hidden',
-            borderRadius: 4
-        }}>
-            {/* 1. Page Header - Fixed */}
-            <Box sx={{
-                p: { xs: 1.5, sm: 2 },
-                flexShrink: 0,
-                bgcolor: 'white',
-                borderBottom: '1px solid',
-                borderColor: alpha(theme.palette.divider, 0.1)
-            }}>
-                <Stack direction="row" spacing={2} alignItems="center">
-                    <IconButton
-                        component={Link}
-                        to="/recruiter/manage-jobs"
-                        size="small"
-                        sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}
-                    >
-                        <ArrowLeftIcon fontSize="small" />
-                    </IconButton>
-                    <Box sx={{ minWidth: 0 }}>
-                        <Typography variant="h6" fontWeight={900} sx={{ lineHeight: 1.2 }} noWrap>
-                            Hiring Pipeline
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary" fontWeight={700}>
-                            <Box component="span" sx={{ color: 'primary.main', fontWeight: 900 }}>{totalCandidates}</Box> candidates active in the process
-                        </Typography>
-                    </Box>
-                </Stack>
-            </Box>
+    if (loading) {
+        return (
+            <div className="h-screen bg-slate-50 flex flex-col p-6 animate-pulse">
+                <div className="h-12 bg-white rounded-2xl w-full mb-6 border border-slate-100"></div>
+                <div className="flex gap-4 overflow-hidden h-full">
+                    {[1, 2, 3, 4, 5].map(i => (
+                        <div key={i} className="min-w-[320px] bg-slate-100/50 rounded-3xl h-full border border-slate-100"></div>
+                    ))}
+                </div>
+            </div>
+        );
+    }
 
-            {/* 2. Pipeline Board Container */}
-            <Box sx={{
-                flex: 1,
-                display: 'flex',
-                gap: 2,
-                p: { xs: 1, sm: 1.5 },
-                overflowX: 'auto',
-                overflowY: 'hidden', // Contain vertical overflow
-                pb: 1,
-                '&::-webkit-scrollbar': { height: 8 },
-                '&::-webkit-scrollbar-thumb': { bgcolor: alpha(theme.palette.divider, 0.4), borderRadius: 4 },
-                '&::-webkit-scrollbar-track': { bgcolor: 'transparent' }
-            }}>
-                {columns.map((col) => {
+    return (
+        <div className="h-[calc(100vh-100px)] flex flex-col bg-slate-50 overflow-hidden">
+            {/* Header */}
+            <div className="shrink-0 px-6 py-4 bg-white border-b border-slate-100 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => navigate('/recruiter/manage-jobs')}
+                        className="p-2.5 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50 transition-all active:scale-90"
+                    >
+                        <HiOutlineArrowLeft className="w-5 h-5" />
+                    </button>
+                    <div>
+                        <h1 className="text-xl font-black text-dark-900 tracking-tight leading-none">
+                            Hiring Pipeline
+                        </h1>
+                        <p className="text-xs font-bold text-slate-400 mt-1 flex items-center gap-1.5 uppercase tracking-wider">
+                            <span className="text-primary-600">{totalCandidates}</span> Active Candidates
+                        </p>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={fetchPipeline}
+                        className="p-2 text-slate-400 hover:text-dark-900 transition-colors"
+                        title="Refresh Board"
+                    >
+                        <HiOutlineArrowPath className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+                    </button>
+                    <Link
+                        to={`/recruiter/job/${jobId}/applications`}
+                        className="px-5 py-2.5 bg-dark-900 text-white text-[11px] font-black uppercase tracking-wider rounded-xl hover:bg-black transition-all active:scale-95 shadow-lg shadow-dark-100"
+                    >
+                        All Applications
+                    </Link>
+                </div>
+            </div>
+
+            {/* Kanban Board */}
+            <div className="flex-1 flex gap-4 p-6 overflow-x-auto overflow-y-hidden select-none scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
+                {COLUMN_CONFIG.map((col) => {
                     const candidates = getCandidatesForColumn(col);
                     return (
-                        <Box
+                        <div
                             key={col.key}
-                            sx={{
-                                width: 310,
-                                minWidth: 310,
-                                height: '100%',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                bgcolor: alpha(theme.palette.divider, 0.05),
-                                borderRadius: 4,
-                                p: 1,
-                                flexShrink: 0
-                            }}
+                            className="w-[320px] min-w-[320px] max-w-[320px] flex flex-col bg-slate-100/30 rounded-[32px] border border-slate-200/50 p-3"
                         >
-                            {/* 3. Column Header - Effectively Sticky */}
-                            <Paper elevation={0} sx={{
-                                px: 2, py: 1.5,
-                                mb: 1,
-                                borderRadius: 3,
-                                border: '1px solid',
-                                borderColor: 'divider',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                bgcolor: 'white',
-                                flexShrink: 0,
-                                boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
-                            }}>
-                                <Stack direction="row" spacing={1.5} alignItems="center">
-                                    <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: col.color, boxShadow: `0 0 8px ${alpha(col.color, 0.4)}` }} />
-                                    <Typography variant="caption" fontWeight={900} sx={{ textTransform: 'uppercase', letterSpacing: '0.06em', color: 'text.primary' }}>
+                            {/* Column Header */}
+                            <div className="flex items-center justify-between px-3 py-3 mb-3 shrink-0">
+                                <div className="flex items-center gap-2.5">
+                                    <div className={`w-2.5 h-2.5 rounded-full ${col.color} shadow-sm`} />
+                                    <h3 className="text-xs font-black text-dark-900 uppercase tracking-widest">
                                         {col.title}
-                                    </Typography>
-                                </Stack>
-                                <Chip
-                                    label={candidates.length}
-                                    size="small"
-                                    sx={{ fontWeight: 900, height: 22, bgcolor: alpha(col.color, 0.1), color: col.color, border: 'none', px: 0.5 }}
-                                />
-                            </Paper>
+                                    </h3>
+                                </div>
+                                <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black tracking-tight ${col.bg} ${col.text}`}>
+                                    {candidates.length}
+                                </span>
+                            </div>
 
-                            {/* Cards list with scroll */}
-                            <Box sx={{
-                                flex: 1,
-                                overflowY: 'auto',
-                                pr: 0.5,
-                                '&::-webkit-scrollbar': { width: 4 },
-                                '&::-webkit-scrollbar-thumb': { bgcolor: alpha(theme.palette.divider, 0.3), borderRadius: 4 }
-                            }}>
-                                <Stack spacing={1.5}>
-                                    {candidates.map((app) => (
-                                        <Paper
-                                            key={app?._id}
-                                            elevation={0}
-                                            sx={{
-                                                p: 2,
-                                                borderRadius: 3,
-                                                border: '1px solid',
-                                                borderColor: 'divider',
-                                                bgcolor: 'white',
-                                                transition: 'all 0.2s',
-                                                '&:hover': {
-                                                    borderColor: col.color,
-                                                    boxShadow: `0 4px 12px ${alpha(col.color, 0.1)}`,
-                                                    transform: 'translateY(-2px)'
-                                                }
-                                            }}
+                            {/* Cards List */}
+                            <div className="flex-1 overflow-y-auto space-y-3 pr-1 scrollbar-thin scrollbar-thumb-slate-200">
+                                {candidates.length === 0 ? (
+                                    <div className="flex flex-col items-center justify-center py-12 opacity-20 grayscale scale-90">
+                                        <HiOutlineUserGroup className="w-12 h-12 mb-2" />
+                                        <p className="text-[10px] font-black uppercase tracking-tighter">Empty</p>
+                                    </div>
+                                ) : (
+                                    candidates.map((app) => (
+                                        <div
+                                            key={app._id}
+                                            className="bg-white p-4 rounded-2xl border border-slate-100 shadow-[0_2px_8px_rgb(0,0,0,0.02)] transition-all hover:shadow-xl hover:border-slate-300 group"
                                         >
-                                            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
-                                                <Avatar
-                                                    src={app?.candidate?.avatar?.startsWith('http') ? app.candidate.avatar : (app?.candidate?.avatar ? `${BASE_URL}${app.candidate.avatar}` : undefined)}
-                                                    sx={{
-                                                        width: 42, height: 42,
-                                                        borderRadius: 2,
-                                                        bgcolor: alpha(col.color, 0.1),
-                                                        color: col.color,
-                                                        fontWeight: 900,
-                                                        fontSize: '1rem'
-                                                    }}
-                                                >
-                                                    {app?.candidate?.firstName?.[0]}
-                                                </Avatar>
-                                                <Box sx={{ minWidth: 0 }}>
-                                                    <Typography variant="body2" fontWeight={900} noWrap sx={{ color: 'text.primary', mb: 0.2 }}>
-                                                        {app?.candidate?.firstName} {app?.candidate?.lastName}
-                                                    </Typography>
-                                                    <Typography variant="caption" color="text.secondary" fontWeight={700} noWrap display="block">
-                                                        {app?.candidate?.email}
-                                                    </Typography>
-                                                </Box>
-                                            </Stack>
+                                            <div className="flex items-center gap-3 mb-4">
+                                                <div className="w-10 h-10 rounded-xl overflow-hidden bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
+                                                    {app.candidate?.avatar ? (
+                                                        <img
+                                                            src={app.candidate.avatar.startsWith('http') ? app.candidate.avatar : `${BASE_URL}${app.candidate.avatar}`}
+                                                            alt="Avatar"
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        <span className={`text-sm font-black uppercase ${col.text}`}>
+                                                            {app.candidate?.firstName?.[0]}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <h4 className="text-sm font-black text-dark-900 truncate">
+                                                        {app.candidate?.firstName} {app.candidate?.lastName}
+                                                    </h4>
+                                                    <p className="text-[10px] font-bold text-slate-400 truncate">
+                                                        {app.candidate?.email}
+                                                    </p>
+                                                </div>
+                                            </div>
 
-                                            {/* Action Bar */}
-                                            <Stack direction="row" spacing={1}>
-                                                <Button
-                                                    component={Link}
+                                            {/* Info Pills */}
+                                            {app.candidateProfile && (
+                                                <div className="flex flex-wrap gap-1.5 mb-4">
+                                                    <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-50 text-[9px] font-bold text-slate-500 rounded-md border border-slate-100">
+                                                        <HiOutlineBriefcase className="w-3 h-3 text-slate-400" />
+                                                        {app.candidateProfile.experience?.[0]?.companyName ? "Experienced" : "Fresher"}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            <div className="flex items-center gap-2">
+                                                <Link
                                                     to={`/recruiter/job/${jobId}/applications`}
-                                                    variant="outlined"
-                                                    size="small"
-                                                    sx={{
-                                                        borderRadius: 2,
-                                                        fontSize: '0.65rem',
-                                                        fontWeight: 900,
-                                                        flex: 1,
-                                                        textTransform: 'none',
-                                                        py: 0.5,
-                                                        color: 'primary.main',
-                                                        borderColor: alpha(theme.palette.primary.main, 0.2),
-                                                        '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.05), borderColor: 'primary.main' }
-                                                    }}
+                                                    className="flex-1 text-center py-2 bg-slate-50 text-[10px] font-black text-slate-600 uppercase tracking-wider rounded-lg hover:bg-slate-100 transition-colors border border-slate-100"
                                                 >
-                                                    Manage
-                                                </Button>
+                                                    Profile
+                                                </Link>
                                                 {col.action && (
-                                                    <IconButton
-                                                        size="small"
+                                                    <button
                                                         onClick={() => handleAction(app._id, col.action)}
-                                                        sx={{ bgcolor: alpha(col.color, 0.1), color: col.color, borderRadius: 2, '&:hover': { bgcolor: alpha(col.color, 0.2) } }}
+                                                        className={`p-2 rounded-lg ${col.bg} ${col.text} hover:scale-110 active:scale-90 transition-all shadow-sm`}
+                                                        title="Move to Next Stage"
                                                     >
-                                                        <MoveIcon fontSize="small" />
-                                                    </IconButton>
+                                                        <HiOutlineChevronDoubleRight className="w-3.5 h-3.5" />
+                                                    </button>
                                                 )}
                                                 {col.key !== 'Final Rejected' && (
-                                                    <IconButton
-                                                        size="small"
+                                                    <button
                                                         onClick={() => handleAction(app._id, 'reject')}
-                                                        sx={{ bgcolor: alpha('#ef4444', 0.1), color: '#ef4444', borderRadius: 2, '&:hover': { bgcolor: alpha('#ef4444', 0.2) } }}
+                                                        className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 hover:scale-110 active:scale-90 transition-all shadow-sm"
+                                                        title="Reject Candidate"
                                                     >
-                                                        <RejectIcon fontSize="small" />
-                                                    </IconButton>
+                                                        <HiOutlineXMark className="w-3.5 h-3.5" />
+                                                    </button>
                                                 )}
-                                            </Stack>
-                                        </Paper>
-                                    ))}
-
-                                    {candidates.length === 0 && (
-                                        <Box sx={{
-                                            py: 8,
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            opacity: 0.2
-                                        }}>
-                                            <GroupIcon sx={{ fontSize: 32, mb: 1 }} />
-                                            <Typography variant="caption" fontWeight={900}>
-                                                EMPTY
-                                            </Typography>
-                                        </Box>
-                                    )}
-                                </Stack>
-                            </Box>
-                        </Box>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
                     );
                 })}
-            </Box>
-        </Box>
+            </div>
+        </div>
     );
 };
 

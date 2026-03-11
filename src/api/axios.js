@@ -52,7 +52,7 @@ api.interceptors.response.use(
             } catch (refreshError) {
                 localStorage.removeItem('jobnexus_app_token');
                 localStorage.removeItem('jobnexus_app_user');
-                window.location.href = '/login';
+                window.location.href = '/#/login';
                 return Promise.reject(refreshError);
             }
         }

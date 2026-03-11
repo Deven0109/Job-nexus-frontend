@@ -197,10 +197,10 @@ const RecruiterDashboardMain = () => {
                 borderBottom: '1px solid',
                 borderColor: 'divider'
             }}>
-                <Typography variant="h6" fontWeight={800} color="text.primary" sx={{ fontSize: '1.15rem' }}>
+                <Typography variant="h4" fontWeight={900} color="text.primary" sx={{ fontSize: '1.875rem', tracking: '-0.02em' }}>
                     Dashboard Overview
                 </Typography>
-                <Typography variant="caption" color="text.secondary" fontWeight={500}>
+                <Typography variant="body2" color="text.secondary" fontWeight={600} sx={{ mt: 0.5, fontSize: '0.875rem' }}>
                     Welcome back! Here's your recruitment snapshot.
                 </Typography>
             </Box>
@@ -212,70 +212,52 @@ const RecruiterDashboardMain = () => {
                     return (
                         <Grid size={{ xs: 6, sm: 6, md: 3 }} key={idx}>
                             {loading ? (
-                                <Paper elevation={0} sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider', p: 2.5, height: 90 }}>
-                                    <Stack direction="row" alignItems="center" spacing={2}>
-                                        <Skeleton variant="rounded" width={48} height={48} sx={{ borderRadius: 2 }} />
-                                        <Box>
-                                            <Skeleton variant="text" width={40} height={32} />
-                                            <Skeleton variant="text" width={100} height={14} />
-                                        </Box>
-                                    </Stack>
+                                <Paper elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', p: 3, height: 100, bgcolor: 'secondary.10' }}>
+                                    <Skeleton variant="rounded" width="100%" height="100%" />
                                 </Paper>
                             ) : (
                                 <Paper
                                     elevation={0}
                                     sx={{
-                                        borderRadius: 2,
+                                        borderRadius: 3,
                                         border: '1px solid',
                                         borderColor: 'divider',
                                         p: 2.5,
-                                        height: 90,
+                                        height: 100,
                                         display: 'flex',
                                         alignItems: 'center',
-                                        position: 'relative',
-                                        overflow: 'hidden',
-                                        transition: 'all 0.2s ease',
+                                        transition: 'all 0.2s',
                                         '&:hover': {
-                                            borderColor: alpha('#6366F1', 0.3),
-                                            boxShadow: `0 4px 20px ${alpha('#6366F1', 0.08)}`
-                                        },
-                                        '&::after': {
-                                            content: '""',
-                                            position: 'absolute',
-                                            top: 0,
-                                            right: 0,
-                                            width: '40%',
-                                            height: '100%',
-                                            background: 'linear-gradient(135deg, transparent 0%, rgba(99,102,241,0.04) 100%)',
-                                            borderRadius: '0 16px 16px 0',
-                                            pointerEvents: 'none'
+                                            borderColor: 'primary.300',
+                                            transform: 'translateY(-2px)'
                                         }
                                     }}
                                 >
-                                    <Stack direction="row" alignItems="center" spacing={2} sx={{ position: 'relative', zIndex: 1, width: '100%' }}>
-                                        <Avatar
-                                            variant="rounded"
-                                            sx={{
-                                                width: 48,
-                                                height: 48,
-                                                borderRadius: 2,
-                                                bgcolor: '#6366F1',
-                                                flexShrink: 0
-                                            }}
-                                        >
-                                            <Icon sx={{ fontSize: 24, color: '#fff' }} />
-                                        </Avatar>
+                                    <Stack direction="row" alignItems="center" spacing={2.5}>
+                                        <Box sx={{
+                                            width: 52,
+                                            height: 52,
+                                            borderRadius: 2.5,
+                                            bgcolor: alpha(card.color, 0.1),
+                                            color: card.color,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontSize: 28
+                                        }}>
+                                            <Icon fontSize="inherit" />
+                                        </Box>
                                         <Box>
-                                            <Typography fontWeight={900} sx={{ color: 'text.primary', fontSize: '1.5rem', lineHeight: 1 }}>
+                                            <Typography variant="h5" fontWeight={900} sx={{ color: 'text.primary', lineHeight: 1 }}>
                                                 {card.value}
                                             </Typography>
                                             <Typography sx={{
-                                                color: '#64748B',
-                                                fontSize: '0.65rem',
-                                                fontWeight: 700,
+                                                color: 'text.secondary',
+                                                fontSize: '0.72rem',
+                                                fontWeight: 800,
                                                 textTransform: 'uppercase',
-                                                letterSpacing: '0.06em',
-                                                mt: 0.3
+                                                letterSpacing: '0.04em',
+                                                mt: 0.5
                                             }}>
                                                 {card.label}
                                             </Typography>

@@ -13,8 +13,8 @@ export const updateEmployerProfile = async (profileData) => {
 };
 
 // Get active jobs for this employer (posted by recruiter)
-export const getEmployerActiveJobs = async () => {
-    const response = await api.get('/employer/active-jobs');
+export const getEmployerActiveJobs = async (params) => {
+    const response = await api.get('/employer/active-jobs', { params });
     return response.data;
 };
 

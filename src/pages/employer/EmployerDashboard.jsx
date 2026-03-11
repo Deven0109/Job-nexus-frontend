@@ -51,99 +51,90 @@ const EmployerDashboard = () => {
     ];
 
     if (loading) return (
-        <div className="animate-pulse space-y-8">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                {[1, 2, 3, 4].map(i => <div key={i} className="h-32 bg-slate-100 rounded-[32px]"></div>)}
+        <div className="animate-pulse space-y-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {[1, 2, 3, 4].map(i => <div key={i} className="h-28 bg-white border border-slate-200 rounded-2xl"></div>)}
             </div>
-            <div className="h-96 bg-slate-50 rounded-[40px]"></div>
+            <div className="h-64 bg-white border border-slate-200 rounded-2xl"></div>
         </div>
     );
 
     return (
-        <div className="space-y-8 animate-fade-in">
+        <div className="space-y-6 animate-fade-in max-w-7xl mx-auto">
             {/* Header */}
             <div>
-                <h1 className="text-[28px] font-black text-slate-900 tracking-tight mb-2">
+                <h1 className="text-[26px] font-bold text-slate-900 tracking-tight mb-1">
                     Welcome back, {user?.firstName}!
                 </h1>
-                <p className="text-slate-500 font-medium">Here's what's happening with your recruitment process today.</p>
+                <p className="text-sm text-slate-500 font-medium">Here's what's happening with your recruitment process today.</p>
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                 {stats.map((stat) => (
-                    <div key={stat.label} className="bg-white p-6 rounded-[32px] border border-slate-200 shadow-sm hover:shadow-md transition-all">
-                        <div className={`w-12 h-12 rounded-2xl bg-${stat.color}-50 flex items-center justify-center mb-4`}>
+                    <div key={stat.label} className="bg-white p-5 rounded-[20px] shadow-[0_2px_10px_rgb(0,0,0,0.04)] border border-slate-100 flex items-center gap-4 transition-transform hover:-translate-y-1">
+                        <div className={`w-12 h-12 rounded-2xl bg-${stat.color}-50 border border-${stat.color}-100 flex items-center justify-center shrink-0`}>
                             <stat.icon className={`w-6 h-6 text-${stat.color}-600`} />
                         </div>
-                        <p className="text-3xl font-black text-slate-900 mb-1">{stat.value}</p>
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{stat.label}</p>
+                        <div>
+                            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{stat.label}</p>
+                            <p className="text-2xl font-black text-slate-900 leading-none">{stat.value}</p>
+                        </div>
                     </div>
                 ))}
             </div>
 
             {/* Recent Activity Section */}
-            <div>
-                <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-black text-slate-900 tracking-tight">Recent Activity</h2>
-                    <Link to="/employer/pipelines" className="text-sm font-bold text-primary-600 hover:text-primary-700 flex items-center gap-1 group">
-                        View All Applications
+            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                <div className="flex items-center justify-between p-5 border-b border-slate-100 bg-slate-50/50">
+                    <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+                        Recent Activity
+                    </h2>
+                    <Link to="/employer/pipelines" className="text-[14px] font-bold text-primary-600 hover:text-primary-700 flex items-center gap-1 group">
+                        View All
                         <HiOutlineArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </Link>
                 </div>
 
-                <div className="space-y-4">
+                <div className="divide-y divide-slate-100">
                     {activities.length === 0 ? (
-                        <div className="bg-white rounded-[40px] p-20 text-center border-2 border-dashed border-slate-200">
-                            <HiOutlineBuildingOffice2 className="w-16 h-16 text-slate-200 mx-auto mb-4" />
-                            <h3 className="text-lg font-bold text-slate-900">No recent activity</h3>
-                            <p className="text-sm text-slate-500 mt-1 max-w-xs mx-auto">
+                        <div className="p-12 text-center">
+                            <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center mx-auto mb-3">
+                                <HiOutlineBuildingOffice2 className="w-6 h-6 text-slate-300" />
+                            </div>
+                            <h3 className="text-[15px] font-bold text-slate-900">No recent activity</h3>
+                            <p className="text-[13px] text-slate-500 mt-1 max-w-sm mx-auto">
                                 When candidates apply or status changes occur, you'll see them here.
                             </p>
                         </div>
                     ) : (
-                        activities.map((activity) => (
+                        activities.slice(0, 5).map((activity) => (
                             <Link
                                 key={activity._id}
                                 to={activity.status === 'Recruiter Shortlisted'
                                     ? `/employer/jobs/${activity.job?._id}/review`
                                     : `/employer/jobs/${activity.job?._id}/pipeline`}
-                                className="block bg-white rounded-3xl p-5 border border-slate-200 shadow-sm hover:shadow-md hover:border-primary-200 transition-all group"
+                                className="flex items-center gap-4 p-4 hover:bg-slate-50 transition-colors group"
                             >
-                                <div className="flex items-center gap-5">
-                                    <div className="w-14 h-14 rounded-2xl bg-slate-50 flex-shrink-0 overflow-hidden border border-slate-100 flex items-center justify-center">
-                                        {activity.candidate?.avatar ? (
-                                            <img
-                                                src={activity.candidate.avatar.startsWith('http') ? activity.candidate.avatar : `${BASE_URL}${activity.candidate.avatar}`}
-                                                className="w-full h-full object-cover"
-                                            />
-                                        ) : (
-                                            <span className="text-xl font-black text-slate-300">{activity.candidate?.firstName?.[0]}</span>
-                                        )}
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[15px] font-bold text-slate-900">
+                                            {activity.candidate?.firstName} {activity.candidate?.lastName}
+                                        </span>
+                                        <span className="text-[11px] text-slate-500 font-medium px-2 py-0.5 bg-slate-100 rounded-md">
+                                            {activity.job?.title}
+                                        </span>
                                     </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <span className="text-sm font-black text-slate-900">
-                                                {activity.candidate?.firstName} {activity.candidate?.lastName}
-                                            </span>
-                                            <span className="text-slate-300">•</span>
-                                            <span className="text-xs font-bold text-slate-500 truncate">
-                                                {activity.job?.title}
-                                            </span>
-                                        </div>
-                                        <p className="text-xs font-medium text-slate-500">
-                                            Status updated to <span className="font-black text-primary-600">{activity.status}</span>
-                                        </p>
-                                    </div>
-                                    <div className="text-right flex-shrink-0">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
-                                            {new Date(activity.updatedAt).toLocaleDateString()}
-                                        </p>
-                                        <div className="flex justify-end">
-                                            <div className="bg-slate-50 p-1.5 rounded-lg group-hover:bg-primary-50 transition-colors">
-                                                <HiOutlineArrowRight className="w-4 h-4 text-slate-400 group-hover:text-primary-600 transition-colors" />
-                                            </div>
-                                        </div>
+                                    <p className="text-[14px] text-slate-600 mt-1">
+                                        Status updated to <span className="font-semibold text-primary-600">{activity.status}</span>
+                                    </p>
+                                </div>
+                                <div className="text-right flex-shrink-0">
+                                    <p className="text-[11px] font-semibold text-slate-400 mb-1">
+                                        {new Date(activity.updatedAt).toLocaleDateString()}
+                                    </p>
+                                    <div className="flex justify-end">
+                                        <HiOutlineArrowRight className="w-4 h-4 text-slate-300 group-hover:text-primary-500 transition-colors" />
                                     </div>
                                 </div>
                             </Link>

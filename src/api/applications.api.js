@@ -33,8 +33,8 @@ export const scheduleInterview = async (id, data) => {
 };
 
 // Employer APIs
-export const getEmployerShortlisted = async (jobId) => {
-    const response = await API.get(`/applications/employer/job/${jobId}/shortlisted`);
+export const getEmployerShortlisted = async (jobId, params = {}) => {
+    const response = await API.get(`/applications/employer/job/${jobId}/shortlisted`, { params });
     return response.data;
 };
 

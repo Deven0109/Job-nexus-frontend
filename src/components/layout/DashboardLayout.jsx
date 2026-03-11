@@ -28,8 +28,8 @@ const getSidebarItems = (role) => {
         recruiter: [
             { label: 'Dashboard', to: '/recruiter/dashboard', icon: HiOutlineHome },
             { label: 'Manage Jobs', to: '/recruiter/manage-jobs', icon: HiOutlineBriefcase },
+            { label: 'Job Approval', to: '/recruiter/job-requests', icon: HiOutlineClipboardDocumentList },
             { label: 'Manage Categories', to: '/recruiter/categories', icon: HiOutlineBars3 },
-            { label: 'Add Job', to: '/recruiter/add-job', icon: HiOutlinePlusCircle },
             { label: 'Profile Settings', to: '/recruiter/profile-settings', icon: HiOutlineCog6Tooth },
         ],
         employer: [
@@ -74,7 +74,7 @@ const DashboardLayout = () => {
     };
 
     return (
-        <div className="min-h-screen flex bg-slate-50 font-sans">
+        <div className="h-screen flex bg-slate-50 font-sans overflow-hidden">
             {/* ======= SIDEBAR ======= */}
             {sidebarOpen && (
                 <div
@@ -109,10 +109,10 @@ const DashboardLayout = () => {
 
                     {/* Navigation */}
                     <nav className="flex-1 overflow-y-auto px-4 py-4 scrollbar-hide">
-                        <div className="space-y-1.5 font-medium">
+                        <div className="space-y-3 font-medium">
                             {sidebarItems.map((item) => {
                                 const isActive = location.pathname === item.to ||
-                                    (item.to !== '/' && location.pathname.startsWith(item.to));
+                                    (item.to !== '/' && location.pathname.startsWith(item.to + '/'));
                                 const Icon = item.icon;
 
                                 return (
@@ -120,7 +120,7 @@ const DashboardLayout = () => {
                                         key={item.to}
                                         to={item.to}
                                         onClick={() => setSidebarOpen(false)}
-                                        className={`flex items-center gap-3.5 px-4 py-3 rounded-2xl text-[15px] transition-all duration-200 group ${isActive
+                                        className={`flex items-center gap-3.5 px-4 py-1.5 rounded-2xl text-[15px] transition-all duration-200 group ${isActive
                                             ? 'bg-blue-50 text-blue-700 shadow-sm border border-blue-100/50'
                                             : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent'
                                             }`}
@@ -152,7 +152,7 @@ const DashboardLayout = () => {
             </aside>
 
             {/* ======= MAIN AREA ======= */}
-            <div className="flex-1 flex flex-col min-h-screen min-w-0 overflow-x-hidden">
+            <div className="flex-1 flex flex-col h-screen min-w-0 overflow-hidden">
                 {/* Topbar */}
                 <header className="sticky top-0 z-[90] bg-white/95 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 h-16">
                     <div className="flex items-center gap-3">
@@ -166,7 +166,7 @@ const DashboardLayout = () => {
                         {/* Dynamic Page Title */}
                         <div className="hidden md:flex items-center">
                             <span className="text-xl font-extrabold text-slate-900 tracking-tight">
-                                {sidebarItems.find(i => location.pathname === i.to || (i.to !== '/' && location.pathname.startsWith(i.to)))?.label || 'Dashboard'}
+                                {sidebarItems.find(i => location.pathname === i.to || (i.to !== '/' && location.pathname.startsWith(i.to + '/')))?.label || 'Dashboard'}
                             </span>
                         </div>
                     </div>
@@ -204,18 +204,13 @@ const DashboardLayout = () => {
                                         className="fixed inset-0 z-40"
                                         onClick={() => setDropdownOpen(false)}
                                     />
-                                    <div className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                                        <div className="px-5 py-4 border-b border-slate-50 mb-2">
-                                            <p className="text-sm font-bold text-slate-900">{user?.firstName} {user?.lastName}</p>
-                                            <p className="text-[11px] text-slate-400 font-medium truncate">{user?.email}</p>
-                                        </div>
-
+                                    <div className="absolute right-0 mt-3 w-52 bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                                         <Link
                                             to={getProfileSettingsPath()}
                                             onClick={() => setDropdownOpen(false)}
-                                            className="flex items-center gap-3 px-5 py-3 text-sm font-semibold text-slate-600 hover:text-blue-600 hover:bg-blue-50/50 transition-all"
+                                            className="flex items-center gap-3 px-5 py-3 text-[14px] font-bold text-slate-600 hover:text-primary-600 hover:bg-primary-50 transition-all"
                                         >
-                                            <HiOutlineCog6Tooth className="w-5 h-5" />
+                                            <HiOutlineCog6Tooth className="w-5 h-5 text-slate-400" />
                                             Profile Settings
                                         </Link>
 
@@ -224,9 +219,9 @@ const DashboardLayout = () => {
                                                 setDropdownOpen(false);
                                                 handleLogout();
                                             }}
-                                            className="w-full flex items-center gap-3 px-5 py-3 text-sm font-semibold text-red-500 hover:bg-red-50 transition-all"
+                                            className="w-full flex items-center gap-3 px-5 py-3 text-[14px] font-bold text-slate-600 hover:text-red-600 hover:bg-red-50 transition-all"
                                         >
-                                            <HiOutlineArrowRightOnRectangle className="w-5 h-5" />
+                                            <HiOutlineArrowRightOnRectangle className="w-5 h-5 text-slate-400" />
                                             Logout
                                         </button>
                                     </div>
@@ -237,8 +232,10 @@ const DashboardLayout = () => {
                 </header>
 
                 {/* Content Area */}
-                <main className="flex-1 p-1.5 sm:p-3 bg-slate-50/50">
-                    <Outlet />
+                <main className="flex-1 p-1.5 sm:p-3 bg-slate-50/50 overflow-y-auto">
+                    <div className="max-w-[1600px] mx-auto w-full">
+                        <Outlet />
+                    </div>
                 </main>
             </div>
         </div>

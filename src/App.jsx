@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 
@@ -35,6 +35,7 @@ import RecruiterDashboard from './pages/recruiter/RecruiterDashboard';
 import RecruiterProfileSettings from './pages/recruiter/RecruiterProfileSettings';
 import RecruiterJobRequests from './pages/recruiter/RecruiterJobRequests';
 import RecruiterEditJobRequest from './pages/recruiter/RecruiterEditJobRequest';
+import AddJob from './pages/recruiter/AddJob';
 import ManageCategories from './pages/recruiter/ManageCategories';
 import RecruiterApplicationsPage from './pages/recruiter/RecruiterApplicationsPage';
 import RecruiterPipelinePage from './pages/recruiter/RecruiterPipelinePage';
@@ -88,6 +89,7 @@ function App() {
                                 <Route path="register" element={<Navigate to="/register-candidate" replace />} />
                                 <Route path="register-candidate" element={<RegisterPage />} />
                                 <Route path="register-recruiter" element={<RegisterPage />} />
+                                <Route path="register-recruiter" element={<RegisterPage />} />
                                 <Route path="register-employer" element={<RegisterPage />} />
                                 <Route path="forgot-password" element={<ForgotPasswordPage />} />
                                 <Route path="verify-login-otp" element={<LoginOtpVerificationPage />} />
@@ -120,7 +122,8 @@ function App() {
                                 <Route path="recruiter/dashboard" element={<RecruiterDashboardMain />} />
                                 <Route path="recruiter/manage-jobs" element={<RecruiterDashboard />} />
                                 <Route path="recruiter/categories" element={<ManageCategories />} />
-                                <Route path="recruiter/add-job" element={<RecruiterJobRequests />} />
+                                <Route path="recruiter/job-requests" element={<RecruiterJobRequests />} />
+                                <Route path="recruiter/add-job" element={<AddJob />} />
                                 <Route path="recruiter/job-requests/:id" element={<RecruiterEditJobRequest />} />
                                 <Route path="recruiter/job/:jobId/applications" element={<RecruiterApplicationsPage />} />
                                 <Route path="recruiter/job/:jobId/pipeline" element={<RecruiterPipelinePage />} />

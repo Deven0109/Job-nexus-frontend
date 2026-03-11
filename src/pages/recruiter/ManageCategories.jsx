@@ -25,6 +25,7 @@ import {
     Switch,
     FormControlLabel,
     CircularProgress,
+    Skeleton,
     Divider,
     Pagination,
     Select,
@@ -174,7 +175,6 @@ const ManageCategories = () => {
             <Box sx={{ py: 3, mb: 1, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Box sx={{ flex: 1 }}>
                     <Typography variant="h5" fontWeight={800} sx={{ color: 'text.primary', display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                        <TagIcon sx={{ color: 'primary.main' }} />
                         Manage Categories
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
@@ -213,9 +213,26 @@ const ManageCategories = () => {
             {/* Simple List Layout */}
             <Stack spacing={1.5}>
                 {loading ? (
-                    Array(5).fill(0).map((_, i) => (
-                        <Paper key={i} sx={{ p: 2, borderRadius: 2, border: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'center' }}>
-                            <CircularProgress size={20} />
+                    Array(limit).fill(0).map((_, i) => (
+                        <Paper key={i} elevation={0} sx={{
+                            px: 3,
+                            py: 2.5,
+                            borderRadius: 3,
+                            border: '1px solid',
+                            borderColor: 'divider',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 3
+                        }}>
+                            <Skeleton variant="circular" width={24} height={24} />
+                            <Box sx={{ flex: 1 }}>
+                                <Skeleton variant="text" width="35%" height={24} sx={{ borderRadius: 1 }} />
+                                <Skeleton variant="text" width="65%" height={16} sx={{ borderRadius: 1, mt: 0.5 }} />
+                            </Box>
+                            <Stack direction="row" spacing={1.5}>
+                                <Skeleton variant="rounded" width={32} height={32} sx={{ borderRadius: 1.5 }} />
+                                <Skeleton variant="rounded" width={32} height={32} sx={{ borderRadius: 1.5 }} />
+                            </Stack>
                         </Paper>
                     ))
                 ) : paginatedCategories.length === 0 ? (

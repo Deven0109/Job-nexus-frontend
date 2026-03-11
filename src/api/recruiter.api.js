@@ -58,6 +58,12 @@ export const deleteJob = async (id) => {
     return response.data;
 };
 
+// Create a new job posting
+export const createJob = async (data) => {
+    const response = await api.post('/recruiter/jobs', data);
+    return response.data;
+};
+
 // Toggle status of a live job (active/inactive)
 export const toggleJobStatus = async (id) => {
     const response = await api.patch(`/recruiter/jobs/${id}/toggle-status`);

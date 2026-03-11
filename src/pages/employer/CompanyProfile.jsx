@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { getEmployerProfile, updateEmployerProfile } from '../../api/employer.api';
 import toast from 'react-hot-toast';
+import { Skeleton, Box, Stack } from '@mui/material';
 import {
     HiOutlineBuildingOffice2,
     HiOutlineGlobeAlt,
@@ -13,6 +14,7 @@ import {
     HiOutlinePencilSquare,
     HiOutlineCheckCircle,
     HiOutlineXMark,
+    HiOutlineCamera
 } from 'react-icons/hi2';
 
 const COMPANY_SIZE_OPTIONS = [
@@ -58,7 +60,7 @@ const CompanyProfile = () => {
         location: '',
         contactEmail: '',
         logo: '',
-        avatar: '', // Support for User model profile pic
+        avatar: '',
     });
 
     const [logoPreview, setLogoPreview] = useState(null);
@@ -108,14 +110,7 @@ const CompanyProfile = () => {
         setIsSaving(true);
         try {
             const dataToSend = { ...companyData };
-
-            // Handle logo upload if a new file was selected
             if (logoFile) {
-                // In a real app with S3, you'd upload here. 
-                // For now, we'll use a FileReader to get a base64 string as a placeholder
-                // or just send the file if the backend expects multipart.
-                // Since updateEmployerProfile uses JSON (PUT), we'll use base64 for simplicity in this demo.
-                // NOTE: Production apps should use S3/Cloudinary.
                 dataToSend.logo = logoPreview;
             }
 
@@ -156,113 +151,149 @@ const CompanyProfile = () => {
     };
 
     const inputCls = (editable = true) =>
-        `w-full px-5 py-3.5 border rounded-2xl text-sm font-medium transition-all outline-none ${editable && isEditing
-            ? 'bg-white border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 text-slate-800'
-            : 'bg-slate-50 border-slate-100 text-slate-600 cursor-default'
+        `w-full px-4 py-2.5 border rounded-[10px] text-[14px] font-medium transition-all outline-none ${editable && isEditing
+            ? 'bg-white border-slate-200 focus:border-primary-500 focus:ring-4 focus:ring-primary-50 text-slate-800 shadow-sm'
+            : 'bg-slate-50 border-slate-100 text-slate-500 cursor-default'
         }`;
 
     if (isLoading) {
         return (
             <div className="space-y-6">
-                <div className="card p-8">
-                    <div className="animate-pulse space-y-6">
-                        <div className="h-8 w-64 bg-slate-200 rounded-xl"></div>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Box>
+                        <Skeleton variant="text" width={250} height={40} sx={{ borderRadius: 1 }} />
+                        <Skeleton variant="text" width={400} height={20} sx={{ borderRadius: 1, mt: 1 }} />
+                    </Box>
+                    <Skeleton variant="rounded" width={140} height={48} sx={{ borderRadius: '14px' }} />
+                </Box>
+
+                <Box sx={{ bgcolor: 'white', borderRadius: '16px', border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
+                    <Box sx={{ p: 3, display: 'flex', gap: 3, alignItems: 'center', bgcolor: 'slate.50/50' }}>
+                        <Skeleton variant="rounded" width={80} height={80} sx={{ borderRadius: '16px' }} />
+                        <Box sx={{ flex: 1 }}>
+                            <Skeleton variant="text" width={200} height={32} sx={{ borderRadius: 1 }} />
+                            <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
+                                <Skeleton variant="rounded" width={120} height={24} sx={{ borderRadius: 1 }} />
+                                <Skeleton variant="rounded" width={120} height={24} sx={{ borderRadius: 1 }} />
+                            </Stack>
+                        </Box>
+                    </Box>
+                    <Box sx={{ p: 4, spaceY: 4 }}>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {Array(6).fill().map((_, i) => (
-                                <div key={i} className="space-y-2">
-                                    <div className="h-4 w-28 bg-slate-200 rounded"></div>
-                                    <div className="h-12 bg-slate-100 rounded-2xl"></div>
-                                </div>
+                            {[1, 2, 3, 4, 5, 6].map(i => (
+                                <Box key={i} sx={{ spaceY: 1.5 }}>
+                                    <Skeleton variant="text" width={100} height={20} sx={{ borderRadius: 0.5 }} />
+                                    <Skeleton variant="rounded" width="100%" height={44} sx={{ borderRadius: '10px' }} />
+                                </Box>
                             ))}
                         </div>
-                    </div>
-                </div>
+                        <Box sx={{ mt: 4 }}>
+                            <Skeleton variant="text" width={120} height={20} sx={{ borderRadius: 0.5 }} />
+                            <Skeleton variant="rounded" width="100%" height={150} sx={{ borderRadius: '10px', mt: 1 }} />
+                        </Box>
+                    </Box>
+                </Box>
             </div>
         );
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4 animate-fade-in relative">
 
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h2 className="text-xl font-bold text-dark-900 flex items-center gap-2">
-                        <HiOutlineBuildingOffice2 className="w-6 h-6 text-blue-500" />
-                        Company Profile
-                    </h2>
-                    <p className="text-sm text-dark-500 mt-0.5">
-                        Manage your company information and details
+                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Company Profile</h1>
+                    <p className="text-sm font-medium text-slate-500 mt-1">
+                        Showcase your brand and give candidates an inside look at your company culture.
                     </p>
                 </div>
                 {!isEditing ? (
                     <button
                         onClick={() => setIsEditing(true)}
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-2xl shadow-lg shadow-blue-200 transition-all active:scale-95"
+                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 border border-slate-900 hover:bg-slate-800 text-white text-sm font-bold rounded-[14px] shadow-sm transition-all"
                     >
-                        <HiOutlinePencilSquare className="w-4 h-4" />
+                        <HiOutlinePencilSquare className="w-5 h-5" />
                         Edit Profile
                     </button>
                 ) : (
                     <div className="flex items-center gap-3">
                         <button
                             onClick={handleCancel}
-                            className="inline-flex items-center gap-2 px-6 py-3 border border-slate-200 text-slate-600 text-sm font-bold rounded-2xl hover:bg-slate-50 transition-all active:scale-95"
+                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 text-sm font-bold rounded-[14px] transition-all shadow-sm"
                         >
-                            <HiOutlineXMark className="w-4 h-4" />
+                            <HiOutlineXMark className="w-5 h-5" />
                             Cancel
                         </button>
                         <button
                             onClick={handleSave}
                             disabled={isSaving}
-                            className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-2xl shadow-lg shadow-emerald-200 transition-all active:scale-95 disabled:opacity-50"
+                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold rounded-[14px] shadow-sm transition-all active:scale-95 disabled:opacity-50"
                         >
-                            <HiOutlineCheckCircle className="w-4 h-4" />
+                            <HiOutlineCheckCircle className="w-5 h-5" />
                             {isSaving ? 'Saving...' : 'Save Changes'}
                         </button>
                     </div>
                 )}
             </div>
 
-            {/* Company Info Card */}
-            <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
+            {/* Main Content Area */}
+            <div className="bg-white rounded-[16px] border border-slate-200 overflow-hidden shadow-sm">
 
-                {/* Banner */}
-                <div className="h-28 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 relative">
-                    <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJtMjAgMzAtMTAtMTBMIDIwIDEwbDEwIDEweiIvPjwvZz48L2c+PC9zdmc+')] opacity-30"></div>
-                    <div className="absolute bottom-0 left-8 translate-y-1/2">
-                        <div className="relative group">
-                            <div className="w-20 h-20 rounded-2xl border-4 border-white shadow-xl bg-white flex items-center justify-center overflow-hidden">
-                                {logoPreview ? (
-                                    <img src={logoPreview} alt="Logo" className="w-full h-full object-cover" />
-                                ) : (
-                                    <HiOutlineBuildingOffice2 className="w-8 h-8 text-slate-300" />
-                                )}
-                            </div>
-                            {isEditing && (
-                                <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-2xl cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        className="hidden"
-                                        onChange={handleLogoChange}
-                                    />
-                                    <HiOutlinePencilSquare className="w-5 h-5" />
-                                </label>
+                {/* Clean Logo Header Area */}
+                <div className="p-5 border-b border-slate-100 flex flex-col md:flex-row gap-5 items-start md:items-center bg-slate-50/50">
+                    <div className="relative group shrink-0">
+                        <div className="w-20 h-20 rounded-[16px] bg-white border border-slate-200 shadow-sm flex items-center justify-center overflow-hidden">
+                            {logoPreview ? (
+                                <img src={logoPreview.startsWith('http') || logoPreview.startsWith('data:') || logoPreview.startsWith('blob:') ? logoPreview : `${import.meta.env.VITE_API_URL}${logoPreview}`} alt="Company Logo" className="w-full h-full object-contain p-2" />
+                            ) : (
+                                <HiOutlineBuildingOffice2 className="w-8 h-8 text-slate-300" />
+                            )}
+                        </div>
+                        {isEditing && (
+                            <label className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/60 text-white rounded-[16px] cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
+                                <input
+                                    type="file"
+                                    accept=".jpg,.jpeg,.png"
+                                    className="hidden"
+                                    onChange={handleLogoChange}
+                                />
+                                <HiOutlineCamera className="w-5 h-5 mb-0.5" />
+                                <span className="text-[9px] font-bold uppercase tracking-wider">Upload</span>
+                            </label>
+                        )}
+                    </div>
+
+                    <div className="flex-1">
+                        <h2 className="text-xl font-bold text-slate-900">
+                            {companyData.companyName || 'Your Company Name'}
+                        </h2>
+                        <div className="flex flex-wrap items-center gap-3 mt-2 text-sm font-medium text-slate-500">
+                            {companyData.industry && (
+                                <span className="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1 rounded-lg">
+                                    <HiOutlineBriefcase className="w-4 h-4 text-primary-500" />
+                                    {companyData.industry}
+                                </span>
+                            )}
+                            {companyData.location && (
+                                <span className="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1 rounded-lg">
+                                    <HiOutlineMapPin className="w-4 h-4 text-primary-500" />
+                                    {companyData.location}
+                                </span>
                             )}
                         </div>
                     </div>
                 </div>
 
-                {/* Form Section */}
-                <div className="px-8 lg:px-12 pt-16 pb-10">
+                {/* Form Elements */}
+                <div className="p-5 space-y-5">
 
-                    {/* Company Name & Industry Row */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <div className="space-y-2">
+                    {/* Basic Info Row */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div className="space-y-1.5">
                             <label className="flex items-center gap-2 text-sm font-bold text-slate-700">
-                                <HiOutlineBuildingOffice2 className="w-4 h-4 text-slate-400" />
-                                Company Name <span className="text-red-500">*</span>
+                                <HiOutlineBuildingOffice2 className="w-5 h-5 text-slate-400" />
+                                Company Name <span className="text-rose-500">*</span>
                             </label>
                             <input
                                 type="text"
@@ -270,21 +301,22 @@ const CompanyProfile = () => {
                                 onChange={(e) => handleChange('companyName', e.target.value)}
                                 readOnly={!isEditing}
                                 className={inputCls()}
-                                placeholder="Enter company name"
+                                placeholder="e.g. Acme Corporation"
                             />
                         </div>
-                        <div className="space-y-2">
+
+                        <div className="space-y-1.5">
                             <label className="flex items-center gap-2 text-sm font-bold text-slate-700">
-                                <HiOutlineBriefcase className="w-4 h-4 text-slate-400" />
-                                Industry <span className="text-red-500">*</span>
+                                <HiOutlineBriefcase className="w-5 h-5 text-slate-400" />
+                                Industry <span className="text-rose-500">*</span>
                             </label>
                             {isEditing ? (
                                 <select
                                     value={companyData.industry}
                                     onChange={(e) => handleChange('industry', e.target.value)}
-                                    className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all outline-none appearance-none cursor-pointer"
+                                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-[10px] text-[14px] font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-50 transition-all outline-none appearance-none cursor-pointer shadow-sm text-slate-800"
                                 >
-                                    <option value="">Select Industry</option>
+                                    <option value="" className="text-slate-400">Select an industry</option>
                                     {INDUSTRY_OPTIONS.map(opt => (
                                         <option key={opt} value={opt}>{opt}</option>
                                     ))}
@@ -300,12 +332,12 @@ const CompanyProfile = () => {
                         </div>
                     </div>
 
-                    {/* Location & Company Size */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <div className="space-y-2">
+                    {/* Location & Size Row */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div className="space-y-1.5">
                             <label className="flex items-center gap-2 text-sm font-bold text-slate-700">
-                                <HiOutlineMapPin className="w-4 h-4 text-slate-400" />
-                                Location <span className="text-red-500">*</span>
+                                <HiOutlineMapPin className="w-5 h-5 text-slate-400" />
+                                Location / Headquarters <span className="text-rose-500">*</span>
                             </label>
                             <input
                                 type="text"
@@ -313,19 +345,20 @@ const CompanyProfile = () => {
                                 onChange={(e) => handleChange('location', e.target.value)}
                                 readOnly={!isEditing}
                                 className={inputCls()}
-                                placeholder="e.g. Mumbai, India"
+                                placeholder="e.g. San Francisco, CA"
                             />
                         </div>
-                        <div className="space-y-2">
+
+                        <div className="space-y-1.5">
                             <label className="flex items-center gap-2 text-sm font-bold text-slate-700">
-                                <HiOutlineUsers className="w-4 h-4 text-slate-400" />
-                                Company Size
+                                <HiOutlineUsers className="w-5 h-5 text-slate-400" />
+                                Team Size
                             </label>
                             {isEditing ? (
                                 <select
                                     value={companyData.companySize}
                                     onChange={(e) => handleChange('companySize', e.target.value)}
-                                    className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all outline-none appearance-none cursor-pointer"
+                                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-[10px] text-[14px] font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-50 transition-all outline-none appearance-none cursor-pointer shadow-sm text-slate-800"
                                 >
                                     {COMPANY_SIZE_OPTIONS.map(opt => (
                                         <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -342,12 +375,12 @@ const CompanyProfile = () => {
                         </div>
                     </div>
 
-                    {/* Website & Contact Email */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <div className="space-y-2">
+                    {/* Contact Links Row */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div className="space-y-1.5">
                             <label className="flex items-center gap-2 text-sm font-bold text-slate-700">
-                                <HiOutlineGlobeAlt className="w-4 h-4 text-slate-400" />
-                                Website
+                                <HiOutlineGlobeAlt className="w-5 h-5 text-slate-400" />
+                                Website URL
                             </label>
                             <input
                                 type="url"
@@ -355,13 +388,14 @@ const CompanyProfile = () => {
                                 onChange={(e) => handleChange('website', e.target.value)}
                                 readOnly={!isEditing}
                                 className={inputCls()}
-                                placeholder="https://www.example.com"
+                                placeholder="https://www.yourcompany.com"
                             />
                         </div>
-                        <div className="space-y-2">
+
+                        <div className="space-y-1.5">
                             <label className="flex items-center gap-2 text-sm font-bold text-slate-700">
-                                <HiOutlineEnvelope className="w-4 h-4 text-slate-400" />
-                                Contact Email
+                                <HiOutlineEnvelope className="w-5 h-5 text-slate-400" />
+                                Public Contact Email
                             </label>
                             <input
                                 type="email"
@@ -369,52 +403,28 @@ const CompanyProfile = () => {
                                 onChange={(e) => handleChange('contactEmail', e.target.value)}
                                 readOnly={!isEditing}
                                 className={inputCls()}
-                                placeholder="hr@company.com"
+                                placeholder="careers@yourcompany.com"
                             />
                         </div>
                     </div>
 
-                    {/* Description */}
-                    <div className="space-y-2">
+                    <div className="w-full h-px bg-slate-100 my-5"></div>
+
+                    {/* About Company */}
+                    <div className="space-y-1.5">
                         <label className="flex items-center gap-2 text-sm font-bold text-slate-700">
-                            <HiOutlineDocumentText className="w-4 h-4 text-slate-400" />
-                            Company Description
+                            <HiOutlineDocumentText className="w-5 h-5 text-slate-400" />
+                            About the Company
                         </label>
                         <textarea
                             value={companyData.description}
                             onChange={(e) => handleChange('description', e.target.value)}
                             readOnly={!isEditing}
-                            rows="5"
-                            maxLength={2000}
-                            className={`${inputCls()} resize-none leading-relaxed`}
-                            placeholder="Tell us about your company, its mission, culture, and what makes it a great place to work..."
+                            rows="6"
+                            className={`${inputCls()} resize-y leading-relaxed`}
+                            placeholder="What does your company do? What is your mission and company culture? Share details that will attract top talent..."
                         />
-                        {isEditing && (
-                            <p className="text-xs text-slate-400 text-right font-medium">
-                                {companyData.description.length} / 2000 characters
-                            </p>
-                        )}
                     </div>
-
-                    {/* Bottom Save Bar (visible in edit mode) */}
-                    {isEditing && (
-                        <div className="flex items-center justify-end gap-3 pt-8 mt-8 border-t border-slate-100">
-                            <button
-                                onClick={handleCancel}
-                                className="px-8 py-3 border border-slate-200 text-slate-600 text-sm font-bold rounded-2xl hover:bg-slate-50 transition-all active:scale-95"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleSave}
-                                disabled={isSaving}
-                                className="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-2xl shadow-lg shadow-emerald-200 transition-all active:scale-95 disabled:opacity-50"
-                            >
-                                {isSaving ? 'Saving...' : 'Save Company Profile'}
-                            </button>
-                        </div>
-                    )}
-
                 </div>
             </div>
         </div>

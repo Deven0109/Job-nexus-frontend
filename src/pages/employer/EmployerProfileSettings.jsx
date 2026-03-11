@@ -168,6 +168,7 @@ const EmployerProfileSettings = () => {
                             </label>
                             <input
                                 type="file"
+                                accept=".jpg,.jpeg,.png"
                                 onChange={handleImageChange}
                                 className="w-full px-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"
                             />
@@ -177,7 +178,7 @@ const EmployerProfileSettings = () => {
                             <div className="w-24 h-24 bg-slate-100 rounded-[2rem] overflow-hidden border-4 border-white shadow-xl flex-shrink-0 relative group">
                                 {previewImage ? (
                                     <>
-                                        <img src={previewImage} alt="Preview" className="w-full h-full object-cover" />
+                                        <img src={previewImage.startsWith('http') || previewImage.startsWith('data:') || previewImage.startsWith('blob:') ? previewImage : `${import.meta.env.VITE_API_URL}${previewImage}`} alt="Preview" className="w-full h-full object-contain p-2" />
                                         <button
                                             type="button"
                                             onClick={() => setPreviewImage(null)}

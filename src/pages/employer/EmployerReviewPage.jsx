@@ -1,55 +1,40 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link as RouterLink } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
-    Container,
-    Box,
-    Typography,
-    Card,
-    CardContent,
-    CardActions,
-    Avatar,
-    Button,
-    Chip,
-    Grid,
-    IconButton,
-    Divider,
-    Paper,
-    Stack,
-    Tooltip,
-    alpha,
-    useTheme,
-    CircularProgress
-} from '@mui/material';
-import {
-    ArrowBack as ArrowBackIcon,
-    CheckCircle as CheckCircleIcon,
-    Cancel as CancelIcon,
-    FileDownload as DownloadIcon,
-    Email as EmailIcon,
-    Phone as PhoneIcon,
-    Star as StarIcon,
-    Work as WorkIcon,
-    School as SchoolIcon,
-    Info as InfoIcon,
-    AutoGraph as RecommendIcon
-} from '@mui/icons-material';
+    HiOutlineArrowLeft,
+    HiOutlineCheckCircle,
+    HiOutlineXCircle,
+    HiOutlineDocumentArrowDown,
+    HiOutlineEnvelope,
+    HiOutlinePhone,
+    HiOutlineInformationCircle
+} from 'react-icons/hi2';
 
 import { getEmployerShortlisted, updateEmployerStatus } from '../../api/applications.api';
 import { BASE_URL } from '../../api/axios';
 import toast from 'react-hot-toast';
+import { Skeleton, Box, Stack } from '@mui/material';
 
 const EmployerReviewPage = () => {
     const { jobId } = useParams();
-    const theme = useTheme();
+    const navigate = useNavigate();
     const [applications, setApplications] = useState([]);
+    const [page, setPage] = useState(1);
+    const [pagination, setPagination] = useState({});
     const [loading, setLoading] = useState(true);
 
     const fetchShortlisted = async () => {
         setLoading(true);
         try {
-            const res = await getEmployerShortlisted(jobId);
+            const res = await getEmployerShortlisted(jobId, { page, limit: 6 });
             if (res.success) {
-                setApplications(res.data);
+                // Backward compatibility if API isn't returning wrapped structure yet
+                if (res.data.applications && res.data.pagination) {
+                    setApplications(res.data.applications);
+                    setPagination(res.data.pagination);
+                } else {
+                    setApplications(res.data);
+                }
             }
         } catch (error) {
             toast.error('Failed to load shortlisted candidates');
@@ -60,7 +45,7 @@ const EmployerReviewPage = () => {
 
     useEffect(() => {
         fetchShortlisted();
-    }, [jobId]);
+    }, [jobId, page]);
 
     const handleAction = async (id, action) => {
         try {
@@ -73,238 +58,196 @@ const EmployerReviewPage = () => {
     };
 
     if (loading) return (
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-            <CircularProgress size={40} thickness={5} />
-        </Box>
+        <div className="space-y-6">
+            <div className="flex items-center gap-4">
+                <Skeleton variant="circular" width={48} height={48} sx={{ borderRadius: '16px' }} />
+                <Box>
+                    <Skeleton variant="text" width={200} height={32} sx={{ borderRadius: 1 }} />
+                    <Skeleton variant="text" width={300} height={20} sx={{ borderRadius: 1, mt: 0.5 }} />
+                </Box>
+            </div>
+            <div className="space-y-4">
+                {[1, 2, 3].map(i => (
+                    <div key={i} className="bg-white rounded-[20px] p-5 border border-slate-200 flex flex-col md:flex-row gap-6 items-center">
+                        <Skeleton variant="circular" width={64} height={64} />
+                        <Box sx={{ flex: 1 }}>
+                            <Skeleton variant="text" width="40%" height={28} sx={{ borderRadius: 1 }} />
+                            <Stack direction="row" spacing={3} sx={{ mt: 1 }}>
+                                <Skeleton variant="text" width={150} height={16} sx={{ borderRadius: 1 }} />
+                                <Skeleton variant="text" width={120} height={16} sx={{ borderRadius: 1 }} />
+                            </Stack>
+                            <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
+                                <Skeleton variant="rounded" width={80} height={24} sx={{ borderRadius: 1 }} />
+                                <Skeleton variant="rounded" width={80} height={24} sx={{ borderRadius: 1 }} />
+                            </Stack>
+                        </Box>
+                        <Stack direction="row" spacing={2}>
+                            <Skeleton variant="rounded" width={120} height={44} sx={{ borderRadius: '14px' }} />
+                            <Skeleton variant="rounded" width={100} height={44} sx={{ borderRadius: '14px' }} />
+                            <Skeleton variant="rounded" width={120} height={44} sx={{ borderRadius: '14px' }} />
+                        </Stack>
+                    </div>
+                ))}
+            </div>
+        </div>
     );
 
     return (
-        <Container maxWidth="xl" sx={{ py: 6 }}>
-            {/* ======= HERO HEADER ======= */}
-            <Box sx={{ mb: 6, display: 'flex', alignItems: 'center', gap: 3 }}>
-                <IconButton
-                    component={RouterLink}
-                    to="/employer/dashboard"
-                    sx={{
-                        bgcolor: 'common.white',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-                        border: '1px solid',
-                        borderColor: 'grey.200',
-                        '&:hover': { bgcolor: 'grey.50', transform: 'translateX(-4px)' },
-                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-                    }}
+        <div className="space-y-6 animate-fade-in">
+            {/* Header */}
+            <div className="flex items-center gap-4">
+                <button
+                    onClick={() => navigate(-1)}
+                    className="p-3 bg-white border border-slate-200 rounded-2xl hover:bg-slate-50 transition-all shadow-sm"
                 >
-                    <ArrowBackIcon />
-                </IconButton>
-                <Box>
-                    <Typography variant="h3" sx={{ fontWeight: 900, color: 'text.primary', letterSpacing: '-0.02em', mb: 1, fontSize: { xs: '2rem', md: '3rem' } }}>
-                        Expert Recommendations
-                    </Typography>
-                    <Stack direction="row" spacing={1} alignItems="center">
-                        <RecommendIcon sx={{ fontSize: 18, color: 'primary.main' }} />
-                        <Typography variant="body1" color="text.secondary" fontWeight={500}>
-                            Premium talent curated and verified by our recruitment specialists
-                        </Typography>
-                    </Stack>
-                </Box>
-            </Box>
+                    <HiOutlineArrowLeft className="w-5 h-5 text-slate-500" />
+                </button>
+                <div>
+                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Review Candidates</h1>
+                    <p className="text-sm font-medium text-slate-500 mt-1">
+                        Evaluate verified talent shortlisted by your dedicated recruiter
+                    </p>
+                </div>
+            </div>
 
-            <Grid container spacing={4}>
+            <div className="grid grid-cols-1 gap-4">
                 {applications.length === 0 ? (
-                    <Grid item xs={12}>
-                        <Paper sx={{
-                            p: 12,
-                            borderRadius: 10,
-                            textAlign: 'center',
-                            bgcolor: alpha(theme.palette.primary.main, 0.02),
-                            border: '2px dashed',
-                            borderColor: 'grey.200',
-                            boxShadow: 'none'
-                        }}>
-                            <Avatar sx={{ width: 80, height: 80, bgcolor: 'grey.100', mx: 'auto', mb: 3 }}>
-                                <InfoIcon sx={{ fontSize: 40, color: 'grey.400' }} />
-                            </Avatar>
-                            <Typography variant="h5" fontWeight={800} gutterBottom>No Pending Reviews</Typography>
-                            <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 450, mx: 'auto' }}>
-                                You're all caught up! When our recruiters find new candidates matching your criteria, they will appear here.
-                            </Typography>
-                        </Paper>
-                    </Grid>
+                    <div className="col-span-full">
+                        <div className="bg-white rounded-[24px] p-16 text-center border border-slate-200 shadow-sm">
+                            <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100">
+                                <HiOutlineInformationCircle className="w-8 h-8 text-slate-400" />
+                            </div>
+                            <h3 className="text-lg font-bold text-slate-800 mb-2">No Candidates to Review</h3>
+                            <p className="text-slate-500 text-sm font-medium max-w-sm mx-auto">
+                                When our recruiters find and shortlist the perfect candidates for this role, they will appear here.
+                            </p>
+                        </div>
+                    </div>
                 ) : (
                     applications.map((app) => (
-                        <Grid item xs={12} lg={6} key={app._id}>
-                            <Card sx={{
-                                borderRadius: 8,
-                                border: '1px solid',
-                                borderColor: 'divider',
-                                boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
-                                '&:hover': { boxShadow: '0 20px 40px rgba(0,0,0,0.08)', transform: 'translateY(-4px)' },
-                                transition: 'all 0.4s',
-                                height: '100%',
-                                display: 'flex',
-                                flexDirection: 'column'
-                            }}>
-                                <CardContent sx={{ p: 5, flexGrow: 1 }}>
-                                    {/* Profile Top */}
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 4 }}>
-                                        <Stack direction="row" spacing={3} alignItems="center">
-                                            <Avatar
-                                                src={app.candidate?.avatar?.startsWith('http') ? app.candidate.avatar : `${BASE_URL}${app.candidate?.avatar}`}
-                                                sx={{
-                                                    width: 84,
-                                                    height: 84,
-                                                    borderRadius: 5,
-                                                    fontWeight: 900,
-                                                    fontSize: '1.5rem',
-                                                    bgcolor: 'primary.main',
-                                                    boxShadow: '0 8px 16px rgba(0,0,0,0.1)'
-                                                }}
-                                            >
-                                                {app.candidate?.firstName?.[0]}
-                                            </Avatar>
-                                            <Box>
-                                                <Typography variant="h5" fontWeight={900} sx={{ lineHeight: 1.2, mb: 0.5 }}>
-                                                    {app.candidate?.firstName} {app.candidate?.lastName}
-                                                </Typography>
-                                                <Stack direction="column" spacing={0.5} sx={{ mt: 1 }}>
-                                                    <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'text.secondary', fontSize: '0.85rem', fontWeight: 600 }}>
-                                                        <EmailIcon sx={{ fontSize: 16, color: 'primary.light' }} />
-                                                        {app.candidate?.email}
-                                                    </Box>
-                                                    <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'text.secondary', fontSize: '0.85rem', fontWeight: 600 }}>
-                                                        <PhoneIcon sx={{ fontSize: 16, color: 'primary.light' }} />
-                                                        {app.candidate?.phone || 'Private Number'}
-                                                    </Box>
-                                                </Stack>
-                                            </Box>
-                                        </Stack>
-                                        <Chip
-                                            icon={<StarIcon sx={{ color: 'white !important', fontSize: '14px !important' }} />}
-                                            label="Elite Tier"
-                                            color="primary"
-                                            sx={{
-                                                fontWeight: 900,
-                                                textTransform: 'uppercase',
-                                                letterSpacing: 1,
-                                                px: 1,
-                                                boxShadow: '0 4px 12px rgba(25, 118, 210, 0.2)'
-                                            }}
+                        <div key={app._id} className="bg-white rounded-[20px] p-5 border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row gap-6 items-start md:items-center">
+                            {/* Candidate Info */}
+                            <div className="flex items-start md:items-center gap-5 flex-1 w-full">
+                                <div className="w-16 h-16 rounded-full bg-primary-50 border border-primary-100 flex items-center justify-center shrink-0 overflow-hidden text-primary-600 shadow-sm">
+                                    {app.candidate?.avatar ? (
+                                        <img
+                                            src={app.candidate.avatar.startsWith('http') ? app.candidate.avatar : `${BASE_URL}${app.candidate.avatar}`}
+                                            className="w-full h-full object-cover"
+                                            alt="avatar"
                                         />
-                                    </Box>
+                                    ) : (
+                                        <span className="text-xl font-bold uppercase">{app.candidate?.firstName?.[0]}</span>
+                                    )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex flex-wrap items-center gap-3 mb-1">
+                                        <h3 className="text-lg font-bold text-slate-900 truncate">
+                                            {app.candidate?.firstName} {app.candidate?.lastName}
+                                        </h3>
+                                        <span className="bg-emerald-50 text-emerald-700 font-bold text-[10px] px-2.5 py-0.5 rounded-md border border-emerald-200 uppercase tracking-widest shrink-0">
+                                            Elite Match
+                                        </span>
+                                    </div>
+                                    <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-1.5">
+                                        <p className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                                            <HiOutlineEnvelope className="w-4 h-4 text-slate-400" />
+                                            <span className="truncate">{app.candidate?.email}</span>
+                                        </p>
+                                        <p className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                                            <HiOutlinePhone className="w-4 h-4 text-slate-400" />
+                                            {app.candidate?.phone || 'Private Number'}
+                                        </p>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2 mt-3">
+                                        {(app.candidateProfile?.skills?.slice(0, 4) || ['Verified Competence', 'Communication']).map((skill, idx) => (
+                                            <span key={idx} className="bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-500">
+                                                {skill}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
 
-                                    <Divider sx={{ my: 3 }} />
-
-                                    {/* Professional Bio */}
-                                    <Box sx={{ mb: 4 }}>
-                                        <Typography variant="overline" color="text.secondary" sx={{ fontWeight: 900, letterSpacing: 1.5 }}>
-                                            Candidate Profile Summary
-                                        </Typography>
-                                        <Typography variant="body2" sx={{
-                                            mt: 1.5,
-                                            p: 3,
-                                            bgcolor: '#f8fafc',
-                                            borderRadius: 4,
-                                            lineHeight: 1.8,
-                                            color: 'slate.700',
-                                            fontStyle: 'italic',
-                                            border: '1px solid',
-                                            borderColor: 'slate.100'
-                                        }}>
-                                            "{app.candidateProfile?.summary || 'Standard professional summary not provided. Candidate has been vetted by our team for technical competence and cultural fit.'}"
-                                        </Typography>
-                                    </Box>
-
-                                    {/* Skills Section */}
-                                    <Box sx={{ mb: 4 }}>
-                                        <Typography variant="overline" color="text.secondary" sx={{ fontWeight: 900, letterSpacing: 1.5 }}>
-                                            Key Skills & Competencies
-                                        </Typography>
-                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mt: 2 }}>
-                                            {(app.candidateProfile?.skills?.slice(0, 10) || ['Expert Analysis', 'Communication', 'Technical Leadership', 'Innovation']).map((skill, idx) => (
-                                                <Chip
-                                                    key={idx}
-                                                    label={skill}
-                                                    variant="outlined"
-                                                    sx={{
-                                                        borderRadius: 3,
-                                                        fontWeight: 700,
-                                                        background: 'white',
-                                                        borderColor: 'grey.300',
-                                                        '&:hover': { borderColor: 'primary.main', color: 'primary.main', bgcolor: 'primary.50' }
-                                                    }}
-                                                />
-                                            ))}
-                                        </Box>
-                                    </Box>
-
-                                    {/* Resume Button */}
-                                    <Button
-                                        fullWidth
-                                        variant="outlined"
-                                        startIcon={<DownloadIcon />}
-                                        href={app.candidateProfile?.resumeUrl?.startsWith('http') ? app.candidateProfile.resumeUrl : `${BASE_URL}${app.candidateProfile?.resumeUrl || app.resumeUrl}`}
-                                        target="_blank"
-                                        sx={{
-                                            py: 2,
-                                            borderRadius: 4,
-                                            borderColor: 'slate.200',
-                                            color: 'slate.700',
-                                            fontWeight: 800,
-                                            textTransform: 'none',
-                                            '&:hover': { bgcolor: 'slate.50', borderColor: 'slate.300' },
-                                            mb: 2
-                                        }}
-                                    >
-                                        Download Professional Resume
-                                    </Button>
-                                </CardContent>
-
-                                <CardActions sx={{ px: 5, py: 4, bgcolor: '#f1f5f9', borderTop: '1px solid', borderColor: 'slate.200' }}>
-                                    <Stack direction="row" spacing={2} sx={{ width: '100%' }}>
-                                        <Button
-                                            fullWidth
-                                            variant="contained"
-                                            color="success"
-                                            onClick={() => handleAction(app._id, 'approve')}
-                                            startIcon={<CheckCircleIcon />}
-                                            sx={{
-                                                py: 2,
-                                                borderRadius: 3,
-                                                fontWeight: 900,
-                                                boxShadow: '0 4px 12px rgba(34, 197, 94, 0.2)',
-                                                textTransform: 'none',
-                                                fontSize: '1rem',
-                                                bgcolor: '#22c55e',
-                                                '&:hover': { bgcolor: '#16a34a' }
-                                            }}
-                                        >
-                                            Approve for Interview
-                                        </Button>
-                                        <Tooltip title="Reject Application">
-                                            <Button
-                                                variant="contained"
-                                                onClick={() => handleAction(app._id, 'reject')}
-                                                sx={{
-                                                    borderRadius: 3,
-                                                    minWidth: '64px',
-                                                    bgcolor: '#ffffff',
-                                                    color: '#94a3b8',
-                                                    boxShadow: 'none',
-                                                    border: '1px solid #e2e8f0',
-                                                    '&:hover': { color: '#ef4444', bgcolor: '#fef2f2', borderColor: '#fee2e2', boxShadow: 'none' }
-                                                }}
-                                            >
-                                                <CancelIcon />
-                                            </Button>
-                                        </Tooltip>
-                                    </Stack>
-                                </CardActions>
-                            </Card>
-                        </Grid>
+                            {/* Actions Group */}
+                            <div className="flex flex-wrap items-center gap-3 w-full md:w-auto shrink-0 justify-end md:justify-start pt-4 md:pt-0 border-t md:border-t-0 border-slate-100">
+                                <a
+                                    href={app.candidateProfile?.resumeUrl?.startsWith('http') ? app.candidateProfile.resumeUrl : `${BASE_URL}${app.candidateProfile?.resumeUrl || app.resumeUrl}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="flex items-center gap-2 px-5 py-3.5 bg-white border border-slate-200 text-slate-600 rounded-[14px] font-bold text-sm hover:bg-slate-50 hover:text-primary-600 transition-all shadow-sm"
+                                    title="View Resume"
+                                >
+                                    <HiOutlineDocumentArrowDown className="w-5 h-5" />
+                                    View Resume
+                                </a>
+                                <button
+                                    onClick={() => handleAction(app._id, 'reject')}
+                                    className="flex items-center gap-2 px-5 py-3.5 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 text-slate-500 hover:text-rose-600 rounded-[14px] font-bold text-sm transition-all shadow-sm"
+                                    title="Reject Candidate"
+                                >
+                                    <HiOutlineXCircle className="w-5 h-5" />
+                                    Reject
+                                </button>
+                                <button
+                                    onClick={() => handleAction(app._id, 'approve')}
+                                    className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3.5 rounded-[14px] font-bold text-sm transition-all shadow-sm active:scale-95"
+                                >
+                                    <HiOutlineCheckCircle className="w-5 h-5" />
+                                    Approve
+                                </button>
+                            </div>
+                        </div>
                     ))
                 )}
-            </Grid>
-        </Container>
+            </div>
+
+            {/* Pagination Controls */}
+            {pagination && pagination.totalPages > 1 && (
+                <div className="flex items-center justify-between border-t border-slate-200 bg-white px-4 py-3 sm:px-6 rounded-[20px] shadow-sm">
+                    <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                        <div>
+                            <p className="text-sm text-slate-700">
+                                Showing <span className="font-bold">{((pagination.page - 1) * pagination.limit) + 1}</span> to <span className="font-bold">{Math.min(pagination.page * pagination.limit, pagination.total)}</span> of{' '}
+                                <span className="font-bold">{pagination.total}</span> candidates
+                            </p>
+                        </div>
+                        <div>
+                            <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                                <button
+                                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                                    disabled={!pagination.hasPrevPage}
+                                    className="relative inline-flex items-center rounded-l-md px-2 py-2 text-slate-400 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    <span className="sr-only">Previous</span>
+                                    <HiOutlineArrowLeft className="h-5 w-5" aria-hidden="true" />
+                                </button>
+                                {/* Display specific pages can be complex, so we just show the numbers */}
+                                {[...Array(pagination.totalPages)].map((_, i) => (
+                                    <button
+                                        key={i + 1}
+                                        onClick={() => setPage(i + 1)}
+                                        className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold focus:z-20 focus:outline-offset-0 ${pagination.page === i + 1
+                                            ? 'z-10 bg-primary-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600'
+                                            : 'text-slate-900 ring-1 ring-inset ring-slate-300 hover:bg-slate-50'
+                                            }`}
+                                    >
+                                        {i + 1}
+                                    </button>
+                                ))}
+                                <button
+                                    onClick={() => setPage(p => Math.min(pagination.totalPages, p + 1))}
+                                    disabled={!pagination.hasNextPage}
+                                    className="relative inline-flex items-center rounded-r-md px-2 py-2 text-slate-400 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    <span className="sr-only">Next</span>
+                                    <HiOutlineArrowLeft className="h-5 w-5 rotate-180" aria-hidden="true" />
+                                </button>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
     );
 };
 

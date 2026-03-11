@@ -17,14 +17,13 @@ const ProtectedRoute = ({ children, roles = [] }) => {
     }
 
     if (!isAuthenticated) {
-        if (location.pathname.startsWith('/employer')) {
-            return <Navigate to="/login-employer" state={{ from: location }} replace />;
-        } else if (location.pathname.startsWith('/recruiter')) {
-            return <Navigate to="/login-recruiter" state={{ from: location }} replace />;
-        } else {
-            // Default to candidate login for candidate paths or shared pages
-            return <Navigate to="/login-candidate" state={{ from: location }} replace />;
-        }
+        const loginMap = {
+            employer: '/login-employer',
+            recruiter: '/login-recruiter'
+        };
+        const roleFromPath = location.pathname.split('/')[1];
+        const redirectPath = loginMap[roleFromPath] || '/login-candidate';
+        return <Navigate to={redirectPath} state={{ from: location }} replace />;
     }
 
     // When we are authenticated but user data is not yet available in context,

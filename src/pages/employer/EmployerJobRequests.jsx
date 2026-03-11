@@ -58,7 +58,7 @@ const EmployerJobRequests = () => {
         search: '',
         status: '',
         page: 1,
-        limit: 10,
+        limit: 6,
     });
 
     // View Modal State
@@ -90,7 +90,10 @@ const EmployerJobRequests = () => {
 
     useEffect(() => {
         const timer = setTimeout(() => {
-            setFilters(prev => ({ ...prev, search: searchInput, page: 1 }));
+            setFilters(prev => {
+                if (prev.search === searchInput) return prev;
+                return { ...prev, search: searchInput, page: 1 };
+            });
         }, 400);
         return () => clearTimeout(timer);
     }, [searchInput]);
@@ -148,15 +151,17 @@ const EmployerJobRequests = () => {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h2 className="text-xl font-bold text-dark-900 flex items-center gap-2">
-                        <HiOutlineClipboardDocumentList className="w-6 h-6 text-primary-500" />
+                    <h2 className="text-2xl font-black text-dark-900 flex items-center gap-2 tracking-tight">
+                        <div className="p-2 bg-primary-50 rounded-xl text-primary-600">
+                            <HiOutlineClipboardDocumentList className="w-6 h-6" />
+                        </div>
                         Job Requests
                     </h2>
-                    <p className="text-sm text-dark-500 mt-0.5">Submit and track your hiring requests</p>
+                    <p className="text-sm font-medium text-dark-500 mt-1 pl-12">Submit and track your hiring requests</p>
                 </div>
                 <button
                     onClick={() => navigate('/employer/job-requests/new')}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold rounded-2xl shadow-lg shadow-primary-200 transition-all active:scale-95"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-dark-900 hover:bg-dark-800 text-white text-sm font-bold rounded-xl shadow-lg shadow-dark-900/20 transition-all hover:-translate-y-0.5"
                 >
                     <HiOutlinePlusCircle className="w-5 h-5" />
                     New Job Request
@@ -164,72 +169,74 @@ const EmployerJobRequests = () => {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <div className="card p-4 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
-                        <HiOutlineClipboardDocumentList className="w-5 h-5 text-white" />
+            {/* Stats */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                <div className="bg-white p-5 rounded-[20px] shadow-[0_2px_10px_rgb(0,0,0,0.04)] border border-slate-100 flex items-center gap-4 transition-transform hover:-translate-y-1">
+                    <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center shrink-0">
+                        <HiOutlineBriefcase className="w-6 h-6 text-indigo-600" />
                     </div>
                     <div>
-                        <p className="text-lg font-bold text-dark-900">{totalCount}</p>
-                        <p className="text-xs text-dark-500">Total</p>
+                        <p className="text-xs font-bold text-dark-500 uppercase tracking-wider mb-1">Total Requests</p>
+                        <p className="text-2xl font-black text-dark-900 leading-none">{totalCount}</p>
                     </div>
                 </div>
-                <div className="card p-4 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-warning-500 to-warning-600 flex items-center justify-center">
-                        <HiOutlineClock className="w-5 h-5 text-white" />
+                <div className="bg-white p-5 rounded-[20px] shadow-[0_2px_10px_rgb(0,0,0,0.04)] border border-slate-100 flex items-center gap-4 transition-transform hover:-translate-y-1">
+                    <div className="w-12 h-12 rounded-2xl bg-warning-50 border border-warning-100 flex items-center justify-center shrink-0">
+                        <HiOutlineClock className="w-6 h-6 text-warning-600" />
                     </div>
                     <div>
-                        <p className="text-lg font-bold text-dark-900">{pendingCount}</p>
-                        <p className="text-xs text-dark-500">Pending</p>
+                        <p className="text-xs font-bold text-dark-500 uppercase tracking-wider mb-1">Pending</p>
+                        <p className="text-2xl font-black text-dark-900 leading-none">{pendingCount}</p>
                     </div>
                 </div>
-                <div className="card p-4 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-success-500 to-success-600 flex items-center justify-center">
-                        <HiOutlineCheckCircle className="w-5 h-5 text-white" />
+                <div className="bg-white p-5 rounded-[20px] shadow-[0_2px_10px_rgb(0,0,0,0.04)] border border-slate-100 flex items-center gap-4 transition-transform hover:-translate-y-1">
+                    <div className="w-12 h-12 rounded-2xl bg-danger-50 border border-danger-100 flex items-center justify-center shrink-0">
+                        <HiOutlineXCircle className="w-6 h-6 text-danger-600" />
                     </div>
                     <div>
-                        <p className="text-lg font-bold text-dark-900">{approvedCount}</p>
-                        <p className="text-xs text-dark-500">Approved</p>
+                        <p className="text-xs font-bold text-dark-500 uppercase tracking-wider mb-1">Rejected</p>
+                        <p className="text-2xl font-black text-dark-900 leading-none">{rejectedCount}</p>
                     </div>
                 </div>
-                <div className="card p-4 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-500 to-accent-600 flex items-center justify-center">
-                        <HiOutlineArrowTrendingUp className="w-5 h-5 text-white" />
+                <div className="bg-white p-5 rounded-[20px] shadow-[0_2px_10px_rgb(0,0,0,0.04)] border border-slate-100 flex items-center gap-4 transition-transform hover:-translate-y-1">
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
+                        <HiOutlineBolt className="w-6 h-6 text-emerald-600" />
                     </div>
                     <div>
-                        <p className="text-xl font-bold text-dark-900">{jobRequests.filter(r => r.status === 'active').length}</p>
-                        <p className="text-xs text-dark-500 font-medium tracking-tight">Converted</p>
+                        <p className="text-xs font-bold text-dark-500 uppercase tracking-wider mb-1">Total Live Jobs</p>
+                        <p className="text-2xl font-black text-dark-900 leading-none">{jobRequests.filter(r => r.status === 'active').length}</p>
                     </div>
                 </div>
             </div>
 
             {/* Filters */}
-            <div className="card p-4">
+            {/* Filters */}
+            <div className="bg-white p-4 rounded-[20px] shadow-[0_2px_10px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col md:flex-row gap-4">
+                <div className="flex-1 relative">
+                    <HiOutlineMagnifyingGlass className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <input
+                        type="text"
+                        value={searchInput}
+                        onChange={(e) => setSearchInput(e.target.value)}
+                        placeholder="Search by job title..."
+                        className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-800 placeholder-slate-400 focus:border-dark-900 focus:ring-1 focus:ring-dark-900 bg-slate-50 focus:bg-white transition-all outline-none"
+                    />
+                </div>
                 <div className="flex flex-col sm:flex-row gap-3">
-                    <div className="flex-1 relative">
-                        <HiOutlineMagnifyingGlass className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-400" />
-                        <input
-                            type="text"
-                            value={searchInput}
-                            onChange={(e) => setSearchInput(e.target.value)}
-                            placeholder="Search by job title..."
-                            className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-dark-200 text-sm text-dark-800 placeholder-dark-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all"
-                        />
-                    </div>
                     <select
                         value={filters.status}
                         onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value, page: 1 }))}
-                        className="px-4 py-2.5 rounded-lg border border-dark-200 text-sm text-dark-700 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 appearance-none bg-white cursor-pointer min-w-[140px]"
+                        className="px-4 py-3 rounded-xl border border-slate-200 text-sm font-semibold text-slate-700 bg-slate-50 focus:bg-white focus:border-dark-900 focus:ring-1 focus:ring-dark-900 outline-none appearance-none cursor-pointer min-w-[160px] transition-all"
                     >
-                        <option value="">All Status</option>
+                        <option value="">All Statuses</option>
                         <option value="pending">Pending Approval</option>
-                        <option value="approved">Approved by Recruiter</option>
+                        <option value="approved">Approved & Waiting</option>
                         <option value="rejected">Rejected</option>
-                        <option value="active">Activated / Live Jobs</option>
+                        <option value="active">Live Jobs</option>
                     </select>
                     <button
-                        onClick={() => { setSearchInput(''); setFilters({ search: '', status: '', page: 1, limit: 10 }); }}
-                        className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-dark-200 text-sm font-medium text-dark-600 hover:bg-dark-50 transition-colors"
+                        onClick={() => { setSearchInput(''); setFilters({ search: '', status: '', page: 1, limit: 6 }); }}
+                        className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 bg-white hover:bg-slate-50 hover:text-slate-900 transition-colors"
                     >
                         <HiOutlineArrowPath className="w-4 h-4" />
                         Reset
@@ -238,22 +245,23 @@ const EmployerJobRequests = () => {
             </div>
 
             {/* Job Requests Table */}
+            {/* Job Requests Table */}
             <div className="card overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                         <thead>
                             <tr className="bg-dark-50 border-b border-dark-100 uppercase">
-                                <th className="text-left px-5 py-3.5 text-xs font-bold text-dark-500 tracking-wider">Job Title</th>
-                                <th className="text-left px-5 py-3.5 text-xs font-bold text-dark-500 tracking-wider">Employer</th>
-                                <th className="text-left px-5 py-3.5 text-xs font-bold text-dark-500 tracking-wider">Experience</th>
-                                <th className="text-left px-5 py-3.5 text-xs font-bold text-dark-500 tracking-wider">Salary</th>
-                                <th className="text-left px-5 py-3.5 text-xs font-bold text-dark-500 tracking-wider">Work Type</th>
-                                <th className="text-left px-5 py-3.5 text-xs font-bold text-dark-500 tracking-wider">Urgency</th>
-                                <th className="text-left px-5 py-3.5 text-xs font-bold text-dark-500 tracking-wider">Status</th>
-                                <th className="text-center px-5 py-3.5 text-xs font-bold text-dark-500 tracking-wider transition-all">Actions</th>
+                                <th className="text-left px-5 py-4 text-sm font-bold text-dark-600 tracking-wider">Job Title</th>
+                                <th className="text-left px-5 py-4 text-sm font-bold text-dark-600 tracking-wider">Category</th>
+                                <th className="text-left px-5 py-4 text-sm font-bold text-dark-600 tracking-wider">Experience</th>
+                                <th className="text-left px-5 py-4 text-sm font-bold text-dark-600 tracking-wider">Salary</th>
+                                <th className="text-left px-5 py-4 text-sm font-bold text-dark-600 tracking-wider">Work Type</th>
+                                <th className="text-left px-5 py-4 text-sm font-bold text-dark-600 tracking-wider">Urgency</th>
+                                <th className="text-left px-5 py-4 text-sm font-bold text-dark-600 tracking-wider">Status</th>
+                                <th className="text-center px-5 py-4 text-sm font-bold text-dark-600 tracking-wider transition-all">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-dark-50">
+                        <tbody className="divide-y divide-dark-50 bg-white">
                             {loading ? (
                                 Array(5).fill().map((_, i) => (
                                     <tr key={i} className="animate-pulse">
@@ -278,47 +286,31 @@ const EmployerJobRequests = () => {
                             ) : (
                                 jobRequests.map((req) => (
                                     <tr key={req._id} className="hover:bg-dark-25 transition-colors">
-                                        <td className="px-5 py-4">
-                                            <div>
-                                                <p className="font-bold text-dark-900 leading-tight">{req.jobTitle}</p>
-                                                <p className="text-xs text-dark-400 flex items-center gap-1 mt-0.5 font-medium">
-                                                    <HiOutlineMapPin className="w-3 h-3" />
-                                                    {req.location || [req.city, req.state, req.country].filter(Boolean).join(', ') || 'Location not specified'}
+                                        <td className="px-5 py-5">
+                                            <div className="flex flex-col gap-1">
+                                                <p className="text-base font-bold text-dark-900 leading-tight break-words max-w-[200px]">{req.jobTitle}</p>
+                                                <p className="text-sm text-dark-500 flex items-center gap-1.5 mt-1 font-medium">
+                                                    <HiOutlineMapPin className="w-4 h-4 shrink-0" />
+                                                    <span className="truncate max-w-[180px]">{req.location || [req.city, req.state, req.country].filter(Boolean).join(', ') || 'Location not specified'}</span>
                                                 </p>
                                             </div>
                                         </td>
-                                        <td className="px-5 py-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center overflow-hidden shrink-0">
-                                                    {req.companyId?.logo ? (
-                                                        <img src={req.companyId.logo} alt="Logo" className="w-full h-full object-cover" />
-                                                    ) : (
-                                                        <HiOutlineBuildingOffice2 className="w-5 h-5 text-slate-300" />
-                                                    )}
-                                                </div>
-                                                <div className="min-w-0">
-                                                    <p className="text-xs font-bold text-dark-700 truncate capitalize">
-                                                        {req.companyId?.companyName || 'My Company'}
-                                                    </p>
-                                                    <p className="text-[10px] text-dark-400 truncate">{req.companyId?.companyEmail || 'N/A'}</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-5 py-4 text-xs font-bold text-dark-600">{req.experienceRequired}</td>
-                                        <td className="px-5 py-4 text-xs font-bold text-dark-600 truncate max-w-[120px]">{formatSalary(req.salaryMin, req.salaryMax, req.currency)}</td>
-                                        <td className="px-5 py-4 text-xs font-bold text-dark-600 whitespace-nowrap capitalize">{req.workType}</td>
-                                        <td className="px-5 py-4">
-                                            <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold tracking-tight ${URGENCY_COLORS[req.urgency]}`}>
+                                        <td className="px-5 py-5 text-base font-semibold text-dark-700">{req.jobCategory}</td>
+                                        <td className="px-5 py-5 text-sm font-bold text-dark-600">{req.experienceRequired}</td>
+                                        <td className="px-5 py-5 text-sm font-bold text-dark-600 truncate max-w-[120px]">{formatSalary(req.salaryMin, req.salaryMax, req.currency)}</td>
+                                        <td className="px-5 py-5 text-sm font-bold text-dark-600 whitespace-nowrap capitalize">{req.workType}</td>
+                                        <td className="px-5 py-5">
+                                            <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold tracking-tight ${URGENCY_COLORS[req.urgency]}`}>
                                                 {req.urgency}
                                             </span>
                                         </td>
-                                        <td className="px-5 py-4">
-                                            <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold lowercase ${STATUS_COLORS[req.status]}`}>
+                                        <td className="px-5 py-5">
+                                            <span className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold capitalize ${STATUS_COLORS[req.status]}`}>
                                                 {req.status}
                                             </span>
                                         </td>
-                                        <td className="px-5 py-4">
-                                            <div className="flex items-center justify-center gap-1.5">
+                                        <td className="px-5 py-5">
+                                            <div className="flex items-center justify-center gap-2">
                                                 <button
                                                     onClick={() => handleView(req)}
                                                     className="p-2 rounded-lg text-dark-400 hover:text-primary-600 hover:bg-primary-50 transition-all hover:scale-110"
@@ -353,6 +345,31 @@ const EmployerJobRequests = () => {
                     </table>
                 </div>
             </div>
+
+            {/* Pagination */}
+            {pagination && pagination.totalPages > 1 && (
+                <div className="flex items-center justify-between mt-4 px-2">
+                    <button
+                        onClick={() => setFilters(prev => ({ ...prev, page: prev.page - 1 }))}
+                        disabled={!pagination.hasPrevPage}
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-dark-700 bg-white border border-dark-200 rounded-xl hover:bg-dark-50 disabled:opacity-50 disabled:hover:bg-white transition-all shadow-sm"
+                    >
+                        <HiOutlineChevronLeft className="w-4 h-4" />
+                        Prev
+                    </button>
+                    <span className="text-sm font-bold text-dark-500">
+                        Page {pagination.page} of {pagination.totalPages}
+                    </span>
+                    <button
+                        onClick={() => setFilters(prev => ({ ...prev, page: prev.page + 1 }))}
+                        disabled={!pagination.hasNextPage}
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-dark-700 bg-white border border-dark-200 rounded-xl hover:bg-dark-50 disabled:opacity-50 disabled:hover:bg-white transition-all shadow-sm"
+                    >
+                        Next
+                        <HiOutlineChevronRight className="w-4 h-4" />
+                    </button>
+                </div>
+            )}
 
             {/* ==================== VIEW MODAL ==================== */}
             {showViewModal && selectedRequest && (

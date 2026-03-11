@@ -53,9 +53,7 @@ const LoginOtpVerificationPage = () => {
             toast.success('Login verified successfully!');
 
             let dashboardPath = `/${userData.role}/dashboard`;
-            if (userData.role === 'recruiter') {
-                dashboardPath = '/recruiter/manage-jobs';
-            } else if (userData.role === 'candidate') {
+            if (userData.role === 'candidate') {
                 dashboardPath = '/';
             }
 

@@ -125,13 +125,15 @@ const RecruiterEditJobRequest = () => {
                 }
             } catch (error) {
                 toast.error('Failed to load job request');
-                navigate('/recruiter/add-job');
-            } finally {
-                setLoading(false);
+                navigate('/recruiter/dashboard');
             }
         };
-        fetchData();
-        fetchCategories();
+
+        const init = async () => {
+            await Promise.all([fetchData(), fetchCategories()]);
+            setLoading(false);
+        };
+        init();
     }, [id, navigate, editMode]);
 
     const fetchCategories = async () => {
@@ -215,6 +217,10 @@ const RecruiterEditJobRequest = () => {
                 setJobRequest(res.data.jobRequest);
                 setIsEditing(false);
                 toast.success('Job request updated');
+                // Redirect back to the module we came from after a short delay
+                setTimeout(() => {
+                    navigate(-1);
+                }, 1000);
             }
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to update');
@@ -275,7 +281,7 @@ const RecruiterEditJobRequest = () => {
 
                 <div className="relative px-8 py-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
                     <button
-                        onClick={() => navigate('/recruiter/add-job')}
+                        onClick={() => navigate(-1)}
                         className="absolute top-6 right-6 p-2 rounded-full bg-white/20 hover:bg-white/30 text-white backdrop-blur-md transition-all border border-white/10 z-10"
                     >
                         <HiOutlineXMark className="w-5 h-5" />
@@ -283,7 +289,7 @@ const RecruiterEditJobRequest = () => {
 
                     <div className="flex items-start gap-5">
                         <button
-                            onClick={() => navigate('/recruiter/add-job')}
+                            onClick={() => navigate(-1)}
                             className="p-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-all border border-white/10"
                         >
                             <HiOutlineArrowLeft className="w-5 h-5" />
@@ -293,16 +299,15 @@ const RecruiterEditJobRequest = () => {
                                 <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${STATUS_COLORS[jobRequest.status]} ring-1 ring-white/20`}>
                                     {jobRequest.status}
                                 </span>
-                                {jobRequest.companyId?.companyName && (
-                                    <span className="text-xs font-bold text-white/80">
-                                        by {jobRequest.companyId.companyName}
-                                    </span>
-                                )}
+                                <span className="text-xs font-bold text-white/80">
+                                    by {jobRequest.employer?.companyName || jobRequest.companyId?.companyName || 'N/A'}
+                                </span>
+
                                 <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${URGENCY_COLORS[jobRequest.urgency]}`}>
                                     {jobRequest.urgency} Priority
                                 </span>
                             </div>
-                            <h2 className="text-3xl font-black text-white tracking-tight">{jobRequest.jobTitle}</h2>
+                            <h2 className="text-3xl font-black text-white tracking-tight">{jobRequest.jobTitle || jobRequest.position}</h2>
                             <p className="text-blue-100 font-medium flex items-center gap-2">
                                 <HiOutlineBriefcase className="w-4 h-4" />
                                 {jobRequest.jobCategory}
@@ -412,7 +417,7 @@ const RecruiterEditJobRequest = () => {
                                 ))}
                             </select>
                         ) : (
-                            <p className="text-sm font-black text-slate-900">{data.jobTitle}</p>
+                            <p className="text-sm font-black text-slate-900">{data.jobTitle || data.position}</p>
                         )}
                     </div>
 
@@ -620,7 +625,7 @@ const RecruiterEditJobRequest = () => {
                 {/* Footer Action */}
                 <div className="p-10 bg-white border-t border-slate-50 flex items-center justify-center">
                     <button
-                        onClick={() => navigate('/recruiter/add-job')}
+                        onClick={() => navigate(-1)}
                         className="w-full max-w-md px-10 py-4 border-2 border-slate-100 text-slate-900 text-sm font-black rounded-2xl hover:bg-slate-50 hover:border-slate-200 transition-all active:scale-95 shadow-sm"
                     >
                         Close
