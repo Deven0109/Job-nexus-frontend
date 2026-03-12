@@ -15,7 +15,12 @@ const CURRENCY_SYMBOLS = {
     INR: '₹',
     EUR: '€',
     GBP: '£',
-    AED: 'AED '
+    AED: 'AED ',
+    CAD: 'C$',
+    AUD: 'A$',
+    SGD: 'S$',
+    SAR: 'SR ',
+    QAR: 'QR '
 };
 import { getPublicJobs, getAvailableCategories } from '../../api/jobs.api';
 import { applyToJob } from '../../api/applications.api';
@@ -40,13 +45,14 @@ const JobListingPage = () => {
     const [filters, setFilters] = useState({
         title: searchParams.get('title') || '',
         location: searchParams.get('location') || '',
-        categories: searchParams.get('category') ? [searchParams.get('category')] : [],
+        categories: searchParams.get('category') ? [decodeURIComponent(searchParams.get('category'))] : [],
         skills: [],
         country: searchParams.get('country') || '',
         state: searchParams.get('state') || '',
         experience: [],
         salaryMin: '',
-        salaryMax: ''
+        salaryMax: '',
+        currency: ''
     });
 
     const [statesList, setStatesList] = useState([]);
@@ -67,7 +73,9 @@ const JobListingPage = () => {
             try {
                 const res = await getAvailableCategories();
                 if (res.success && res.data) {
-                    setCategoriesList(res.data);
+                    // Sort by jobCount descending so most active categories appear first
+                    const sorted = [...res.data].sort((a, b) => (b.jobCount || 0) - (a.jobCount || 0));
+                    setCategoriesList(sorted);
                 }
             } catch (error) {
                 console.error("Failed to fetch available categories", error);
@@ -82,9 +90,10 @@ const JobListingPage = () => {
     useEffect(() => {
         const paramCategory = searchParams.get('category');
         if (paramCategory) {
+            const decoded = decodeURIComponent(paramCategory);
             setFilters(prev => {
-                if (!prev.categories.includes(paramCategory)) {
-                    return { ...prev, categories: [paramCategory] };
+                if (!prev.categories.includes(decoded)) {
+                    return { ...prev, categories: [decoded] };
                 }
                 return prev;
             });
@@ -102,7 +111,8 @@ const JobListingPage = () => {
                 country: filters.country,
                 state: filters.state,
                 salaryMin: filters.salaryMin,
-                salaryMax: filters.salaryMax
+                salaryMax: filters.salaryMax,
+                currency: filters.currency
             };
             if (filters.categories.length === 1) {
                 params.category = filters.categories[0];
@@ -152,7 +162,7 @@ const JobListingPage = () => {
             if (field === 'categories') {
                 const params = new URLSearchParams(searchParams);
                 if (newArr.length > 0) {
-                    params.set('category', newArr[0]); // Simply take the first or join. Sticking to single selected for the header logic.
+                    params.set('category', encodeURIComponent(newArr[0]));
                 } else {
                     params.delete('category');
                 }
@@ -304,21 +314,30 @@ const JobListingPage = () => {
                                 {/* Categories */}
                                 <div>
                                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 block">Category</label>
-                                    <div className="space-y-2.5">
-                                        {categoriesList.map(c => (
-                                            <label key={c} className="flex items-center gap-3 group cursor-pointer">
-                                                <div className="relative flex items-center justify-center">
-                                                    <input
-                                                        type="checkbox"
-                                                        className="peer appearance-none w-5 h-5 border-2 border-slate-200 rounded-md checked:bg-primary-600 checked:border-primary-600 transition-all cursor-pointer"
-                                                        checked={filters.categories.includes(c)}
-                                                        onChange={() => handleCheckboxChange('categories', c)}
-                                                    />
-                                                    <svg className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7"></path></svg>
-                                                </div>
-                                                <span className="text-sm font-medium text-slate-600 group-hover:text-primary-600 transition-colors">{c}</span>
-                                            </label>
-                                        ))}
+                                    <div className="space-y-2">
+                                        {categoriesList.map(cat => {
+                                            const catName = typeof cat === 'object' ? cat.name : cat;
+                                            const catCount = typeof cat === 'object' ? cat.jobCount : 0;
+                                            return (
+                                                <label key={catName} className="flex items-center justify-between gap-2 group cursor-pointer py-1">
+                                                    <div className="flex items-center gap-2.5">
+                                                        <div className="relative flex items-center justify-center flex-shrink-0">
+                                                            <input
+                                                                type="checkbox"
+                                                                className="peer appearance-none w-4 h-4 border-2 border-slate-200 rounded checked:bg-primary-600 checked:border-primary-600 transition-all cursor-pointer"
+                                                                checked={filters.categories.includes(catName)}
+                                                                onChange={() => handleCheckboxChange('categories', catName)}
+                                                            />
+                                                            <svg className="absolute w-2.5 h-2.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7"></path></svg>
+                                                        </div>
+                                                        <span className="text-sm font-medium text-slate-600 group-hover:text-primary-600 transition-colors leading-tight">{catName}</span>
+                                                    </div>
+                                                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded flex-shrink-0 ${filters.categories.includes(catName) ? 'bg-primary-100 text-primary-700' : 'bg-slate-100 text-slate-500'}`}>
+                                                        {catCount}
+                                                    </span>
+                                                </label>
+                                            );
+                                        })}
                                     </div>
                                 </div>
 
@@ -371,11 +390,24 @@ const JobListingPage = () => {
                                     </div>
                                 </div>
 
-                                {/* Salary Range */}
-                                <div>
-                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 block">Salary Range</label>
-                                    <div className="space-y-3">
-                                        <div className="grid grid-cols-2 gap-2">
+                                {/* Salary & Currency */}
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 block">Salary Range & Currency</label>
+                                        <div className="space-y-3">
+                                            <select
+                                                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:border-primary-500 transition-colors font-medium"
+                                                value={filters.currency}
+                                                onChange={(e) => handleFilterChange('currency', e.target.value)}
+                                            >
+                                                <option value="">All Currencies</option>
+                                                <option value="INR">INR (₹)</option>
+                                                <option value="USD">USD ($)</option>
+                                                <option value="EUR">EUR (€)</option>
+                                                <option value="GBP">GBP (£)</option>
+                                                <option value="AED">AED (د.إ)</option>
+                                            </select>
+                                            <div className="grid grid-cols-2 gap-2">
                                             <div className="space-y-1">
                                                 <span className="text-[10px] font-bold text-slate-400 ml-1">MIN</span>
                                                 <input
@@ -401,12 +433,13 @@ const JobListingPage = () => {
                                 </div>
                             </div>
                         </div>
-                    </aside>
+                    </div>
+                </aside>
 
                     {/* Main Content */}
                     <main className="flex-1 space-y-6">
                         {/* Active Filter Chips */}
-                        {(filters.title || filters.location || filters.categories.length > 0 || filters.skills.length > 0 || filters.experience.length > 0 || filters.salaryMin || filters.salaryMax) && (
+                        {(filters.title || filters.location || filters.categories.length > 0 || filters.skills.length > 0 || filters.experience.length > 0 || filters.salaryMin || filters.salaryMax || filters.currency) && (
                             <div className="flex flex-wrap items-center gap-2 pb-2">
                                 <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mr-2">Filtered by:</span>
                                 {filters.title && (
@@ -436,6 +469,12 @@ const JobListingPage = () => {
                                         }} className="hover:text-primary-900 ml-1">×</button>
                                     </div>
                                 ))}
+                                {filters.currency && (
+                                    <div className="badge badge-primary gap-1 py-1 px-3">
+                                        Currency: {filters.currency}
+                                        <button onClick={() => setFilters(p => ({ ...p, currency: '' }))} className="hover:text-primary-900 ml-1">×</button>
+                                    </div>
+                                )}
                                 {filters.skills.map(s => (
                                     <div key={s} className="badge badge-primary gap-1 py-1 px-3">
                                         {s}

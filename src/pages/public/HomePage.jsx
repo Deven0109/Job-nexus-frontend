@@ -118,7 +118,7 @@ const HomePage = () => {
                 </div>
             </section>
 
-            {/* ======= POPULAR CATEGORIES (Visible for all) ======= */}
+    {/* ======= POPULAR CATEGORIES (Visible for all) ======= */}
             <section className="py-20 bg-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
@@ -127,35 +127,53 @@ const HomePage = () => {
                         <p className="text-slate-500 font-medium">Discover top job categories tailored to your skills and career goals.</p>
                     </div>
 
-                    <div className="flex flex-wrap justify-center gap-6">
-                        {popularCategories.map((cat) => {
-                            const icons = {
-                                "Programming": "💻",
-                                "Data Science": "🤖",
-                                "Designing": "🎨",
-                                "Networking": "🌐",
-                                "Management": "📊",
-                                "Marketing": "📈",
-                                "Cybersecurity": "🔒",
-                                "UI/UX Design": "✨",
-                                "DevOps": "⚙️",
-                                "Mobile Development": "📱"
-                            };
-                            return (
-                                <div
-                                    key={cat.category}
-                                    onClick={() => navigate(`/jobs?category=${cat.category}`)}
-                                    className="group p-8 w-56 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col items-center hover:bg-white hover:shadow-2xl hover:border-blue-200 transition-all duration-300 cursor-pointer"
-                                >
-                                    <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">{icons[cat.category] || "💼"}</div>
-                                    <h4 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors text-center mb-1">{cat.category}</h4>
-                                    <p className="text-sm font-semibold text-slate-500">{cat.applications} Jobs Applied</p>
-                                </div>
-                            );
-                        })}
-                    </div>
+                    {popularCategories.length === 0 ? (
+                        <div className="flex flex-wrap justify-center gap-6">
+                            {[1, 2, 3, 4, 5].map(i => (
+                                <div key={i} className="p-8 w-56 bg-slate-100 rounded-2xl animate-pulse h-44" />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="flex flex-wrap justify-center gap-6">
+                            {popularCategories.map((cat) => {
+                                const CATEGORY_ICONS = {
+                                    "IT & Software": "💻",
+                                    "Sales & Marketing": "📈",
+                                    "Finance & Accounting": "💰",
+                                    "Engineering": "⚙️",
+                                    "Healthcare": "🏥",
+                                    "Education": "📚",
+                                    "Hospitality": "🏨",
+                                    "Logistics & Supply Chain": "🚚",
+                                    "Retail & E-commerce": "🛒",
+                                    "Government & Public Sector": "🏛️",
+                                    "Legal": "⚖️",
+                                    "Human Resources": "👥",
+                                    "Design & Creative": "🎨",
+                                    "Data Science & Analytics": "🤖",
+                                    "Construction & Real Estate": "🏗️",
+                                    "Media & Communication": "📡",
+                                    "Programming": "💻",
+                                    "Management": "📊",
+                                    "Marketing": "📢",
+                                    "DevOps": "🔧",
+                                };
+                                return (
+                                    <div
+                                        key={cat.category}
+                                        onClick={() => navigate(`/jobs?category=${encodeURIComponent(cat.category)}`)}
+                                        className="group p-8 w-56 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col items-center hover:bg-white hover:shadow-2xl hover:border-blue-200 transition-all duration-300 cursor-pointer"
+                                    >
+                                        <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">{CATEGORY_ICONS[cat.category] || "💼"}</div>
+                                        <h4 className="text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors text-center">{cat.category}</h4>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
                 </div>
             </section>
+
 
             {/* ======= QUICK ACCESS MODULES ======= */}
             {isAuthenticated && user?.role === 'candidate' && (

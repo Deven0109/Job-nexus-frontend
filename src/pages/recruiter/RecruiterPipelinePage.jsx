@@ -53,6 +53,7 @@ const RecruiterPipelinePage = () => {
     const [loading, setLoading] = useState(true);
 
     const fetchPipeline = async () => {
+        if (Object.keys(pipeline).length === 0) setLoading(true);
         try {
             const res = await getJobPipeline(jobId);
             if (res && (res.success || res.data)) {
@@ -185,13 +186,23 @@ const RecruiterPipelinePage = () => {
                                         >
                                             <div className="flex items-center gap-3 mb-4">
                                                 <div className="w-10 h-10 rounded-xl overflow-hidden bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
-                                                    {app.candidate?.avatar ? (
+                                                    {app.candidate?.avatar && (
                                                         <img
-                                                            src={app.candidate.avatar.startsWith('http') ? app.candidate.avatar : `${BASE_URL}${app.candidate.avatar}`}
+                                                            src={
+                                                                app.candidate.avatar.startsWith('http') ||
+                                                                app.candidate.avatar.startsWith('data:')
+                                                                    ? app.candidate.avatar
+                                                                    : `${BASE_URL}${app.candidate.avatar}`
+                                                            }
                                                             alt="Avatar"
                                                             className="w-full h-full object-cover"
+                                                            onError={(e) => {
+                                                                e.currentTarget.onerror = null;
+                                                                e.currentTarget.style.display = 'none';
+                                                            }}
                                                         />
-                                                    ) : (
+                                                    )}
+                                                    {!app.candidate?.avatar && (
                                                         <span className={`text-sm font-black uppercase ${col.text}`}>
                                                             {app.candidate?.firstName?.[0]}
                                                         </span>

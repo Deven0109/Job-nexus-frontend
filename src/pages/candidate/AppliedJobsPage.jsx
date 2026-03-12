@@ -1,153 +1,107 @@
+
 import { useState, useEffect } from 'react';
 import {
     Container,
     Typography,
     Box,
-    Card,
     Grid,
-    Chip,
     Button,
-    Stepper,
-    Step,
-    StepLabel,
     CircularProgress,
     Stack,
     Paper,
-    Divider,
-    Avatar,
-    useTheme,
-    alpha
+    Pagination,
+    Tooltip
 } from '@mui/material';
 import {
-    LocationOn as LocationIcon,
-    CurrencyRupee as RupeeIcon,
-    Visibility as ViewIcon,
-    CheckCircle as SuccessIcon,
-    Cancel as ErrorIcon,
-    VideoCall as VideoIcon,
-    Business as BusinessIcon,
-    AccessTime as TimeIcon,
-    EventAvailable as DateIcon,
-    Close as CloseIcon
-} from '@mui/icons-material';
-import StepConnector, { stepConnectorClasses } from '@mui/material/StepConnector';
-import { styled } from '@mui/material/styles';
+    HiOutlineLocationMarker,
+    HiOutlineCurrencyRupee,
+    HiOutlineOfficeBuilding,
+    HiOutlineVideoCamera,
+    HiOutlineCheckCircle,
+    HiOutlineXCircle,
+    HiOutlineClock
+} from 'react-icons/hi';
 import { getMyApplications } from '../../api/applications.api';
-
-const ColorlibConnector = styled(StepConnector)(({ theme }) => ({
-    [`&.${stepConnectorClasses.alternativeLabel}`]: {
-        top: 22,
-    },
-    [`&.${stepConnectorClasses.active}`]: {
-        [`& .${stepConnectorClasses.line}`]: {
-            backgroundColor: theme.palette.primary.main,
-        },
-    },
-    [`&.${stepConnectorClasses.completed}`]: {
-        [`& .${stepConnectorClasses.line}`]: {
-            backgroundColor: theme.palette.success.main,
-        },
-    },
-    [`&.${stepConnectorClasses.disabled}`]: {
-        [`& .${stepConnectorClasses.line}`]: {
-            backgroundColor: '#e0e0e0',
-        },
-    },
-    [`& .${stepConnectorClasses.line}`]: {
-        height: 4,
-        border: 0,
-        backgroundColor: '#e0e0e0',
-        borderRadius: 1,
-        transition: 'background-color 0.3s'
-    },
-}));
-
-const ColorlibStepIconRoot = styled('div')(({ theme, ownerState }) => ({
-    backgroundColor: '#fff',
-    zIndex: 1,
-    color: '#ccc',
-    width: 32,
-    height: 32,
-    display: 'flex',
-    borderRadius: '50%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    border: '2px solid #ccc',
-    fontWeight: 800,
-    fontSize: '0.8rem',
-    ...(ownerState.active && {
-        borderColor: theme.palette.primary.main,
-        color: theme.palette.primary.main,
-        boxShadow: `0 0 0 4px ${alpha(theme.palette.primary.main, 0.1)}`,
-    }),
-    ...(ownerState.completed && {
-        borderColor: theme.palette.success.main,
-        backgroundColor: theme.palette.success.main,
-        color: '#fff',
-    }),
-    ...(ownerState.error && {
-        borderColor: theme.palette.error.main,
-        backgroundColor: theme.palette.error.main,
-        color: '#fff',
-    }),
-}));
-
-function ColorlibStepIcon(props) {
-    const { active, completed, error, icon } = props;
-
-    return (
-        <ColorlibStepIconRoot ownerState={{ active, completed, error }}>
-            {error ? <CloseIcon sx={{ fontSize: 18 }} /> : (completed ? <SuccessIcon sx={{ fontSize: 18 }} /> : icon)}
-        </ColorlibStepIconRoot>
-    );
-}
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 
-const STATUS_CHIP_MAPPING = {
-    'Applied': { label: 'Applied', color: 'info' },
-    'Under Review': { label: 'Under Review', color: 'warning' },
-    'Recruiter Shortlisted': { label: 'Reviewing', color: 'info' },
-    'Recruiter Rejected': { label: 'Rejected', color: 'error' },
-    'Employer Shortlisted': { label: 'Shortlisted', color: 'success' },
-    'Employer Rejected': { label: 'Rejected', color: 'error' },
-    'Interview Scheduled': { label: 'Interview Scheduled', color: 'secondary' },
-    'Interview Completed': { label: 'Interview Completed', color: 'default' },
-    'Selected Next Round': { label: 'Next Round', color: 'info' },
-    'Final Selected': { label: 'Selected', color: 'success' },
-    'Final Rejected': { label: 'Rejected', color: 'error' }
+const CURRENCY_SYMBOLS = {
+    USD: '$',
+    INR: '₹',
+    EUR: '€',
+    GBP: '£',
+    AED: 'AED ',
+    CAD: 'C$',
+    AUD: 'A$',
+    SGD: 'S$',
+    SAR: 'SR ',
+    QAR: 'QR '
 };
 
-const STEPS = ['Applied', 'Review', 'Interview', 'Selected'];
-
-const getActiveStep = (status) => {
-    switch (status) {
-        case 'Applied': return 0;
-        case 'Under Review':
-        case 'Recruiter Shortlisted':
-        case 'Employer Shortlisted': return 1;
-        case 'Interview Scheduled':
-        case 'Interview Completed':
-        case 'Selected Next Round': return 2;
-        case 'Final Selected': return 3;
-        default: return 0;
-    }
+const STATUS_CONFIG = {
+    'Applied': { label: 'Applied', color: '#1A73E8', bg: '#E8F0FE' },
+    'Under Review': { label: 'In Review', color: '#F9AB00', bg: '#FEF7E0' },
+    'Recruiter Shortlisted': { label: 'Shortlisted', color: '#1A73E8', bg: '#E8F0FE' },
+    'Recruiter Rejected': { label: 'Rejected', color: '#D93025', bg: '#FCE8E6' },
+    'Employer Shortlisted': { label: 'Reviewing', color: '#1A73E8', bg: '#E8F0FE' },
+    'Employer Rejected': { label: 'Rejected', color: '#D93025', bg: '#FCE8E6' },
+    'Interview Scheduled': { label: 'Interviewing', color: '#9333EA', bg: '#F3E8FF' },
+    'Interview Completed': { label: 'Interviewed', color: '#5F6368', bg: '#F1F3F4' },
+    'Selected Next Round': { label: 'Next Round', color: '#12B5CB', bg: '#E0F7FA' },
+    'Final Selected': { label: 'Selected', color: '#1E8E3E', bg: '#E6F4EA' },
+    'Final Rejected': { label: 'Rejected', color: '#D93025', bg: '#FCE8E6' }
 };
 
-const isRejectedStatus = (status) => {
-    return status.includes('Rejected');
+const WORKFLOW_STEPS = [
+    { label: 'Applied' },
+    { label: 'Review' },
+    { label: 'Shortlist' },
+    { label: 'Interview' },
+    { label: 'Selected' }
+];
+
+const getStepStatus = (status, index) => {
+    const statusMap = {
+        'Applied': 0,
+        'Under Review': 1,
+        'Recruiter Shortlisted': 2,
+        'Employer Shortlisted': 2,
+        'Interview Scheduled': 3,
+        'Interview Completed': 3,
+        'Selected Next Round': 3,
+        'Final Selected': 4
+    };
+
+    const currentStep = statusMap[status] ?? 0;
+    const isRejected = status.includes('Rejected');
+
+    if (index < currentStep) return 'completed';
+    if (index === currentStep) return isRejected ? 'rejected' : 'active';
+    return 'pending';
 };
 
-const formatCTC = (min, max) => {
-    if (!min) return 'Not Disclosed';
-    const formatLakh = (val) => (val / 100000).toFixed(1).replace(/\.0$/, '') + 'L';
-    return `${formatLakh(min)} - ${formatLakh(max)}`;
+const getStatusMessage = (status) => {
+    const messages = {
+        'Applied': 'Your application has been successfully received by our hiring team.',
+        'Under Review': 'The recruitment team is currently screening your skills and experience.',
+        'Recruiter Shortlisted': 'Congratulations! You have been shortlisted for the next interview round.',
+        'Employer Shortlisted': 'Congratulations! You have been shortlisted for the next interview round.',
+        'Interview Scheduled': 'Your interview has been scheduled; please check the date and join link below.',
+        'Interview Completed': 'Your interview is over; our team is now evaluating your results.',
+        'Selected Next Round': 'Success! You have advanced to the next stage of screening.',
+        'Final Selected': 'Please check your registered email for the official offer letter.',
+        'Recruiter Rejected': 'The hiring team has decided not to move forward this time.',
+        'Employer Rejected': 'The hiring team has decided not to move forward this time.',
+        'Final Rejected': 'The hiring team has decided not to move forward this time.'
+    };
+    return messages[status] || 'The hiring process for this position is currently in progress.';
 };
 
 const AppliedJobsPage = () => {
     const [applications, setApplications] = useState([]);
     const [loading, setLoading] = useState(true);
-    const theme = useTheme();
+    const [page, setPage] = useState(1);
+    const itemsPerPage = 6;
 
     useEffect(() => {
         const fetchApplications = async () => {
@@ -166,300 +120,262 @@ const AppliedJobsPage = () => {
     }, []);
 
     if (loading) return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '500px' }}>
-            <CircularProgress color="primary" />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+            <CircularProgress size={24} thickness={6} sx={{ color: '#000' }} />
         </Box>
     );
 
     return (
         <Container maxWidth="lg" sx={{ py: 6 }}>
-            {/* Header Section */}
-            <Box sx={{ mb: 5, textAlign: 'left', position: 'relative' }}>
-                <Box
-                    sx={{
-                        position: 'absolute',
-                        top: -40,
-                        left: -20,
-                        width: 120,
-                        height: 120,
-                        bgcolor: alpha(theme.palette.primary.main, 0.03),
-                        borderRadius: '50%',
-                        zIndex: -1
-                    }}
-                />
-                <Typography
-                    variant="h3"
-                    fontWeight={950}
-                    color="text.primary"
-                    sx={{
-                        letterSpacing: '-0.04em',
-                        mb: 1.5,
-                        textTransform: 'tight',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 2
-                    }}
-                >
-                    Application <span style={{ color: theme.palette.primary.main }}>Pipeline</span>
+            {/* Header */}
+            <Box sx={{ mb: 6 }}>
+                <Typography variant="h4" fontWeight={900} sx={{ color: '#000', mb: 0.5, letterSpacing: '-0.02em' }}>
+                    MY APPLICATIONS
                 </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1.05rem', fontWeight: 500, opacity: 0.8 }}>
-                    You have <span style={{ fontWeight: 800, color: theme.palette.text.primary }}>{applications.length} active applications</span> in your pipeline.
+                <Typography variant="body2" sx={{ color: '#5F6368', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Track your journey with <span style={{ color: '#000' }}>{applications.length} active roles</span>
                 </Typography>
             </Box>
 
             {applications.length === 0 ? (
-                <Paper
-                    elevation={0}
-                    sx={{
-                        p: 10,
-                        textAlign: 'center',
-                        borderRadius: 6,
-                        border: '2px dashed',
-                        borderColor: 'divider',
-                        bgcolor: alpha(theme.palette.background.paper, 0.4),
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center'
-                    }}
-                >
-                    <Box sx={{ width: 80, height: 80, bgcolor: 'primary.50', borderRadius: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 3 }}>
-                        <BusinessIcon sx={{ fontSize: 40, color: 'primary.main' }} />
-                    </Box>
-                    <Typography variant="h5" fontWeight={800} gutterBottom>Ready to find your dream job?</Typography>
-                    <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 450 }}>
-                        Your application list is empty. Start exploring thousands of opportunities tailored just for you.
-                    </Typography>
-                    <Button
-                        variant="contained"
-                        component={Link}
-                        to="/jobs"
-                        size="large"
-                        sx={{
-                            borderRadius: 3,
-                            px: 5,
-                            py: 1.8,
-                            fontWeight: 800,
-                            textTransform: 'none',
-                            fontSize: '1rem',
-                            boxShadow: '0 10px 25px -5px ' + alpha(theme.palette.primary.main, 0.4)
-                        }}
-                    >
-                        Browse All Jobs
+                <Paper elevation={0} sx={{ p: 10, textAlign: 'center', borderRadius: 0, border: '1px solid #DADCE0', bgcolor: '#F8F9FA' }}>
+                    <HiOutlineOfficeBuilding size={48} color="#9AA0A6" />
+                    <Typography variant="h6" fontWeight={800} sx={{ mt: 2, mb: 1 }}>No applications found</Typography>
+                    <Button component={Link} to="/jobs" size="large" variant="contained" sx={{ bgcolor: '#1A73E8', color: '#fff', px: 5, py: 1.5, borderRadius: 0, fontWeight: 900, textTransform: 'none' }}>
+                        Browse Open Jobs
                     </Button>
                 </Paper>
             ) : (
-                <Stack spacing={3.5}>
-                    {applications.map((app) => (
-                        <Card
-                            key={app._id}
-                            elevation={0}
-                            sx={{
-                                borderRadius: 6,
-                                border: '1px solid',
-                                borderColor: alpha(theme.palette.divider, 0.8),
-                                overflow: 'hidden',
-                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                position: 'relative',
-                                '&:hover': {
-                                    borderColor: 'primary.main',
-                                    boxShadow: '0 20px 40px -12px ' + alpha(theme.palette.primary.main, 0.1),
-                                    transform: 'translateY(-4px)'
-                                }
-                            }}
-                        >
-                            <Box sx={{ p: 4 }}>
-                                <Grid container spacing={4} alignItems="center">
-                                    {/* Column 1: Job Branding & Details */}
-                                    <Grid item xs={12} md={4}>
-                                        <Stack spacing={2.5}>
-                                            <Box>
-                                                <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
-                                                    <Chip
-                                                        label={STATUS_CHIP_MAPPING[app.status]?.label || app.status}
-                                                        color={STATUS_CHIP_MAPPING[app.status]?.color || 'default'}
-                                                        size="small"
-                                                        sx={{
+                <Stack spacing={3}>
+                    {applications.slice((page - 1) * itemsPerPage, page * itemsPerPage).map((app) => (
+                        <Box key={app._id} sx={{
+                            bgcolor: '#FFF',
+                            border: '1px solid #E0E4E8',
+                            borderRadius: '8px',
+                            p: 3,
+                            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                            '&:hover': {
+                                boxShadow: '0 8px 16px rgba(0,0,0,0.06)',
+                                borderColor: '#1A73E8'
+                            }
+                        }}>
+                            <Box sx={{ 
+                                display: 'flex', 
+                                flexDirection: { xs: 'column', md: 'row' }, 
+                                alignItems: 'center', 
+                                gap: 3,
+                                width: '100%'
+                            }}>
+                                {/* Section 1: Role Info */}
+                                <Box sx={{ width: { xs: '100%', md: '220px' }, flexShrink: 0 }}>
+                                    <Stack spacing={1}>
+                                        <div style={{
+                                            display: 'inline-flex',
+                                            padding: '4px 10px',
+                                            fontSize: '11px',
+                                            fontWeight: 900,
+                                            textTransform: 'uppercase',
+                                            backgroundColor: STATUS_CONFIG[app.status]?.bg || '#F1F3F4',
+                                            color: STATUS_CONFIG[app.status]?.color || '#5F6368',
+                                            width: 'fit-content',
+                                            borderRadius: '4px'
+                                        }}>
+                                            {STATUS_CONFIG[app.status]?.label || app.status}
+                                        </div>
+                                        <Typography variant="h6" fontWeight={1000} sx={{ color: '#202124', lineHeight: 1.2, fontSize: '1.25rem' }}>
+                                            {app.job?.title}
+                                        </Typography>
+                                        <Typography variant="body1" fontWeight={800} sx={{ color: '#5F6368', fontSize: '15px' }}>
+                                            {app.job?.companyId?.companyName}
+                                        </Typography>
+                                        <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
+                                            <Tooltip title={app.job?.location} arrow placement="bottom-start">
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 800, color: '#70757A', maxWidth: '180px', cursor: 'pointer' }}>
+                                                    <HiOutlineLocationMarker size={16} style={{ flexShrink: 0 }} />
+                                                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                        {app.job?.location}
+                                                    </span>
+                                                </div>
+                                            </Tooltip>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', fontWeight: 800, color: '#70757A', minWidth: 'fit-content' }}>
+                                                <span style={{ fontSize: '16px' }}>{CURRENCY_SYMBOLS[app.job?.currency] || '₹'}</span>
+                                                <span>
+                                                    {app.job?.currency === 'INR' || !app.job?.currency
+                                                        ? `${(app.job?.salaryMin / 100000).toFixed(1)}L - ${(app.job?.salaryMax / 100000).toFixed(1)}L`
+                                                        : `${app.job?.salaryMin?.toLocaleString()} - ${app.job?.salaryMax?.toLocaleString()}`
+                                                    }
+                                                </span>
+                                            </div>
+                                        </Stack>
+                                    </Stack>
+                                </Box>
+
+                                {/* Section 2: Hiring Pipeline (5 Steps) */}
+                                <Box sx={{ flex: 1, maxWidth: '350px' }}>
+                                    <Box sx={{ position: 'relative', py: 1, px: 2 }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', position: 'relative', zIndex: 1 }}>
+                                            {WORKFLOW_STEPS.map((step, idx) => {
+                                                const stepStatus = getStepStatus(app.status, idx);
+                                                return (
+                                                    <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, minWidth: '65px' }}>
+                                                        <div style={{
+                                                            width: '28px',
+                                                            height: '28px',
+                                                            borderRadius: '50%',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            backgroundColor: stepStatus === 'completed' ? '#1E8E3E' : (stepStatus === 'active' && app.status === 'Final Selected') ? '#1E8E3E' : stepStatus === 'active' ? '#1A73E8' : stepStatus === 'rejected' ? '#D93025' : '#FFF',
+                                                            color: stepStatus === 'pending' ? '#DADCE0' : '#FFF',
+                                                            border: stepStatus === 'pending' ? '2px solid #DADCE0' : 'none',
+                                                            boxShadow: stepStatus === 'active' ? '0 0 0 4px #E8F0FE' : 'none',
+                                                            zIndex: 2,
+                                                            marginBottom: '8px'
+                                                        }}>
+                                                            {(stepStatus === 'completed' || (stepStatus === 'active' && app.status === 'Final Selected')) ? <HiOutlineCheckCircle size={18} /> :
+                                                                stepStatus === 'rejected' ? <HiOutlineXCircle size={18} /> :
+                                                                    <span style={{ fontSize: '12px', fontWeight: 900 }}>{idx + 1}</span>}
+                                                        </div>
+                                                        <Typography variant="caption" sx={{
                                                             fontWeight: 900,
-                                                            fontSize: '0.65rem',
                                                             textTransform: 'uppercase',
-                                                            borderRadius: '6px',
-                                                            px: 0.5,
-                                                            height: 22
-                                                        }}
-                                                    />
-                                                    <Typography variant="caption" sx={{ color: 'text.disabled', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1 }}>
-                                                        Applied {new Date(app.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                                                    </Typography>
-                                                </Stack>
-
-                                                <Typography variant="h5" fontWeight={900} sx={{ letterSpacing: '-0.02em', mb: 0.5, color: 'text.primary', lineHeight: 1.2 }}>
-                                                    {app.job?.title}
-                                                </Typography>
-                                                <Typography variant="subtitle1" fontWeight={700} color="primary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                    {app.job?.companyId?.companyName}
-                                                </Typography>
-                                            </Box>
-
-                                            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-                                                <Box sx={{ p: 1.5, bgcolor: 'grey.50', borderRadius: 3, border: '1px solid #f0f0f0' }}>
-                                                    <Typography variant="caption" fontWeight={800} color="text.disabled" sx={{ display: 'block', mb: 0.5, textTransform: 'uppercase', fontSize: '0.6rem' }}>
-                                                        Location
-                                                    </Typography>
-                                                    <Stack direction="row" spacing={0.5} alignItems="center">
-                                                        <LocationIcon sx={{ fontSize: 14, color: 'primary.main' }} />
-                                                        <Typography variant="caption" fontWeight={800} color="text.primary" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                                            {app.job?.city}, {app.job?.state || 'India'}
+                                                            fontSize: '9px',
+                                                            color: stepStatus === 'pending' ? '#70757A' : '#202124',
+                                                            letterSpacing: '0.02em',
+                                                            textAlign: 'center',
+                                                            lineHeight: 1.1
+                                                        }}>
+                                                            {step.label}
                                                         </Typography>
-                                                    </Stack>
-                                                </Box>
-                                                <Box sx={{ p: 1.5, bgcolor: 'grey.50', borderRadius: 3, border: '1px solid #f0f0f0' }}>
-                                                    <Typography variant="caption" fontWeight={800} color="text.disabled" sx={{ display: 'block', mb: 0.5, textTransform: 'uppercase', fontSize: '0.6rem' }}>
-                                                        CTC Range
-                                                    </Typography>
-                                                    <Stack direction="row" spacing={0.5} alignItems="center">
-                                                        <RupeeIcon sx={{ fontSize: 14, color: 'success.main' }} />
-                                                        <Typography variant="caption" fontWeight={800} color="text.primary">
-                                                            {formatCTC(app.job?.salaryMin, app.job?.salaryMax)}
-                                                        </Typography>
-                                                    </Stack>
-                                                </Box>
-                                            </Box>
-                                        </Stack>
-                                    </Grid>
+                                                    </div>
+                                                );
+                                            })}
+                                            {/* Line */}
+                                            <div style={{
+                                                position: 'absolute',
+                                                top: '14px',
+                                                left: '10%',
+                                                right: '10%',
+                                                height: '2px',
+                                                backgroundColor: '#DADCE0',
+                                                zIndex: 0
+                                            }} />
+                                        </div>
+                                    </Box>
+                                </Box>
 
-                                    {/* Column 2: Live Progress Tracker */}
-                                    <Grid item xs={12} md={4.5}>
-                                        <Box sx={{ px: { md: 2 } }}>
-                                            <Typography variant="caption" fontWeight={900} color="text.disabled" sx={{ display: 'block', mb: 3, textTransform: 'uppercase', letterSpacing: 1.5, textAlign: 'center' }}>
-                                                Hiring Workflow
-                                            </Typography>
-                                            <Stepper
-                                                activeStep={getActiveStep(app.status)}
-                                                alternativeLabel
-                                                connector={<ColorlibConnector />}
-                                                sx={{
-                                                    '& .MuiStepLabel-label': {
-                                                        fontSize: '0.65rem',
-                                                        fontWeight: 900,
-                                                        textTransform: 'uppercase',
-                                                        mt: 1.5,
-                                                        color: 'text.disabled'
-                                                    },
-                                                    '& .MuiStepLabel-active .MuiStepLabel-label': { color: 'primary.main' },
-                                                    '& .MuiStepLabel-completed .MuiStepLabel-label': { color: 'success.main' }
-                                                }}
-                                            >
-                                                {STEPS.map((label, index) => {
-                                                    const currentActive = getActiveStep(app.status);
-                                                    const isRejected = isRejectedStatus(app.status) && currentActive === index;
-                                                    const isCompleted = currentActive > index;
-                                                    const isActive = currentActive === index && !isRejected;
-
-                                                    return (
-                                                        <Step key={label} completed={isCompleted}>
-                                                            <StepLabel
-                                                                error={isRejected}
-                                                                StepIconComponent={(props) => (
-                                                                    <ColorlibStepIcon {...props} error={isRejected} icon={index + 1} />
-                                                                )}
-                                                            >
-                                                                {label}
-                                                            </StepLabel>
-                                                        </Step>
-                                                    );
-                                                })}
-                                            </Stepper>
-                                        </Box>
-                                    </Grid>
-
-                                    {/* Column 3: Contextual Actions */}
-                                    <Grid item xs={12} md={3.5}>
-                                        <Stack spacing={1.5} sx={{ alignItems: 'stretch' }}>
-                                            {app.status === 'Interview Scheduled' && app.interviewRounds?.length > 0 ? (
-                                                <Box sx={{ width: '100%' }}>
-                                                    <Box sx={{ p: 2, bgcolor: alpha(theme.palette.secondary.main, 0.05), border: '1px solid', borderColor: 'secondary.light', borderRadius: 4 }}>
-                                                        <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1 }}>
-                                                            <Avatar sx={{ bgcolor: 'secondary.main', width: 30, height: 30 }}>
-                                                                <VideoIcon sx={{ fontSize: 16 }} />
-                                                            </Avatar>
-                                                            <Typography variant="caption" fontWeight={800} color="secondary.main" sx={{ textTransform: 'uppercase' }}>Interview Scheduled</Typography>
-                                                        </Stack>
-                                                        <Typography variant="body2" fontWeight={700} color="text.primary" sx={{ mb: 2 }}>
-                                                            {new Date(app.interviewRounds[app.interviewRounds.length - 1].scheduledAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
-                                                        </Typography>
-                                                        <Button
-                                                            fullWidth
-                                                            variant="contained"
-                                                            color="secondary"
-                                                            href={app.interviewRounds[app.interviewRounds.length - 1].meetLink}
-                                                            target="_blank"
-                                                            sx={{ borderRadius: 2.5, fontWeight: 800, textTransform: 'none', py: 1 }}
-                                                        >
-                                                            Join Interview
-                                                        </Button>
-                                                    </Box>
-                                                </Box>
-                                            ) : (
-                                                <Box sx={{ width: '100%' }}>
-                                                    {isRejectedStatus(app.status) ? (
-                                                        <Box lg={{ width: '100%' }} sx={{ p: 1.5, bgcolor: alpha(theme.palette.error.main, 0.04), borderRadius: 4, border: '1px solid', borderColor: alpha(theme.palette.error.main, 0.1), minHeight: '80px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                                                            <Typography variant="subtitle2" fontWeight={900} color="error.main" sx={{ display: 'block', mb: 0.5, textTransform: 'uppercase', fontSize: '0.65rem', letterSpacing: 0.5 }}>Application Rejected</Typography>
-                                                            <Typography variant="caption" fontWeight={700} color="text.primary" sx={{ lineHeight: 1.3 }}>
-                                                                We regret to inform you that your application was not selected.
+                                {/* Section 3: Status & Action */}
+                                <Box sx={{ flex: 2, minWidth: 0 }}>
+                                    <Box sx={{
+                                        p: 1.5,
+                                        borderRadius: '8px',
+                                        bgcolor: '#F8F9FA',
+                                        border: '1px solid #E0E4E8',
+                                        height: '90px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        boxSizing: 'border-box',
+                                        width: '100%',
+                                        overflow: 'hidden'
+                                    }}>
+                                        <Box sx={{ flex: 1, minWidth: 0, mr: 2 }}>
+                                            {app.status === 'Interview Scheduled' ? (
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#9333EA', minWidth: 0 }}>
+                                                    <HiOutlineVideoCamera size={20} style={{ flexShrink: 0 }} />
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
+                                                        <span style={{ fontSize: '11px', fontWeight: 1000, textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Interview</span>
+                                                        <span style={{ color: '#9333EA', opacity: 0.5 }}>|</span>
+                                                        <Tooltip title={`Round ${app.interviewRounds.length} Interview: ${new Date(app.interviewRounds?.[app.interviewRounds.length - 1]?.scheduledAt).toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}`} arrow placement="top">
+                                                            <Typography variant="body2" fontWeight={800} sx={{ color: '#202124', fontSize: '11px', whiteSpace: 'nowrap', cursor: 'help' }}>
+                                                                R{app.interviewRounds.length} • {new Date(app.interviewRounds?.[app.interviewRounds.length - 1]?.scheduledAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}
                                                             </Typography>
-                                                        </Box>
-                                                    ) : app.status === 'Final Selected' ? (
-                                                        <Box sx={{ p: 2, bgcolor: alpha(theme.palette.success.main, 0.04), borderRadius: 4, border: '1px solid', borderColor: alpha(theme.palette.success.main, 0.1), minHeight: '100px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                                                            <Typography variant="subtitle2" fontWeight={800} color="success.main" sx={{ display: 'block' }}>Congratulations!</Typography>
-                                                            <Typography variant="caption" fontWeight={700} color="text.primary">Offer documents sent to email.</Typography>
-                                                        </Box>
-                                                    ) : (
-                                                        <Box sx={{ p: 2, bgcolor: alpha(theme.palette.primary.main, 0.03), borderRadius: 5, border: '1px solid', borderColor: alpha(theme.palette.primary.main, 0.1), minHeight: '110px', display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%' }}>
-                                                            <Typography variant="caption" fontWeight={950} color="primary.main" sx={{ display: 'block', textTransform: 'uppercase', mb: 1, letterSpacing: 1 }}>Current Status</Typography>
-                                                            <Typography variant="body2" fontWeight={800} color="text.primary">Awaiting screening results</Typography>
-                                                            <Typography variant="caption" fontWeight={600} color="text.secondary" sx={{ mt: 0.5 }}>The hiring team is reviewing your profile</Typography>
-                                                        </Box>
-                                                    )}
-                                                </Box>
+                                                        </Tooltip>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                                                    <div style={{ flexShrink: 0, color: app.status.includes('Rejected') ? '#D93025' : '#1E8E3E' }}>
+                                                        {app.status.includes('Rejected') ? <HiOutlineXCircle size={20} /> :
+                                                         app.status === 'Final Selected' ? <HiOutlineCheckCircle size={20} /> :
+                                                         <HiOutlineClock size={20} color="#5F6368" />}
+                                                    </div>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
+                                                        <span style={{
+                                                            fontSize: '11px',
+                                                            fontWeight: 1000,
+                                                            textTransform: 'uppercase',
+                                                            whiteSpace: 'nowrap',
+                                                            color: app.status.includes('Rejected') ? '#D93025' : app.status === 'Final Selected' ? '#1E8E3E' : '#202124'
+                                                        }}>
+                                                            {STATUS_CONFIG[app.status]?.label || 'Applied'}
+                                                        </span>
+                                                        <span style={{ color: '#DADCE0' }}>|</span>
+                                                        <Tooltip title={getStatusMessage(app.status)} arrow placement="top">
+                                                            <Typography variant="caption" fontWeight={800} sx={{ color: '#5F6368', fontSize: '10.5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', cursor: 'help' }}>
+                                                                {getStatusMessage(app.status)}
+                                                            </Typography>
+                                                        </Tooltip>
+                                                    </div>
+                                                </div>
                                             )}
-                                        </Stack>
-                                        <Box sx={{ mt: 1.5 }}>
+                                        </Box>
+
+                                        <Stack direction="row" spacing={1.5} sx={{ ml: 3 }}>
+                                            {app.status === 'Interview Scheduled' && (
+                                                <Button
+                                                    href={app.interviewRounds?.[app.interviewRounds.length - 1]?.meetLink}
+                                                    target="_blank"
+                                                    variant="contained"
+                                                    size="medium"
+                                                    sx={{ bgcolor: '#1A73E8', borderRadius: '6px', fontWeight: 1000, textTransform: 'none', fontSize: '13px', px: 4, py: 1 }}
+                                                >
+                                                    Join Meet
+                                                </Button>
+                                            )}
                                             <Button
                                                 component={Link}
                                                 to={`/jobs/${app.job?._id}`}
                                                 variant="outlined"
-                                                fullWidth
-                                                sx={{
-                                                    borderRadius: 2.5,
-                                                    fontWeight: 800,
-                                                    textTransform: 'none',
-                                                    py: 1,
-                                                    borderColor: 'divider',
-                                                    color: 'text.primary',
-                                                    '&:hover': {
-                                                        bgcolor: 'grey.50',
-                                                        borderColor: 'text.primary'
-                                                    }
-                                                }}
+                                                size="medium"
+                                                sx={{ borderRadius: '6px', textTransform: 'none', fontWeight: 900, fontSize: '13px', color: '#202124', borderColor: '#DADCE0', px: 3, py: 1, '&:hover': { bgcolor: '#FFF', borderColor: '#202124' } }}
                                             >
-                                                Full Job Details
+                                                Details
                                             </Button>
-                                        </Box>
-                                    </Grid>
-                                </Grid>
+                                        </Stack>
+                                    </Box>
+                                </Box>
                             </Box>
-
-                            {/* Bottom texture removed */}
-                        </Card>
+                        </Box>
                     ))}
                 </Stack>
             )}
 
-            <Box sx={{ mt: 8, textAlign: 'center' }}>
-                <Typography variant="caption" fontWeight={700} color="text.disabled" sx={{ textTransform: 'uppercase', letterSpacing: 2 }}>
-                    Your Privacy Matters. Your data is secured with industry standards.
-                </Typography>
-            </Box>
+            {applications.length > itemsPerPage && (
+                <Box sx={{ mt: 6, display: 'flex', justifyContent: 'center' }}>
+                    <Pagination
+                        count={Math.ceil(applications.length / itemsPerPage)}
+                        page={page}
+                        onChange={(e, v) => {
+                            setPage(v);
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        sx={{
+                            '& .MuiPaginationItem-root': {
+                                fontWeight: 800,
+                                borderRadius: '4px',
+                                border: '1px solid #E0E4E8',
+                                '&.Mui-selected': {
+                                    bgcolor: '#000',
+                                    color: '#FFF',
+                                    borderColor: '#000',
+                                    '&:hover': { bgcolor: '#222' }
+                                }
+                            }
+                        }}
+                    />
+                </Box>
+            )}
         </Container>
     );
 };

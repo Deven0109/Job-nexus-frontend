@@ -65,8 +65,8 @@ const RecruiterApplicationsPage = () => {
     });
 
     const fetchApplications = async (silent = false) => {
-        if (!silent) setLoading(true);
-        else setIsRefreshing(true);
+        if (!silent && applications.length === 0) setLoading(true);
+        else if (silent) setIsRefreshing(true);
 
         try {
             const res = await getJobApplications(jobId);
@@ -100,16 +100,18 @@ const RecruiterApplicationsPage = () => {
         fetchApplications();
     }, [jobId]);
 
-    const handleStatusUpdate = async (id, status) => {
+    const handleStatusUpdate = async (id, status, successMsg = 'Updated') => {
         const loadingToast = toast.loading('Syncing...');
         try {
             await updateApplicationStatus(id, status);
             toast.dismiss(loadingToast);
-            toast.success(`Updated`);
+            toast.success(successMsg);
+            
+            // Critical: Fetch fresh data to update UI state
             fetchApplications(true);
         } catch (error) {
             toast.dismiss(loadingToast);
-            toast.error('Failed');
+            toast.error('Failed to update status');
         }
     };
 
@@ -138,14 +140,14 @@ const RecruiterApplicationsPage = () => {
                 </Box>
             </div>
 
-            <Box sx={{ bgcolor: 'white', p: 1, borderRadius: '24px', border: '1px solid', borderColor: 'divider', mb: 2 }}>
-                <Skeleton variant="rectangular" width="100%" height={48} sx={{ borderRadius: '16px' }} />
+            <Box sx={{ bgcolor: 'transparent', p: 1, borderRadius: 0.5, border: '1px solid', borderColor: 'divider', mb: 2 }}>
+                <Skeleton variant="rectangular" width="100%" height={48} sx={{ borderRadius: 0.5 }} />
             </Box>
 
             <div className="space-y-3">
                 {[1, 2, 3, 4, 5].map(i => (
-                    <div key={i} className="bg-white rounded-[24px] border border-slate-200 p-4 flex items-center gap-6">
-                        <Skeleton variant="rounded" width={56} height={56} sx={{ borderRadius: '16px' }} />
+                    <div key={i} className="bg-transparent rounded border border-slate-200 p-4 flex items-center gap-6">
+                        <Skeleton variant="rounded" width={56} height={56} sx={{ borderRadius: 0.5 }} />
                         <Box sx={{ flex: 1 }}>
                             <Skeleton variant="text" width="40%" height={24} sx={{ borderRadius: 1 }} />
                             <Skeleton variant="text" width="25%" height={20} sx={{ borderRadius: 1, mt: 1 }} />
@@ -155,8 +157,8 @@ const RecruiterApplicationsPage = () => {
                             <Skeleton variant="text" width="60%" height={16} sx={{ borderRadius: 1, mt: 1 }} />
                         </Box>
                         <Stack direction="row" spacing={2}>
-                            <Skeleton variant="rounded" width={120} height={40} sx={{ borderRadius: '12px' }} />
-                            <Skeleton variant="rounded" width={100} height={40} sx={{ borderRadius: '12px' }} />
+                            <Skeleton variant="rounded" width={120} height={40} sx={{ borderRadius: 0.5 }} />
+                            <Skeleton variant="rounded" width={100} height={40} sx={{ borderRadius: 0.5 }} />
                         </Stack>
                     </div>
                 ))}
@@ -171,7 +173,7 @@ const RecruiterApplicationsPage = () => {
                 <div className="flex items-center gap-3">
                     <button
                         onClick={() => navigate('/recruiter/manage-jobs')}
-                        className="p-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm"
+                        className="p-2.5 bg-transparent border border-slate-200 rounded hover:bg-slate-50 transition-colors shadow-sm"
                     >
                         <HiOutlineArrowLeft className="w-5 h-5 text-slate-600" />
                     </button>
@@ -191,7 +193,7 @@ const RecruiterApplicationsPage = () => {
                     )}
                     <Link
                         to={`/recruiter/job/${jobId}/pipeline`}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white text-[11px] font-black uppercase tracking-widest rounded-xl hover:bg-emerald-700 shadow-md shadow-emerald-100 transition-all active:scale-95"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white text-[11px] font-black uppercase tracking-widest rounded hover:bg-emerald-700 shadow-md shadow-emerald-100 transition-all active:scale-95"
                     >
                         <HiOutlineCalendar className="w-4 h-4" />
                         Pipeline
@@ -200,7 +202,7 @@ const RecruiterApplicationsPage = () => {
             </div>
 
             {/* Combined Filter/Search Bar */}
-            <div className="bg-white p-2 rounded-[24px] border border-slate-200 shadow-sm flex flex-col sm:flex-row gap-2 mb-4">
+            <div className="bg-transparent p-2 rounded border border-slate-200 shadow-sm flex flex-col sm:flex-row gap-2 mb-4">
                 <div className="flex-1 relative">
                     <HiOutlineMagnifyingGlass className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <input
@@ -208,14 +210,14 @@ const RecruiterApplicationsPage = () => {
                         value={searchQuery}
                         onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
                         placeholder="Search by candidate name..."
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border-none bg-slate-50 focus:bg-white text-xs font-bold transition-all outline-none"
+                        className="w-full pl-10 pr-4 py-2.5 rounded border border-transparent focus:border-black bg-slate-50 focus:bg-white text-xs font-bold transition-all outline-none"
                     />
                 </div>
                 <div className="relative">
                     <select
                         value={statusFilter}
                         onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-                        className="pl-4 pr-10 py-2.5 rounded-xl bg-slate-50 border-none text-[10px] font-black text-slate-600 appearance-none cursor-pointer outline-none w-full sm:w-44"
+                        className="pl-4 pr-10 py-2.5 rounded bg-slate-50 border-none text-[10px] font-black text-slate-600 appearance-none cursor-pointer outline-none w-full sm:w-44"
                     >
                         <option value="all">ALL STAGES</option>
                         <option value="Applied">NEW APPLIED</option>
@@ -232,7 +234,7 @@ const RecruiterApplicationsPage = () => {
             {/* List View */}
             <div className="space-y-3">
                 {paginatedApps.length === 0 ? (
-                    <div className="bg-white border border-dashed border-slate-200 rounded-[32px] p-16 text-center">
+                    <div className="bg-transparent border border-dashed border-slate-200 rounded p-16 text-center">
                         <HiOutlineUser className="w-8 h-8 text-slate-300 mx-auto mb-3" />
                         <h3 className="text-base font-black text-dark-900">No data found</h3>
                     </div>
@@ -240,26 +242,38 @@ const RecruiterApplicationsPage = () => {
                     paginatedApps.map((app) => (
                         <div
                             key={app._id}
-                            className="bg-white rounded-[24px] border border-slate-200 p-4 lg:p-5 flex flex-col lg:flex-row lg:items-center gap-6 hover:border-primary-300 hover:bg-slate-50 transition-all duration-200 shadow-sm"
+                            className="bg-transparent rounded border border-slate-200 p-4 lg:p-5 flex flex-col lg:flex-row lg:items-center gap-6 hover:border-primary-300 hover:bg-slate-50 transition-all duration-200 shadow-sm"
                         >
                             {/* Profile Section */}
                             <div className="flex items-center gap-4 min-w-[260px]">
-                                <div className="w-14 h-14 rounded-2xl overflow-hidden bg-white border-2 border-slate-100 flex items-center justify-center shrink-0 shadow-sm">
-                                    {app.candidate?.avatar ? (
+                                <div className="w-14 h-14 rounded-full overflow-hidden bg-slate-50 border-2 border-slate-100 flex items-center justify-center shrink-0 shadow-sm">
+                                    {app.candidate?.avatar && (
                                         <img
-                                            src={app.candidate.avatar.startsWith('http') ? app.candidate.avatar : `${BASE_URL}${app.candidate.avatar}`}
-                                            alt=""
+                                            src={
+                                                app.candidate.avatar.startsWith('http') ||
+                                                app.candidate.avatar.startsWith('data:')
+                                                    ? app.candidate.avatar
+                                                    : `${BASE_URL}${app.candidate.avatar}`
+                                            }
+                                            alt={`${app.candidate.firstName || 'Candidate'} avatar`}
                                             className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                                e.currentTarget.onerror = null;
+                                                e.currentTarget.style.display = 'none';
+                                            }}
                                         />
-                                    ) : (
-                                        <span className="text-primary-600 font-black text-xl">{app.candidate?.firstName?.[0]}</span>
+                                    )}
+                                    {!app.candidate?.avatar && (
+                                        <span className="text-primary-600 font-black text-xl">
+                                            {app.candidate?.firstName?.[0]}
+                                        </span>
                                     )}
                                 </div>
                                 <div className="min-w-0">
                                     <h3 className="text-base font-black text-dark-900 truncate tracking-tight">
                                         {app.candidate?.firstName} {app.candidate?.lastName}
                                     </h3>
-                                    <div className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-black uppercase border mt-1.5 tracking-wider ${STATUS_THEMES[app.status]?.bg} ${STATUS_THEMES[app.status]?.text} ${STATUS_THEMES[app.status]?.border}`}>
+                                    <div className={`inline-flex items-center px-3 py-1 rounded text-xs font-black uppercase border mt-1.5 tracking-wider ${STATUS_THEMES[app.status]?.bg} ${STATUS_THEMES[app.status]?.text} ${STATUS_THEMES[app.status]?.border}`}>
                                         {STATUS_THEMES[app.status]?.label || app.status}
                                     </div>
                                 </div>
@@ -280,8 +294,8 @@ const RecruiterApplicationsPage = () => {
                             {/* Live Interview Meeting Box */}
                             <div className="flex-1 lg:max-w-[380px]">
                                 {app.status === 'Interview Scheduled' && app.interviewRounds?.length > 0 && (
-                                    <div className="bg-purple-600/5 rounded-[22px] p-2.5 pr-4 border border-purple-100 flex items-center gap-4 group/box transition-all duration-300 hover:bg-purple-600/10">
-                                        <div className="w-12 h-12 rounded-2xl bg-purple-600 flex items-center justify-center text-white shadow-lg shadow-purple-200 shrink-0 group-hover/box:scale-110 transition-transform">
+                                    <div className="bg-purple-600/5 rounded p-2.5 pr-4 border border-purple-100 flex items-center gap-4 group/box transition-all duration-300 hover:bg-purple-600/10">
+                                        <div className="w-12 h-12 rounded bg-purple-600 flex items-center justify-center text-white shadow-lg shadow-purple-200 shrink-0 group-hover/box:scale-110 transition-transform">
                                             <HiOutlineVideoCamera className="w-6 h-6" />
                                         </div>
                                         <div className="flex-1 min-w-0">
@@ -296,7 +310,7 @@ const RecruiterApplicationsPage = () => {
                                             href={app.interviewRounds[app.interviewRounds.length - 1].meetLink}
                                             target="_blank"
                                             rel="noreferrer"
-                                            className="px-5 py-2.5 bg-purple-600 text-white text-[11px] font-black uppercase rounded-xl hover:bg-purple-700 transition-all shadow-md shadow-purple-200 active:scale-95 whitespace-nowrap"
+                                            className="px-5 py-2.5 bg-purple-600 text-white text-[11px] font-black uppercase rounded hover:bg-purple-700 transition-all shadow-md shadow-purple-200 active:scale-95 whitespace-nowrap"
                                         >
                                             Join Now
                                         </a>
@@ -310,15 +324,15 @@ const RecruiterApplicationsPage = () => {
                                     href={(app.resumeUrl || app.candidateProfile?.resumeUrl)?.startsWith('http') ? (app.resumeUrl || app.candidateProfile?.resumeUrl) : `${BASE_URL}${app.resumeUrl || app.candidateProfile?.resumeUrl}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="px-5 py-3 bg-blue-600 text-white text-xs font-black uppercase rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all active:scale-95"
+                                    className="px-5 py-3 bg-blue-600 text-white text-xs font-black uppercase rounded hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all active:scale-95"
                                 >
                                     View Resume
                                 </a>
 
                                 {app.status === 'Applied' && (
                                     <button
-                                        onClick={() => handleStatusUpdate(app._id, 'review')}
-                                        className="px-5 py-3 bg-amber-500 text-white text-xs font-black uppercase rounded-xl hover:bg-amber-600 shadow-lg shadow-amber-100 transition-all active:scale-95"
+                                        onClick={() => handleStatusUpdate(app._id, 'review', 'Candidate move to Review')}
+                                        className="px-5 py-3 bg-amber-500 text-white text-xs font-black uppercase rounded hover:bg-amber-600 shadow-lg shadow-amber-100 transition-all active:scale-95"
                                     >
                                         Review
                                     </button>
@@ -326,8 +340,8 @@ const RecruiterApplicationsPage = () => {
 
                                 {app.status === 'Under Review' && (
                                     <button
-                                        onClick={() => handleStatusUpdate(app._id, 'shortlist')}
-                                        className="px-5 py-3 bg-indigo-600 text-white text-xs font-black uppercase rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all active:scale-95"
+                                        onClick={() => handleStatusUpdate(app._id, 'shortlist', 'Shortlist Complete')}
+                                        className="px-5 py-3 bg-indigo-600 text-white text-xs font-black uppercase rounded hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all active:scale-95"
                                     >
                                         Shortlist
                                     </button>
@@ -336,7 +350,7 @@ const RecruiterApplicationsPage = () => {
                                 {(app.status === 'Employer Shortlisted' || app.status === 'Selected Next Round') && (
                                     <button
                                         onClick={() => setIsScheduling(app._id)}
-                                        className="px-5 py-3 bg-teal-600 text-white text-xs font-black uppercase rounded-xl hover:bg-teal-700 shadow-lg shadow-teal-100 transition-all active:scale-95"
+                                        className="px-5 py-3 bg-teal-600 text-white text-xs font-black uppercase rounded hover:bg-teal-700 shadow-lg shadow-teal-100 transition-all active:scale-95"
                                     >
                                         Schedule
                                     </button>
@@ -346,13 +360,13 @@ const RecruiterApplicationsPage = () => {
                                     <div className="flex items-center gap-2">
                                         <button
                                             onClick={() => handleStatusUpdate(app._id, 'final-select')}
-                                            className="px-5 py-3 bg-green-600 text-white text-xs font-black uppercase rounded-xl hover:bg-green-700 shadow-lg shadow-green-100 transition-all active:scale-95"
+                                            className="px-5 py-3 bg-green-600 text-white text-xs font-black uppercase rounded hover:bg-green-700 shadow-lg shadow-green-100 transition-all active:scale-95"
                                         >
                                             Hire
                                         </button>
                                         <button
                                             onClick={() => setIsScheduling(app._id)}
-                                            className="p-3 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-all shadow-sm border border-slate-200"
+                                            className="p-3 bg-slate-100 text-slate-600 rounded hover:bg-slate-200 transition-all shadow-sm border border-slate-200"
                                             title="Reschedule"
                                         >
                                             <HiOutlineCalendar className="w-5 h-5" />
@@ -388,10 +402,10 @@ const RecruiterApplicationsPage = () => {
             {/* True Full-Screen Interview Modal */}
             {isScheduling && (
                 <div className="fixed inset-0 z-[200] flex items-center justify-center bg-dark-900/60 backdrop-blur-sm p-4">
-                    <div className="bg-white rounded-[40px] w-full max-w-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+                    <div className="bg-white rounded w-full max-w-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
                         <div className="px-10 py-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
                             <h2 className="text-xl font-black text-dark-900 uppercase tracking-widest">Schedule Setup</h2>
-                            <button onClick={() => setIsScheduling(null)} className="p-2 text-slate-400 hover:text-red-500 rounded-xl transition-all">
+                            <button onClick={() => setIsScheduling(null)} className="p-2 text-slate-400 hover:text-red-500 rounded transition-all">
                                 <HiOutlineXMark className="w-6 h-6" />
                             </button>
                         </div>
@@ -399,24 +413,24 @@ const RecruiterApplicationsPage = () => {
                             <div className="flex gap-6">
                                 <div className="flex-1 space-y-2">
                                     <label className="text-[11px] font-black text-slate-400 uppercase ml-1">Round Number</label>
-                                    <input type="number" required value={interviewData.roundNumber} onChange={(e) => setInterviewData({ ...interviewData, roundNumber: e.target.value })} className="w-full px-5 py-4 rounded-2xl bg-slate-50 border border-slate-100 focus:bg-white focus:ring-2 focus:ring-primary-500/10 font-bold text-sm transition-all" />
+                                    <input type="number" required value={interviewData.roundNumber} onChange={(e) => setInterviewData({ ...interviewData, roundNumber: e.target.value })} className="w-full px-5 py-4 rounded bg-slate-50 border border-slate-100 focus:bg-white focus:ring-2 focus:ring-primary-500/10 font-bold text-sm transition-all" />
                                 </div>
                                 <div className="flex-1 space-y-2">
                                     <label className="text-[11px] font-black text-slate-400 uppercase ml-1">Room Code</label>
-                                    <input type="text" required placeholder="abc-def" value={interviewData.meetCode} onChange={(e) => setInterviewData({ ...interviewData, meetCode: e.target.value })} className="w-full px-5 py-4 rounded-2xl bg-slate-50 border border-slate-100 focus:bg-white focus:ring-2 focus:ring-primary-500/10 font-bold text-sm transition-all" />
+                                    <input type="text" required placeholder="abc-def" value={interviewData.meetCode} onChange={(e) => setInterviewData({ ...interviewData, meetCode: e.target.value })} className="w-full px-5 py-4 rounded bg-slate-50 border border-slate-100 focus:bg-white focus:ring-2 focus:ring-primary-500/10 font-bold text-sm transition-all" />
                                 </div>
                             </div>
                             <div className="space-y-2">
                                 <label className="text-[11px] font-black text-slate-400 uppercase ml-1">Meeting URL</label>
-                                <input type="url" required placeholder="https://meet.google.com/..." value={interviewData.meetLink} onChange={(e) => setInterviewData({ ...interviewData, meetLink: e.target.value })} className="w-full px-5 py-4 rounded-2xl bg-slate-50 border border-slate-100 focus:bg-white focus:ring-2 focus:ring-primary-500/10 font-bold text-sm transition-all" />
+                                <input type="url" required placeholder="https://meet.google.com/..." value={interviewData.meetLink} onChange={(e) => setInterviewData({ ...interviewData, meetLink: e.target.value })} className="w-full px-5 py-4 rounded bg-slate-50 border border-slate-100 focus:bg-white focus:ring-2 focus:ring-primary-500/10 font-bold text-sm transition-all" />
                             </div>
                             <div className="space-y-2">
                                 <label className="text-[11px] font-black text-slate-400 uppercase ml-1">Date & Time</label>
-                                <input type="datetime-local" required value={interviewData.scheduledAt} onChange={(e) => setInterviewData({ ...interviewData, scheduledAt: e.target.value })} className="w-full px-5 py-4 rounded-2xl bg-slate-50 border border-slate-100 focus:bg-white focus:ring-2 focus:ring-primary-500/10 font-bold text-sm transition-all" />
+                                <input type="datetime-local" required value={interviewData.scheduledAt} onChange={(e) => setInterviewData({ ...interviewData, scheduledAt: e.target.value })} className="w-full px-5 py-4 rounded bg-slate-50 border border-slate-100 focus:bg-white focus:ring-2 focus:ring-primary-500/10 font-bold text-sm transition-all" />
                             </div>
                             <div className="flex gap-4 pt-4">
-                                <button type="button" onClick={() => setIsScheduling(null)} className="flex-1 py-4 text-sm font-black text-slate-500 rounded-2xl hover:bg-slate-50 transition-all uppercase tracking-widest">Cancel</button>
-                                <button type="submit" disabled={isSubmitting} className="flex-[2] py-4 bg-primary-600 text-white text-sm font-black uppercase tracking-widest rounded-2xl hover:bg-primary-700 shadow-xl shadow-primary-200 transition-all active:scale-95 disabled:opacity-50">
+                                <button type="button" onClick={() => setIsScheduling(null)} className="flex-1 py-4 text-sm font-black text-slate-500 rounded hover:bg-slate-50 transition-all uppercase tracking-widest">Cancel</button>
+                                <button type="submit" disabled={isSubmitting} className="flex-[2] py-4 bg-primary-600 text-white text-sm font-black uppercase tracking-widest rounded hover:bg-primary-700 shadow-xl shadow-primary-200 transition-all active:scale-95 disabled:opacity-50">
                                     {isSubmitting ? 'Wait...' : 'Confirm Schedule'}
                                 </button>
                             </div>

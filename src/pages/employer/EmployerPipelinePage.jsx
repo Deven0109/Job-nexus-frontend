@@ -122,14 +122,26 @@ const EmployerPipelinePage = () => {
                                         <div className={`absolute top-0 left-0 w-1 h-full ${col.dot}`}></div>
                                         <div className="flex items-start gap-4 mb-3 pl-2">
                                             <div className="w-12 h-12 bg-slate-50 rounded-full overflow-hidden border border-slate-100 flex items-center justify-center shrink-0">
-                                                {app.candidate?.avatar ? (
+                                                {app.candidate?.avatar && (
                                                     <img
-                                                        src={app.candidate.avatar.startsWith('http') ? app.candidate.avatar : `${BASE_URL}${app.candidate.avatar}`}
+                                                        src={
+                                                            app.candidate.avatar.startsWith('http') ||
+                                                            app.candidate.avatar.startsWith('data:')
+                                                                ? app.candidate.avatar
+                                                                : `${BASE_URL}${app.candidate.avatar}`
+                                                        }
                                                         className="w-full h-full object-cover"
                                                         alt="avatar"
+                                                        onError={(e) => {
+                                                            e.currentTarget.onerror = null;
+                                                            e.currentTarget.style.display = 'none';
+                                                        }}
                                                     />
-                                                ) : (
-                                                    <span className="text-lg font-black text-slate-400 uppercase">{app.candidate?.firstName?.[0]}</span>
+                                                )}
+                                                {!app.candidate?.avatar && (
+                                                    <span className="text-lg font-black text-slate-400 uppercase">
+                                                        {app.candidate?.firstName?.[0]}
+                                                    </span>
                                                 )}
                                             </div>
 

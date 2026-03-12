@@ -16,15 +16,20 @@ const CURRENCY_SYMBOLS = {
     INR: '₹',
     EUR: '€',
     GBP: '£',
-    AED: 'AED '
+    AED: 'AED ',
+    CAD: 'C$',
+    AUD: 'A$',
+    SGD: 'S$',
+    SAR: 'SR ',
+    QAR: 'QR '
 };
-import { getPublicJobs } from '../../api/jobs.api';
+import { getPublicJobById } from '../../api/jobs.api';
 import { applyToJob } from '../../api/applications.api';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 
 const JobDetailPage = () => {
-    const { slug } = useParams();
+    const { id } = useParams();
     const navigate = useNavigate();
     const { user, isAuthenticated } = useAuth();
     const [job, setJob] = useState(null);
@@ -35,10 +40,9 @@ const JobDetailPage = () => {
         const fetchJob = async () => {
             setLoading(true);
             try {
-                // Assuming getPublicJobs can take a slug or we search for it
-                const res = await getPublicJobs({ slug });
-                if (res.success && res.data.jobs?.length > 0) {
-                    setJob(res.data.jobs[0]);
+                const res = await getPublicJobById(id);
+                if (res.success && res.data.job) {
+                    setJob(res.data.job);
                 } else {
                     toast.error('Job not found');
                     navigate('/jobs');
@@ -50,7 +54,7 @@ const JobDetailPage = () => {
             }
         };
         fetchJob();
-    }, [slug, navigate]);
+    }, [id, navigate]);
 
     const handleApply = async () => {
         if (!isAuthenticated) {
@@ -185,7 +189,27 @@ const JobDetailPage = () => {
 
                                 <div className="flex gap-4">
                                     <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
+                                        <HiOutlineMapPin className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Category</p>
+                                        <p className="text-sm font-bold text-slate-700">{job.category}</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-4">
+                                    <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
                                         <HiOutlineUser className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Vacancies</p>
+                                        <p className="text-sm font-bold text-slate-700">{job.vacancies} Positions</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-4">
+                                    <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
+                                        <HiOutlineBriefcase className="w-6 h-6" />
                                     </div>
                                     <div>
                                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Experience</p>

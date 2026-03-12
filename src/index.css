@@ -87,10 +87,10 @@
     --shadow-navbar: 0 1px 3px rgba(0, 0, 0, 0.08);
 
     /* Border Radius */
-    --radius-card: 12px;
-    --radius-button: 8px;
-    --radius-input: 8px;
-    --radius-badge: 6px;
+    --radius-card: 4px;
+    --radius-button: 4px;
+    --radius-input: 4px;
+    --radius-badge: 2px;
     --radius-full: 9999px;
 }
 
@@ -368,6 +368,7 @@
     .line-clamp-2 {
         display: -webkit-box;
         -webkit-line-clamp: 2;
+        line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
@@ -375,6 +376,7 @@
     .line-clamp-3 {
         display: -webkit-box;
         -webkit-line-clamp: 3;
+        line-clamp: 3;
         -webkit-box-orient: vertical;
         overflow: hidden;
     }

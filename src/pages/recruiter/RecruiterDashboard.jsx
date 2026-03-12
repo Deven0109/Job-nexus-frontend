@@ -42,7 +42,7 @@ const RecruiterDashboard = () => {
     const limit = 5; // Updated to 5 as per recent preference
 
     const fetchJobs = useCallback(async () => {
-        setLoading(true);
+        if (jobs.length === 0) setLoading(true);
         try {
             const params = { 
                 page, 
@@ -133,8 +133,8 @@ const RecruiterDashboard = () => {
 
             {/* Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-                <div className="bg-white p-5 rounded-lg shadow-[0_2px_10px_rgb(0,0,0,0.04)] border border-slate-100 flex items-center gap-4 transition-transform hover:-translate-y-1">
-                    <div className="w-12 h-12 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center shrink-0">
+                <div className="bg-white p-5 rounded-md shadow-[0_2px_10px_rgb(0,0,0,0.04)] border border-slate-100 flex items-center gap-4 transition-transform hover:-translate-y-1">
+                    <div className="w-12 h-12 rounded-md bg-indigo-50 border border-indigo-100 flex items-center justify-center shrink-0">
                         <HiOutlineBriefcase className="w-6 h-6 text-indigo-600" />
                     </div>
                     <div>
@@ -142,8 +142,8 @@ const RecruiterDashboard = () => {
                         <p className="text-2xl font-black text-dark-900 leading-none">{stats.total}</p>
                     </div>
                 </div>
-                <div className="bg-white p-5 rounded-lg shadow-[0_2px_10px_rgb(0,0,0,0.04)] border border-slate-100 flex items-center gap-4 transition-transform hover:-translate-y-1">
-                    <div className="w-12 h-12 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
+                <div className="bg-white p-5 rounded-md shadow-[0_2px_10px_rgb(0,0,0,0.04)] border border-slate-100 flex items-center gap-4 transition-transform hover:-translate-y-1">
+                    <div className="w-12 h-12 rounded-md bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
                         <HiOutlineBolt className="w-6 h-6 text-emerald-600" />
                     </div>
                     <div>
@@ -154,7 +154,7 @@ const RecruiterDashboard = () => {
             </div>
 
             {/* Filters */}
-            <div className="bg-white p-4 rounded-lg shadow-[0_2px_10px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col md:flex-row gap-4">
+            <div className="bg-white p-4 rounded-md shadow-[0_2px_10px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col md:flex-row gap-4">
                 <div className="flex-1 relative">
                     <HiOutlineMagnifyingGlass className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                     <input
@@ -162,7 +162,7 @@ const RecruiterDashboard = () => {
                         value={searchQuery}
                         onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
                         placeholder="Search by title, city or location..."
-                        className="w-full pl-11 pr-4 py-3 rounded-lg border border-slate-200 text-sm font-medium text-slate-800 placeholder-slate-400 focus:border-dark-900 focus:ring-1 focus:ring-dark-900 bg-slate-50 focus:bg-white transition-all outline-none"
+                        className="w-full pl-11 pr-4 py-3 rounded-md border border-slate-200 text-sm font-medium text-slate-800 placeholder-slate-400 focus:border-dark-900 focus:ring-1 focus:ring-dark-900 bg-slate-50 focus:bg-white transition-all outline-none"
                     />
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">
@@ -171,7 +171,7 @@ const RecruiterDashboard = () => {
                         <select
                             value={statusFilter}
                             onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-                            className="pl-9 pr-8 py-3 rounded-lg border border-slate-200 text-sm font-semibold text-slate-700 bg-slate-50 focus:bg-white focus:border-dark-900 focus:ring-1 focus:ring-dark-900 outline-none appearance-none cursor-pointer min-w-[140px] transition-all"
+                            className="pl-9 pr-8 py-3 rounded-md border border-slate-200 text-sm font-semibold text-slate-700 bg-slate-50 focus:bg-white focus:border-dark-900 focus:ring-1 focus:ring-dark-900 outline-none appearance-none cursor-pointer min-w-[140px] transition-all"
                         >
                             <option value="all">All Status</option>
                             <option value="active">Active</option>
@@ -183,7 +183,7 @@ const RecruiterDashboard = () => {
                         <select
                             value={sortBy}
                             onChange={(e) => { setSortBy(e.target.value); setPage(1); }}
-                            className="pl-9 pr-8 py-3 rounded-lg border border-slate-200 text-sm font-semibold text-slate-700 bg-slate-50 focus:bg-white focus:border-dark-900 focus:ring-1 focus:ring-dark-900 outline-none appearance-none cursor-pointer min-w-[140px] transition-all"
+                            className="pl-9 pr-8 py-3 rounded-md border border-slate-200 text-sm font-semibold text-slate-700 bg-slate-50 focus:bg-white focus:border-dark-900 focus:ring-1 focus:ring-dark-900 outline-none appearance-none cursor-pointer min-w-[140px] transition-all"
                         >
                             <option value="latest">Latest First</option>
                             <option value="oldest">Oldest First</option>
@@ -196,7 +196,7 @@ const RecruiterDashboard = () => {
             <Stack spacing={1.5}>
                 {loading ? (
                     Array(limit).fill(0).map((_, i) => (
-                        <Paper key={i} elevation={0} sx={{ p: 2.5, borderRadius: 2, border: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', gap: 3 }}>
+                        <Paper key={i} elevation={0} sx={{ p: 2.5, borderRadius: 1, border: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', gap: 3 }}>
                             <Skeleton variant="circular" width={40} height={40} />
                             <Box sx={{ flex: 1 }}>
                                 <Skeleton variant="text" width="30%" height={24} />
@@ -205,7 +205,7 @@ const RecruiterDashboard = () => {
                         </Paper>
                     ))
                 ) : paginatedJobs.length === 0 ? (
-                    <Paper sx={{ py: 12, textAlign: 'center', borderRadius: 2, border: '1px dashed', borderColor: 'divider', bgcolor: 'slate.50/50' }}>
+                    <Paper sx={{ py: 12, textAlign: 'center', borderRadius: 1, border: '1px dashed', borderColor: 'divider', bgcolor: 'slate.50/50' }}>
                         <HiOutlineBriefcase className="w-12 h-12 text-slate-300 mx-auto mb-3" />
                         <Typography variant="body1" fontWeight={800} color="text.secondary">No jobs found</Typography>
                     </Paper>
@@ -216,7 +216,7 @@ const RecruiterDashboard = () => {
                             elevation={0}
                             sx={{
                                 p: { xs: 2.5, sm: 3 },
-                                borderRadius: 2,
+                                borderRadius: 1,
                                 border: '1px solid',
                                 borderColor: 'divider',
                                 display: 'flex',
@@ -241,7 +241,7 @@ const RecruiterDashboard = () => {
                                         <HiOutlineMapPin className="w-3.5 h-3.5" />
                                         {job.location || job.city || 'Remote'}
                                     </Typography>
-                                    <Typography variant="caption" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, fontWeight: 800, color: 'primary.main', bgcolor: 'primary.50', px: 1, py: 0.2, borderRadius: 1, whiteSpace: 'nowrap' }}>
+                                    <Typography variant="caption" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, fontWeight: 800, color: 'primary.main', bgcolor: 'primary.50', px: 1, py: 0.2, borderRadius: 0.5, whiteSpace: 'nowrap' }}>
                                         {getCurrencySymbol(job.currency)}{job.salaryMin?.toLocaleString()} - {getCurrencySymbol(job.currency)}{job.salaryMax?.toLocaleString()}
                                     </Typography>
                                     <Typography variant="caption" sx={{ fontWeight: 800, color: 'text.disabled' }}>•</Typography>
@@ -284,7 +284,7 @@ const RecruiterDashboard = () => {
                                         sx={{
                                             px: 1.5,
                                             py: 0.5,
-                                            borderRadius: 1,
+                                            borderRadius: 0.5,
                                             fontSize: '10px',
                                             fontWeight: 900,
                                             textTransform: 'uppercase',
@@ -309,7 +309,7 @@ const RecruiterDashboard = () => {
                                     variant="contained"
                                     color="success"
                                     startIcon={<HiOutlineBolt />}
-                                    sx={{ borderRadius: 1.5, fontWeight: 900, textTransform: 'none', px: 2 }}
+                                    sx={{ borderRadius: 1, fontWeight: 900, textTransform: 'none', px: 2 }}
                                 >
                                     Pipeline
                                 </Button>
@@ -320,7 +320,7 @@ const RecruiterDashboard = () => {
                                     variant="contained"
                                     color="primary"
                                     startIcon={<HiOutlineUsers />}
-                                    sx={{ borderRadius: 1.5, fontWeight: 900, textTransform: 'none', px: 2 }}
+                                    sx={{ borderRadius: 1, fontWeight: 900, textTransform: 'none', px: 2 }}
                                 >
                                     Applicants
                                 </Button>
@@ -352,7 +352,7 @@ const RecruiterDashboard = () => {
                     <button
                         onClick={() => setPage(page - 1)}
                         disabled={page === 1}
-                        className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-dark-700 bg-white border border-dark-200 rounded-lg hover:bg-dark-50 disabled:opacity-50 disabled:hover:bg-white transition-all shadow-sm"
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-dark-700 bg-white border border-dark-200 rounded-md hover:bg-dark-50 disabled:opacity-50 disabled:hover:bg-white transition-all shadow-sm"
                     >
                         <HiOutlineChevronLeft className="w-4 h-4" />
                         Prev
@@ -363,7 +363,7 @@ const RecruiterDashboard = () => {
                     <button
                         onClick={() => setPage(page + 1)}
                         disabled={page === totalPages}
-                        className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-dark-700 bg-white border border-dark-200 rounded-lg hover:bg-dark-50 disabled:opacity-50 disabled:hover:bg-white transition-all shadow-sm"
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-dark-700 bg-white border border-dark-200 rounded-md hover:bg-dark-50 disabled:opacity-50 disabled:hover:bg-white transition-all shadow-sm"
                     >
                         Next
                         <HiOutlineChevronRight className="w-4 h-4" />

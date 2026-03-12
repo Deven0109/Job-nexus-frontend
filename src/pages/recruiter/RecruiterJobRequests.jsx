@@ -129,7 +129,7 @@ const RecruiterJobRequests = () => {
     const [selectedRequest, setSelectedRequest] = useState(null);
 
     const fetchJobRequests = useCallback(async () => {
-        setLoading(true);
+        if (jobRequests.length === 0) setLoading(true);
         try {
             const params = { page: filters.page, limit: filters.limit };
             if (filters.search) params.search = filters.search;
@@ -280,8 +280,8 @@ const RecruiterJobRequests = () => {
 
             {/* Stats */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                <div className="bg-white p-5 rounded-lg shadow-[0_2px_10px_rgb(0,0,0,0.04)] border border-slate-100 flex items-center gap-4 transition-transform hover:-translate-y-1">
-                    <div className="w-12 h-12 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center shrink-0">
+                <div className="bg-transparent p-5 rounded shadow-[0_2px_10px_rgb(0,0,0,0.04)] border border-slate-100 flex items-center gap-4 transition-transform hover:-translate-y-1">
+                    <div className="w-12 h-12 rounded bg-indigo-50 border border-indigo-100 flex items-center justify-center shrink-0">
                         <HiOutlineBriefcase className="w-6 h-6 text-indigo-600" />
                     </div>
                     <div>
@@ -289,8 +289,8 @@ const RecruiterJobRequests = () => {
                         <p className="text-2xl font-black text-dark-900 leading-none">{totalCount}</p>
                     </div>
                 </div>
-                <div className="bg-white p-5 rounded-lg shadow-[0_2px_10px_rgb(0,0,0,0.04)] border border-slate-100 flex items-center gap-4 transition-transform hover:-translate-y-1">
-                    <div className="w-12 h-12 rounded-lg bg-warning-50 border border-warning-100 flex items-center justify-center shrink-0">
+                <div className="bg-transparent p-5 rounded shadow-[0_2px_10px_rgb(0,0,0,0.04)] border border-slate-100 flex items-center gap-4 transition-transform hover:-translate-y-1">
+                    <div className="w-12 h-12 rounded bg-warning-50 border border-warning-100 flex items-center justify-center shrink-0">
                         <HiOutlineClock className="w-6 h-6 text-warning-600" />
                     </div>
                     <div>
@@ -298,8 +298,8 @@ const RecruiterJobRequests = () => {
                         <p className="text-2xl font-black text-dark-900 leading-none">{pendingCount}</p>
                     </div>
                 </div>
-                <div className="bg-white p-5 rounded-lg shadow-[0_2px_10px_rgb(0,0,0,0.04)] border border-slate-100 flex items-center gap-4 transition-transform hover:-translate-y-1">
-                    <div className="w-12 h-12 rounded-lg bg-success-50 border border-success-100 flex items-center justify-center shrink-0">
+                <div className="bg-transparent p-5 rounded shadow-[0_2px_10px_rgb(0,0,0,0.04)] border border-slate-100 flex items-center gap-4 transition-transform hover:-translate-y-1">
+                    <div className="w-12 h-12 rounded bg-success-50 border border-success-100 flex items-center justify-center shrink-0">
                         <HiOutlineCheckCircle className="w-6 h-6 text-success-600" />
                     </div>
                     <div>
@@ -307,8 +307,8 @@ const RecruiterJobRequests = () => {
                         <p className="text-2xl font-black text-dark-900 leading-none">{approvedCount}</p>
                     </div>
                 </div>
-                <div className="bg-white p-5 rounded-lg shadow-[0_2px_10px_rgb(0,0,0,0.04)] border border-slate-100 flex items-center gap-4 transition-transform hover:-translate-y-1">
-                    <div className="w-12 h-12 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
+                <div className="bg-transparent p-5 rounded shadow-[0_2px_10px_rgb(0,0,0,0.04)] border border-slate-100 flex items-center gap-4 transition-transform hover:-translate-y-1">
+                    <div className="w-12 h-12 rounded bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
                         <HiOutlineBolt className="w-6 h-6 text-emerald-600" />
                     </div>
                     <div>
@@ -319,15 +319,15 @@ const RecruiterJobRequests = () => {
             </div>
 
             {/* Filters */}
-            <div className="bg-white p-4 rounded-lg shadow-[0_2px_10px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col md:flex-row gap-4">
+            <div className="bg-transparent p-4 rounded shadow-[0_2px_10px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col md:flex-row gap-4">
                 <div className="flex-1 relative">
                     <HiOutlineMagnifyingGlass className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                     <input
                         type="text"
                         value={searchInput}
                         onChange={(e) => setSearchInput(e.target.value)}
-                        placeholder="Search by job title or employer..."
-                        className="w-full pl-11 pr-4 py-3 rounded-md border border-slate-200 text-sm font-medium text-slate-800 placeholder-slate-400 focus:border-dark-900 focus:ring-1 focus:ring-dark-900 bg-slate-50 focus:bg-white transition-all outline-none"
+                        placeholder="Search by candidate name or job title..."
+                        className="w-full pl-12 pr-4 py-3 rounded border border-slate-200 bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-black/5 focus:border-black text-sm font-bold transition-all outline-none"
                     />
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">
@@ -344,7 +344,7 @@ const RecruiterJobRequests = () => {
                     </select>
                     <button
                         onClick={() => { setSearchInput(''); setFilters({ search: '', status: '', page: 1, limit: 5 }); }}
-                        className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-md border border-slate-200 text-sm font-bold text-slate-600 bg-white hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                        className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded border border-slate-200 text-sm font-bold text-slate-600 bg-transparent hover:bg-slate-50 hover:text-slate-900 transition-colors"
                     >
                         <HiOutlineArrowPath className="w-4 h-4" />
                         Reset
@@ -353,12 +353,12 @@ const RecruiterJobRequests = () => {
             </div>
 
             {/* Table */}
-            <div className="card overflow-hidden">
+            <div className="overflow-hidden">
                 {/* Simple List Layout for Requests */}
                 <Stack spacing={1.5}>
                     {loading ? (
                         Array(filters.limit).fill(0).map((_, i) => (
-                            <Paper key={i} elevation={0} sx={{ p: 2.5, borderRadius: 1.5, border: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', gap: 3 }}>
+                            <Paper key={i} elevation={0} sx={{ p: 2.5, borderRadius: 0.5, bgcolor: 'transparent', border: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', gap: 3 }}>
                                 <Skeleton variant="circular" width={40} height={40} />
                                 <Box sx={{ flex: 1 }}>
                                     <Skeleton variant="text" width="40%" height={24} />
@@ -367,18 +367,19 @@ const RecruiterJobRequests = () => {
                             </Paper>
                         ))
                     ) : jobRequests.length === 0 ? (
-                        <Paper sx={{ py: 12, textAlign: 'center', borderRadius: 2, border: '1px dashed', borderColor: 'divider', bgcolor: 'slate.50/50' }}>
+                        <Paper sx={{ py: 12, textAlign: 'center', borderRadius: 0.5, bgcolor: 'transparent', border: '1px dashed', borderColor: 'divider' }}>
                             <HiOutlineQueueList className="w-12 h-12 text-slate-300 mx-auto mb-3" />
                             <Typography variant="body1" fontWeight={800} color="text.secondary">No job requests found</Typography>
                         </Paper>
                     ) : (
                         jobRequests.map((req) => (
-                            <Paper
+                             <Paper
                                 key={req._id}
                                 elevation={0}
                                 sx={{
                                     p: { xs: 2.5, sm: 3 },
-                                    borderRadius: 1.5,
+                                    borderRadius: 0.5,
+                                    bgcolor: 'transparent',
                                     border: '1px solid',
                                     borderColor: 'divider',
                                     display: 'flex',
@@ -397,7 +398,7 @@ const RecruiterJobRequests = () => {
                                     <Box sx={{ 
                                         width: 48, 
                                         height: 48, 
-                                        borderRadius: 1, 
+                                        borderRadius: 0.5, 
                                         bgcolor: 'slate.50', 
                                         border: '1px solid',
                                         borderColor: 'slate.200',
@@ -455,7 +456,7 @@ const RecruiterJobRequests = () => {
                                         sx={{
                                             px: 1.5,
                                             py: 0.5,
-                                            borderRadius: 1,
+                                            borderRadius: 0.25,
                                             fontSize: '10px',
                                             fontWeight: 900,
                                             textTransform: 'uppercase',
@@ -503,7 +504,7 @@ const RecruiterJobRequests = () => {
                                             variant="contained"
                                             color="primary"
                                             onClick={() => handleActivate(req._id)}
-                                            sx={{ borderRadius: 1, fontWeight: 900, textTransform: 'none' }}
+                                            sx={{ borderRadius: 0.5, fontWeight: 900, textTransform: 'none' }}
                                         >
                                             Activate
                                         </Button>
@@ -521,7 +522,7 @@ const RecruiterJobRequests = () => {
                     <button
                         onClick={() => setFilters(prev => ({ ...prev, page: prev.page - 1 }))}
                         disabled={!pagination.hasPrevPage}
-                        className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-dark-700 bg-white border border-dark-200 rounded-md hover:bg-dark-50 disabled:opacity-50 disabled:hover:bg-white transition-all shadow-sm"
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-dark-700 bg-transparent border border-dark-200 rounded hover:bg-dark-50 disabled:opacity-50 disabled:hover:bg-transparent transition-all shadow-sm"
                     >
                         <HiOutlineChevronLeft className="w-4 h-4" />
                         Prev
@@ -532,7 +533,7 @@ const RecruiterJobRequests = () => {
                     <button
                         onClick={() => setFilters(prev => ({ ...prev, page: prev.page + 1 }))}
                         disabled={!pagination.hasNextPage}
-                        className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-dark-700 bg-white border border-dark-200 rounded-md hover:bg-dark-50 disabled:opacity-50 disabled:hover:bg-white transition-all shadow-sm"
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-dark-700 bg-transparent border border-dark-200 rounded hover:bg-dark-50 disabled:opacity-50 disabled:hover:bg-transparent transition-all shadow-sm"
                     >
                         Next
                         <HiOutlineChevronRight className="w-4 h-4" />
@@ -544,13 +545,13 @@ const RecruiterJobRequests = () => {
             {showViewModal && selectedRequest && (
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6" style={{ fontFamily: 'Inter, sans-serif' }}>
                     <div className="absolute inset-0 bg-dark-900/40 backdrop-blur-sm" onClick={() => setShowViewModal(false)} />
-                    <div className="relative bg-white rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+                    <div className="relative bg-white rounded shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
 
                         {/* Banner / Header */}
                         <div className="relative shrink-0 bg-gradient-to-r from-blue-600 via-indigo-600 to-primary-600 px-6 py-6 md:px-8 md:py-8 overflow-hidden">
                             <button
                                 onClick={() => setShowViewModal(false)}
-                                className="absolute top-4 right-4 md:top-6 md:right-6 p-2 rounded-full bg-white/20 hover:bg-white/30 text-white backdrop-blur-md transition-all border border-white/10 z-10"
+                                className="absolute top-4 right-4 md:top-6 md:right-6 p-2 rounded bg-white/20 hover:bg-white/30 text-white backdrop-blur-md transition-all border border-white/10 z-10"
                             >
                                 <HiOutlineXMark className="w-5 h-5" />
                             </button>
@@ -560,7 +561,7 @@ const RecruiterJobRequests = () => {
                                     {selectedRequest.jobTitle || selectedRequest.position}
                                 </h3>
                                 <div className="flex flex-wrap items-center gap-2 mt-2">
-                                    <span className={`px-2.5 py-1 rounded-md text-[10px] font-black lowercase tracking-wider bg-white/20 text-white ring-1 ring-white/30 backdrop-blur-sm`}>
+                                    <span className={`px-2.5 py-1 rounded text-[10px] font-black lowercase tracking-wider bg-white/20 text-white ring-1 ring-white/30 backdrop-blur-sm`}>
                                         {selectedRequest.status}
                                     </span>
                                         <span className="text-xs font-bold text-white/90">
@@ -576,13 +577,13 @@ const RecruiterJobRequests = () => {
 
                             {/* Status Alerts */}
                             {selectedRequest.status === 'rejected' && (
-                                <div className="mb-6 md:mb-8 p-4 md:p-5 bg-red-50 border border-red-100 rounded-lg flex items-start gap-4">
-                                    <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center shadow-sm shrink-0">
+                                <div className="mb-6 md:mb-8 p-4 md:p-5 bg-red-50 border border-red-100 rounded flex items-start gap-4">
+                                    <div className="w-10 h-10 rounded bg-white flex items-center justify-center shadow-sm shrink-0">
                                         <HiOutlineXMark className="w-5 h-5 text-red-600" />
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <p className="text-sm font-black text-red-900 uppercase tracking-tight">Request Rejected</p>
-                                        <div className="mt-2 p-4 bg-white/50 rounded-lg border border-red-50/50">
+                                        <div className="mt-2 p-4 bg-white/50 rounded border border-red-50/50">
                                             <p className="text-[9px] font-black text-red-400 uppercase tracking-widest mb-1">Admin Feedback</p>
                                             <p className="text-sm font-medium text-red-800 leading-relaxed">
                                                 {selectedRequest.rejectionReason || 'No detailed feedback provided. Please contact support or revise your request.'}
@@ -593,8 +594,8 @@ const RecruiterJobRequests = () => {
                             )}
 
                             {selectedRequest.status === 'active' && (
-                                <div className="mb-6 md:mb-8 p-4 md:p-5 bg-emerald-50 border border-emerald-100 rounded-lg flex items-start gap-4">
-                                    <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center shadow-sm shrink-0">
+                                <div className="mb-6 md:mb-8 p-4 md:p-5 bg-emerald-50 border border-emerald-100 rounded flex items-start gap-4">
+                                    <div className="w-10 h-10 rounded bg-white flex items-center justify-center shadow-sm shrink-0">
                                         <HiOutlineBolt className="w-5 h-5 text-emerald-600" />
                                     </div>
                                     <div>
@@ -607,25 +608,25 @@ const RecruiterJobRequests = () => {
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
 
                                 {/* Category Box */}
-                                <div className="p-6 md:p-8 bg-white border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-lg transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+                                <div className="p-6 md:p-8 bg-transparent border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
                                     <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Category</label>
                                     <p className="text-lg md:text-xl font-black text-slate-900">{selectedRequest.jobCategory}</p>
                                 </div>
 
                                 {/* Vacancies Box */}
-                                <div className="p-6 md:p-8 bg-white border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-lg transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+                                <div className="p-6 md:p-8 bg-transparent border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
                                     <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Vacancies</label>
                                     <p className="text-lg md:text-xl font-black text-slate-900">{selectedRequest.numberOfVacancies} positions</p>
                                 </div>
 
                                 {/* Experience Box */}
-                                <div className="p-6 md:p-8 bg-white border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-lg transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+                                <div className="p-6 md:p-8 bg-transparent border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
                                     <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Experience</label>
                                     <p className="text-lg md:text-xl font-black text-slate-900">{selectedRequest.experienceRequired}</p>
                                 </div>
 
                                 {/* Salary Box */}
-                                <div className="p-6 md:p-8 bg-white border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-lg transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+                                <div className="p-6 md:p-8 bg-transparent border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
                                     <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Salary Range</label>
                                     <p className="text-lg md:text-xl font-black text-slate-900">
                                         {formatSalary(selectedRequest.salaryMin, selectedRequest.salaryMax, selectedRequest.currency)}
@@ -633,13 +634,13 @@ const RecruiterJobRequests = () => {
                                 </div>
 
                                 {/* Work Type Box */}
-                                <div className="p-6 md:p-8 bg-white border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-lg transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+                                <div className="p-6 md:p-8 bg-transparent border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
                                     <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Work Type</label>
                                     <p className="text-lg md:text-xl font-black text-slate-900 capitalize">{selectedRequest.workType}</p>
                                 </div>
 
                                 {/* Location Box */}
-                                <div className="p-6 md:p-8 bg-white border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-lg transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+                                <div className="p-6 md:p-8 bg-transparent border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
                                     <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Location</label>
                                     <p className="text-lg md:text-xl font-black text-slate-900 uppercase tracking-tight">
                                         {[selectedRequest.city, selectedRequest.state, selectedRequest.country].filter(Boolean).join(', ')}
@@ -648,15 +649,15 @@ const RecruiterJobRequests = () => {
                                 </div>
 
                                 {/* Urgency Box */}
-                                <div className="p-6 md:p-8 bg-white border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-lg transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] flex flex-col justify-center items-start">
+                                <div className="p-6 md:p-8 bg-transparent border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] flex flex-col justify-center items-start">
                                     <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Urgency</label>
-                                    <span className={`inline-flex px-4 py-1.5 rounded-md text-xs font-black uppercase tracking-wider ${URGENCY_COLORS[selectedRequest.urgency]}`}>
+                                    <span className={`inline-flex px-4 py-1.5 rounded text-xs font-black uppercase tracking-wider ${URGENCY_COLORS[selectedRequest.urgency]}`}>
                                         {selectedRequest.urgency}
                                     </span>
                                 </div>
 
                                 {/* Submitted Box */}
-                                <div className="p-6 md:p-8 bg-white border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-lg transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+                                <div className="p-6 md:p-8 bg-transparent border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
                                     <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Submitted</label>
                                     <p className="text-lg md:text-xl font-black text-slate-900">{formatDate(selectedRequest.createdAt)}</p>
                                 </div>
@@ -666,7 +667,7 @@ const RecruiterJobRequests = () => {
                                     <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3">Required Skills</label>
                                     <div className="flex flex-wrap gap-2">
                                         {selectedRequest.requiredSkills?.map((skill, i) => (
-                                            <span key={i} className="px-3 py-1.5 bg-indigo-50 border border-indigo-100 text-indigo-700 font-semibold text-xs rounded-lg shadow-sm transition-all hover:bg-indigo-100">
+                                            <span key={i} className="px-3 py-1.5 bg-indigo-50 border border-indigo-100 text-indigo-700 font-semibold text-xs rounded shadow-sm transition-all hover:bg-indigo-100">
                                                 {skill}
                                             </span>
                                         ))}
@@ -676,7 +677,7 @@ const RecruiterJobRequests = () => {
                                 {/* Description */}
                                 <div className="col-span-1 sm:col-span-2 pt-2">
                                     <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3">Job Description</label>
-                                    <div className="p-6 md:p-8 bg-slate-50/50 rounded-lg border border-slate-100">
+                                    <div className="p-6 md:p-8 bg-slate-50/50 rounded border border-slate-100">
                                         <p className="text-sm md:text-base text-slate-700 leading-relaxed whitespace-pre-wrap font-medium">{selectedRequest.jobDescription}</p>
                                     </div>
                                 </div>
@@ -696,7 +697,7 @@ const RecruiterJobRequests = () => {
                                     </button>
                                     <button
                                         onClick={() => { setShowViewModal(false); handleApprove(selectedRequest._id); }}
-                                        className="px-8 py-2.5 bg-emerald-600 text-white hover:bg-emerald-700 text-sm font-bold rounded-md transition-all shadow-md active:scale-95 border border-transparent"
+                                        className="px-8 py-2.5 bg-emerald-600 text-white hover:bg-emerald-700 text-sm font-bold rounded transition-all shadow-md active:scale-95 border border-transparent"
                                     >
                                         Approve Request
                                     </button>
@@ -704,7 +705,7 @@ const RecruiterJobRequests = () => {
                             ) : (
                                 <button
                                     onClick={() => setShowViewModal(false)}
-                                    className="px-8 py-2.5 bg-white border border-slate-200 text-slate-700 text-sm font-bold rounded-md hover:bg-slate-100 hover:text-slate-900 transition-all shadow-sm active:scale-95"
+                                    className="px-8 py-2.5 bg-transparent border border-slate-200 text-slate-700 text-sm font-bold rounded hover:bg-slate-100 hover:text-slate-900 transition-all shadow-sm active:scale-95"
                                 >
                                     Close
                                 </button>
@@ -732,7 +733,7 @@ const RecruiterJobRequests = () => {
                         placeholder="e.g., Incomplete job description, invalid salary range..."
                         value={rejectReason}
                         onChange={(e) => setRejectReason(e.target.value)}
-                        InputProps={{ sx: { borderRadius: 1, p: 2 } }}
+                        InputProps={{ sx: { borderRadius: 0.5, p: 2 } }}
                     />
                 </DialogContent>
                 <DialogActions sx={{ px: 3, pb: 2 }}>
@@ -742,7 +743,7 @@ const RecruiterJobRequests = () => {
                         color="error"
                         disabled={actionLoading || !rejectReason.trim()}
                         onClick={handleReject}
-                        sx={{ borderRadius: 1, fontWeight: 900, px: 4 }}
+                        sx={{ borderRadius: 0.5, fontWeight: 900, px: 4 }}
                     >
                         {actionLoading ? <CircularProgress size={20} color="inherit" /> : 'Reject Request'}
                     </Button>

@@ -30,6 +30,7 @@ import {
     ResponsiveContainer
 } from 'recharts';
 import { getDashboardStats } from '../../api/recruiter.api';
+import { BASE_URL } from '../../api/axios';
 import toast from 'react-hot-toast';
 
 // ─── Chart Tooltip ───────────────────────────────
@@ -38,7 +39,7 @@ const CustomChartTooltip = ({ active, payload, label }) => {
         return (
             <Box sx={{
                 bgcolor: '#1E293B',
-                borderRadius: 2,
+                borderRadius: '2px',
                 px: 1.5,
                 py: 1,
                 boxShadow: '0 12px 32px rgba(0,0,0,0.18)',
@@ -151,7 +152,7 @@ const RecruiterDashboardMain = () => {
     const [activityQueue, setActivityQueue] = useState([]);
 
     const fetchDashboard = async () => {
-        setLoading(true);
+        if (!stats) setLoading(true);
         try {
             const res = await getDashboardStats();
             if (res.success) {
@@ -212,14 +213,15 @@ const RecruiterDashboardMain = () => {
                     return (
                         <Grid size={{ xs: 6, sm: 6, md: 3 }} key={idx}>
                             {loading ? (
-                                <Paper elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', p: 3, height: 100, bgcolor: 'secondary.10' }}>
+                                <Paper elevation={0} sx={{ borderRadius: 1, border: '1px solid', borderColor: 'divider', p: 3, height: 100, bgcolor: 'secondary.10' }}>
                                     <Skeleton variant="rounded" width="100%" height="100%" />
                                 </Paper>
                             ) : (
                                 <Paper
                                     elevation={0}
                                     sx={{
-                                        borderRadius: 3,
+                                        borderRadius: 0.5,
+                                        bgcolor: 'transparent',
                                         border: '1px solid',
                                         borderColor: 'divider',
                                         p: 2.5,
@@ -237,7 +239,7 @@ const RecruiterDashboardMain = () => {
                                         <Box sx={{
                                             width: 52,
                                             height: 52,
-                                            borderRadius: 2.5,
+                                            borderRadius: 1.5,
                                             bgcolor: alpha(card.color, 0.1),
                                             color: card.color,
                                             display: 'flex',
@@ -272,7 +274,8 @@ const RecruiterDashboardMain = () => {
 
             {/* ─── Activity Overview (Full Width) ─── */}
             <Paper elevation={0} sx={{
-                borderRadius: 3,
+                borderRadius: 0.5,
+                bgcolor: 'transparent',
                 border: '1px solid',
                 borderColor: 'divider',
                 p: 2,
@@ -294,7 +297,7 @@ const RecruiterDashboardMain = () => {
                         {/* Period Toggle (Week / Month / Year) */}
                         <ButtonGroup size="small" sx={{
                             bgcolor: '#F1F5F9',
-                            borderRadius: 2,
+                            borderRadius: 1,
                             overflow: 'hidden',
                             border: 'none',
                             '& .MuiButtonGroup-grouped': { border: 'none !important', minWidth: 64 }
@@ -309,7 +312,7 @@ const RecruiterDashboardMain = () => {
                                         fontWeight: 700,
                                         fontSize: '0.82rem',
                                         textTransform: 'none',
-                                        borderRadius: '8px !important',
+                                        borderRadius: '4px !important',
                                         color: chartPeriod === p.toLowerCase() ? '#fff' : '#64748B',
                                         bgcolor: chartPeriod === p.toLowerCase() ? '#1E293B' : 'transparent',
                                         '&:hover': {
@@ -338,7 +341,7 @@ const RecruiterDashboardMain = () => {
                                         gap: 0.8,
                                         px: 1.5,
                                         py: 0.5,
-                                        borderRadius: 2,
+                                        borderRadius: 1,
                                         cursor: 'pointer',
                                         border: '1px solid',
                                         borderColor: chartType === opt.key ? alpha(opt.color, 0.4) : 'transparent',
@@ -389,10 +392,10 @@ const RecruiterDashboardMain = () => {
                             />
                             <RechartsTooltip content={<CustomChartTooltip />} cursor={{ fill: alpha('#6366F1', 0.03) }} />
                             {(chartType === 'both' || chartType === 'jobs') && (
-                                <Bar dataKey="Jobs" fill="#F59E0B" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                                <Bar dataKey="Jobs" fill="#F59E0B" radius={[2, 2, 0, 0]} maxBarSize={40} />
                             )}
                             {(chartType === 'both' || chartType === 'applications') && (
-                                <Bar dataKey="Applications" fill="#A855F7" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                                <Bar dataKey="Applications" fill="#A855F7" radius={[2, 2, 0, 0]} maxBarSize={40} />
                             )}
                         </BarChart>
                     </ResponsiveContainer>
@@ -401,7 +404,8 @@ const RecruiterDashboardMain = () => {
 
             {/* ─── Recent Activity (Full Width, Below Chart) ─── */}
             <Paper elevation={0} sx={{
-                borderRadius: 3,
+                borderRadius: 0.5,
+                bgcolor: 'transparent',
                 border: '1px solid',
                 borderColor: 'divider',
                 p: 2
@@ -455,7 +459,7 @@ const RecruiterDashboardMain = () => {
                                     gap: 1.5,
                                     px: 2,
                                     py: 1.5,
-                                    borderRadius: 3,
+                                    borderRadius: 1,
                                     cursor: 'pointer',
                                     border: '1px solid',
                                     borderColor: 'transparent',
@@ -469,7 +473,13 @@ const RecruiterDashboardMain = () => {
                                 }}
                             >
                                 <Avatar
-                                    src={activity.avatar}
+                                    src={
+                                        activity.avatar
+                                            ? (activity.avatar.startsWith('http')
+                                                ? activity.avatar
+                                                : `${BASE_URL}${activity.avatar}`)
+                                            : undefined
+                                    }
                                     sx={{
                                         width: 44,
                                         height: 44,

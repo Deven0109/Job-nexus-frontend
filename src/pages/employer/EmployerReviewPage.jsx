@@ -129,14 +129,26 @@ const EmployerReviewPage = () => {
                             {/* Candidate Info */}
                             <div className="flex items-start md:items-center gap-5 flex-1 w-full">
                                 <div className="w-16 h-16 rounded-full bg-primary-50 border border-primary-100 flex items-center justify-center shrink-0 overflow-hidden text-primary-600 shadow-sm">
-                                    {app.candidate?.avatar ? (
+                                    {app.candidate?.avatar && (
                                         <img
-                                            src={app.candidate.avatar.startsWith('http') ? app.candidate.avatar : `${BASE_URL}${app.candidate.avatar}`}
+                                            src={
+                                                app.candidate.avatar.startsWith('http') ||
+                                                app.candidate.avatar.startsWith('data:')
+                                                    ? app.candidate.avatar
+                                                    : `${BASE_URL}${app.candidate.avatar}`
+                                            }
                                             className="w-full h-full object-cover"
                                             alt="avatar"
+                                            onError={(e) => {
+                                                e.currentTarget.onerror = null;
+                                                e.currentTarget.style.display = 'none';
+                                            }}
                                         />
-                                    ) : (
-                                        <span className="text-xl font-bold uppercase">{app.candidate?.firstName?.[0]}</span>
+                                    )}
+                                    {!app.candidate?.avatar && (
+                                        <span className="text-xl font-bold uppercase">
+                                            {app.candidate?.firstName?.[0]}
+                                        </span>
                                     )}
                                 </div>
                                 <div className="flex-1 min-w-0">

@@ -92,7 +92,7 @@ const DashboardLayout = () => {
                     {/* Brand */}
                     <div className="flex items-center justify-between px-4 py-5">
                         <Link to="/" className="flex items-center gap-2.5">
-                            <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200">
+                            <div className="w-9 h-9 bg-blue-600 rounded-md flex items-center justify-center shadow-lg shadow-blue-200">
                                 <HiOutlineBriefcase className="w-5 h-5 text-white" />
                             </div>
                             <span className="text-lg font-extrabold text-[#0F172A] tracking-tight whitespace-nowrap">
@@ -101,7 +101,7 @@ const DashboardLayout = () => {
                         </Link>
                         <button
                             onClick={() => setSidebarOpen(false)}
-                            className="lg:hidden p-2 rounded-lg hover:bg-slate-100"
+                            className="lg:hidden p-2 rounded-md hover:bg-slate-100"
                         >
                             <HiOutlineXMark className="w-5 h-5 text-slate-500" />
                         </button>
@@ -120,12 +120,12 @@ const DashboardLayout = () => {
                                         key={item.to}
                                         to={item.to}
                                         onClick={() => setSidebarOpen(false)}
-                                        className={`flex items-center gap-3.5 px-4 py-1.5 rounded-2xl text-[15px] transition-all duration-200 group ${isActive
+                                        className={`flex items-center gap-3.5 px-4 py-1.5 rounded-md text-[15px] transition-all duration-200 group ${isActive
                                             ? 'bg-blue-50 text-blue-700 shadow-sm border border-blue-100/50'
                                             : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent'
                                             }`}
                                     >
-                                        <div className={`flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 ${isActive ? 'bg-white shadow-sm text-blue-600' : 'bg-slate-50 text-slate-400 group-hover:bg-white group-hover:text-slate-600'
+                                        <div className={`flex items-center justify-center w-10 h-10 rounded-md transition-all duration-200 ${isActive ? 'bg-white shadow-sm text-blue-600' : 'bg-slate-50 text-slate-400 group-hover:bg-white group-hover:text-slate-600'
                                             }`}>
                                             <Icon className="w-5 h-5" />
                                         </div>
@@ -140,9 +140,9 @@ const DashboardLayout = () => {
                     <div className="p-3 mt-auto">
                         <button
                             onClick={handleLogout}
-                            className="flex items-center gap-3 w-full px-3 py-2.5 text-sm font-bold text-slate-600 hover:text-red-600 bg-slate-50/50 hover:bg-red-50 rounded-xl transition-all duration-200 group border border-slate-100"
+                            className="flex items-center gap-3 w-full px-3 py-2.5 text-sm font-bold text-slate-600 hover:text-red-600 bg-slate-50/50 hover:bg-red-50 rounded-md transition-all duration-200 group border border-slate-100"
                         >
-                            <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-white shadow-sm text-slate-400 group-hover:text-red-500 border border-slate-100">
+                            <div className="flex items-center justify-center w-9 h-9 rounded-md bg-white shadow-sm text-slate-400 group-hover:text-red-500 border border-slate-100">
                                 <HiOutlineArrowRightOnRectangle className="w-5 h-5" />
                             </div>
                             Logout
@@ -158,7 +158,7 @@ const DashboardLayout = () => {
                     <div className="flex items-center gap-3">
                         <button
                             onClick={() => setSidebarOpen(true)}
-                            className="lg:hidden p-2.5 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 transition-all"
+                            className="lg:hidden p-2.5 rounded-md bg-slate-50 border border-slate-200 hover:bg-slate-100 transition-all"
                         >
                             <HiOutlineBars3 className="w-6 h-6 text-slate-600" />
                         </button>
@@ -175,7 +175,7 @@ const DashboardLayout = () => {
                         <div className="relative">
                             <button
                                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                                className="flex items-center gap-3 px-3 py-1.5 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-slate-100 transition-all group"
+                                className="flex items-center gap-3 px-3 py-1.5 rounded-md bg-slate-50 border border-slate-100 hover:bg-slate-100 transition-all group"
                             >
                                 <div className="hidden sm:flex flex-col items-end text-right mr-1">
                                     <span className="text-sm font-bold text-slate-900 leading-none mb-1">
@@ -185,7 +185,7 @@ const DashboardLayout = () => {
                                         {user?.email}
                                     </span>
                                 </div>
-                                <div className="w-11 h-11 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-100 overflow-hidden border-2 border-white">
+                                <div className="w-11 h-11 rounded-md bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-100 overflow-hidden border-2 border-white">
                                     {user?.avatar ? (
                                         <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
                                     ) : (
@@ -204,7 +204,7 @@ const DashboardLayout = () => {
                                         className="fixed inset-0 z-40"
                                         onClick={() => setDropdownOpen(false)}
                                     />
-                                    <div className="absolute right-0 mt-3 w-52 bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                                    <div className="absolute right-0 mt-3 w-52 bg-white rounded-md shadow-xl shadow-slate-200/50 border border-slate-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                                         <Link
                                             to={getProfileSettingsPath()}
                                             onClick={() => setDropdownOpen(false)}

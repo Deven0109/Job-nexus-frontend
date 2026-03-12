@@ -82,7 +82,7 @@ const ManageCategories = () => {
     };
 
     const fetchCategories = async () => {
-        setLoading(true);
+        if (categories.length === 0) setLoading(true);
         try {
             const res = await listCategories();
             if (res.success) {
@@ -185,7 +185,7 @@ const ManageCategories = () => {
                     variant="contained"
                     startIcon={<PlusIcon />}
                     onClick={() => handleOpenModal()}
-                    sx={{ borderRadius: 2, fontWeight: 900, textTransform: 'none', px: 3 }}
+                    sx={{ borderRadius: 0.5, fontWeight: 900, textTransform: 'none', px: 3 }}
                 >
                     Add Category
                 </Button>
@@ -198,14 +198,23 @@ const ManageCategories = () => {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     size="small"
-                    sx={{ maxWidth: 400, flex: 1 }}
+                    sx={{ 
+                        maxWidth: 400, 
+                        flex: 1,
+                        '& .MuiOutlinedInput-root': {
+                            '&.Mui-focused fieldset': {
+                                borderColor: '#000000',
+                                borderWidth: '1.5px'
+                            },
+                        },
+                    }}
                     InputProps={{
                         startAdornment: (
                             <InputAdornment position="start">
                                 <SearchIcon fontSize="small" color="disabled" />
                             </InputAdornment>
                         ),
-                        sx: { borderRadius: 2 }
+                        sx: { borderRadius: 0.5, bgcolor: 'transparent' }
                     }}
                 />
             </Box>
@@ -217,7 +226,8 @@ const ManageCategories = () => {
                         <Paper key={i} elevation={0} sx={{
                             px: 3,
                             py: 2.5,
-                            borderRadius: 3,
+                            borderRadius: 0.5,
+                            bgcolor: 'transparent',
                             border: '1px solid',
                             borderColor: 'divider',
                             display: 'flex',
@@ -236,7 +246,7 @@ const ManageCategories = () => {
                         </Paper>
                     ))
                 ) : paginatedCategories.length === 0 ? (
-                    <Paper sx={{ py: 8, textAlign: 'center', borderRadius: 2, border: '1px dashed', borderColor: 'divider', bgcolor: alpha(theme.palette.background.default, 0.5) }}>
+                    <Paper sx={{ py: 8, textAlign: 'center', borderRadius: 0.5, border: '1px dashed', borderColor: 'divider', bgcolor: 'transparent' }}>
                         <Typography color="text.disabled" fontWeight={700}>No categories found</Typography>
                     </Paper>
                 ) : (
@@ -244,7 +254,8 @@ const ManageCategories = () => {
                         <Paper key={cat._id} elevation={0} sx={{
                             px: 3,
                             py: 1.5,
-                            borderRadius: 2,
+                            borderRadius: 0.5,
+                            bgcolor: 'transparent',
                             border: '1px solid',
                             borderColor: 'divider',
                             display: 'flex',
@@ -307,7 +318,7 @@ const ManageCategories = () => {
             <Dialog
                 open={showModal}
                 onClose={() => !isSubmitting && setShowModal(false)}
-                PaperProps={{ sx: { borderRadius: 4, width: '100%', maxWidth: 450 } }}
+                PaperProps={{ sx: { borderRadius: 1.5, width: '100%', maxWidth: 450 } }}
             >
                 <DialogTitle sx={{ fontWeight: 900, pt: 3 }}>
                     {editingCategory ? 'Update Category' : 'Create New Category'}
